@@ -17,11 +17,13 @@
 using namespace std;
 
 GLuint createShader(char* vertexShaderFileName, char* fragmentShaderFileName);
+void checkShaderStepSuccess(GLint program, GLuint status);
+void printShaderLog(char* errorMessage, GLuint shader);
 void init();
 
 const char* vertexShaderFileName = "vertexShader.glsl";
 const char* fragmentShaderFileName = "fragmentShader.glsl";
-const GLuint screenWidth = 1366, screenHeight = 768;
+const GLuint screenWidth = 700, screenHeight = 700;
 float xmax, ymax, xmin, ymin;
 int initCalled;
 GLFWwindow* window;
