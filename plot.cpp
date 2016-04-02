@@ -28,9 +28,9 @@ float xmax, ymax, xmin, ymin;
 int initCalled;
 GLFWwindow* window;
 char windowTitle[] = "plot";
-vector<int> vbos;
-vector<int> vboLengths;
-GLuint vbo, vao;
+vector<float*> points;
+vector<GLuint> vbos;
+vector<GLuint> vaos;
 
 void findMinMax(float &min, float &max, int length, float* nums) {
     for( int i=0; i<length; ++i ) {
@@ -44,17 +44,20 @@ void findMinMax(float &min, float &max, int length, float* nums) {
 
 // sizeof(GL_FLOAT)?
 void addPoint(float x, float y) {
-    float nums[2];
-    nums[0] = x;
-    nums[1] = y;
-    //GLuint vbo;
+    float* point = (float*)malloc(sizeof(float) * 2);
+    point[0] = x;
+    point[1] = y;
+    points.push_back(point);
+    GLuint vbo;
     glGenBuffers(1, &vbo);
+    vbos.push_back(vbo);
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 2, NULL, GL_STATIC_DRAW);
-    glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(float), &nums[0]);
-    glBufferSubData(GL_ARRAY_BUFFER, sizeof(float), sizeof(float), &nums[1]);
-    //GLuint vao;
+    glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 2, point, GL_STATIC_DRAW);
+    //glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(float), &nums[0]);
+    //glBufferSubData(GL_ARRAY_BUFFER, sizeof(float), sizeof(float), &nums[0]);
+    GLuint vao;
     glGenVertexArrays(1, &vao);
+    vaos.push_back(vao);
     glBindVertexArray(vao);
     glVertexAttribPointer(0, 1, GL_FLOAT, GL_FALSE, sizeof(float), NULL);
     glVertexAttribPointer(1, 1, GL_FLOAT, GL_FALSE, sizeof(float), (GLvoid*)sizeof(float));
@@ -63,7 +66,6 @@ void addPoint(float x, float y) {
 }
 // add point will maintain the max and min and make buffers for the data
 void addPoint(int length, float* nums) {
-    xmax = ymax = xmin = ymin = 0;
 }
 
 void draw() {
