@@ -1,4 +1,4 @@
-                                // visualize.cpp
+                                // plot.cpp
 #define GLEW_STATIC
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
@@ -6,77 +6,78 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+#include <vector>
 
 //#include <fstream>
 //#include <sstream>
 //#include <iostream>
 
-#include "visualize.hpp"
+#include "plot.hpp"
 
 using namespace std;
 
-extern unsigned int screenWidth;
-extern unsigned int screenHeight;
+GLuint createShader(char* vertexShaderFileName, char* fragmentShaderFileName);
+void init();
+
 const char* vertexShaderFileName = "vertexShader.glsl";
 const char* fragmentShaderFileName = "fragmentShader.glsl";
-const GLuint WIDTH = 1366, HEIGHT = 768;
+const GLuint screenWidth = 1366, screenHeight = 768;
+float xmax, ymax, xmin, ymin;
+int initCalled;
+GLFWwindow* window;
+char windowTitle[] = "plot";
+vector<int> vbos;
+vector<int> vboLengths;
 
-void findMinMax(float &min, float &max, int length, float &nums) {
+void findMinMax(float &min, float &max, int length, float* nums) {
     for( int i=0; i<length; ++i ) {
-        if( *max < nums[i] ) {
-            *max = nums[i];
-        } else if( *min > nums[i] ) {
-            *min = nums[i];
+        if( max < nums[i] ) {
+            max = nums[i];
+        } else if( min > nums[i] ) {
+            min = nums[i];
         }
     }
 }
 
-void plot(int numberOfPoints, float* xs, float* ys) {
-    // look at all of the numbers, save value of largest and smallest on x and y
-    // call a drawPoint() function in visualize.cpp at correct location in range of [-1, 1]
-    // visualize knows window resolution, visualize will draw dot
-    float xmax, ymax, xmin, ymin;
+// sizeof(GL_FLOAT)?
+void addPoint(float x, float y) {
+    GLuint vbo;
+    glGenBuffers(1, &vbo);
+    glBindBuffer(GL_ARRAY_BUFFER, vbo);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 2, NULL, GL_STATIC_DRAW);
+    glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(float), &x);
+    glBufferSubData(GL_ARRAY_BUFFER, sizeof(float), sizeof(float), &y);
+    GLuint vao;
+    glGenVertexArrays(1, &vao);
+    glBindVertexArray(vao);
+    glVertexAttribPointer(0, 1, GL_FLOAT, GL_FALSE, sizeof(float), NULL);
+    glVertexAttribPointer(1, 1, GL_FLOAT, GL_FALSE, sizeof(float), (GLvoid*)sizeof(float));
+    glEnableVertexAttribArray(0);
+    glEnableVertexAttribArray(1);
+}
+// add point will maintain the max and min and make buffers for the data
+void addPoint(int length, float* nums) {
     xmax = ymax = xmin = ymin = 0;
-    findMinMax(xmin, xmax, numberOfPoints, xs);
-    GLFWwindow* window;
-    init(window, "umm", HEIGHT, HEIGHT);
+}
+
+void draw() {
     GLuint shaderProgram = createShader((char*)vertexShaderFileName, (char*)fragmentShaderFileName);
     glUseProgram(shaderProgram);
 
     glClearColor( 0.0f, 0.0f, 0.0f, 1.0f );
 
-    int numberOfBytes = 2*sizeof(float)*numberOfPoints;
-    GLuint vbo;
-    glGenBuffers(1, &vbo);
-    glBindBuffer(GL_ARRAY_BUFFER, vbo);
-    glBufferData(GL_ARRAY_BUFFER, numberOfBytes * 2, NULL, GL_STREAM_DRAW);
-    glBufferSubData(GL_ARRAY_BUFFER, 0, numberOfBytes, position.x);
-    glBufferSubData(GL_ARRAY_BUFFER, numberOfBytes, numberOfBytes, position.y);
-    GLuint vao;
-    glGenVertexArrays(1, &vao);
-    glBindVertexArray(vao);
-    glVertexAttribPointer(0, 1, GL_INT, GL_FALSE, 0, NULL);
-    glVertexAttribPointer(1, 1, GL_INT, GL_FALSE, 0, (GLvoid*)numberOfBytes);
-    glEnableVertexAttribArray(0);
-    glEnableVertexAttribArray(1);
-
-
 	while( !glfwWindowShouldClose( window ) ) {
 		glfwPollEvents();
 		glClear( GL_COLOR_BUFFER_BIT );
-        glBindVertexArray(vao);
-        glBindBuffer(GL_ARRAY_BUFFER, vbo);
-        glBufferSubData(GL_ARRAY_BUFFER, 0, numberOfBytes, position.x);
-        glBufferSubData(GL_ARRAY_BUFFER, numberOfBytes, numberOfBytes, position.y);
-        glDrawArrays(GL_POINTS, 0, numberOfParticles);
-        step();
+        //glBindVertexArray(vao);
+        //glBindBuffer(GL_ARRAY_BUFFER, vbo);
+        glDrawArrays(GL_POINTS, 0, 1);
 
 		glfwSwapBuffers( window );
 	}
 
 	glfwDestroyWindow( window );
 	glfwTerminate();
-	return 0;
 }
 
 // allocates memory for (shader) file contents
@@ -160,7 +161,7 @@ void printShaderLog(char* errorMessage, GLuint shader) {
     free(logText);
 }
 
-void init(GLFWwindow* &window, char* name, GLuint width, GLuint height) {
+void init() {
 	/* Initialize the library */
 	if ( !glfwInit() ) {
         fprintf(stderr, "GLFW failed to init.\n");
@@ -174,7 +175,7 @@ void init(GLFWwindow* &window, char* name, GLuint width, GLuint height) {
 	glfwWindowHint( GLFW_RESIZABLE, GL_FALSE );
 
 	/* Create a windowed mode window and its OpenGL context */
-	window = glfwCreateWindow( width, height, name, NULL, NULL );
+	window = glfwCreateWindow( screenWidth, screenHeight, windowTitle, NULL, NULL );
 	if ( !window ) {
 		glfwTerminate();
         fprintf(stderr, "GLFW failed to create the window.\n");
@@ -182,7 +183,7 @@ void init(GLFWwindow* &window, char* name, GLuint width, GLuint height) {
         exit(1);
 	}
 	glfwMakeContextCurrent( window );
-    glfwSetWindowSizeCallback(window, windowSize);
+    //glfwSetWindowSizeCallback(window, windowSize);
 
 	glewExperimental = GL_TRUE;
 	if( glewInit() != GLEW_OK ) {
@@ -191,16 +192,11 @@ void init(GLFWwindow* &window, char* name, GLuint width, GLuint height) {
         exit(1);
 	}
 
-	glViewport( 0, 0, width, height );
+	glViewport( 0, 0, screenWidth, screenHeight );
 
     //printf( "VENDOR = %s\n", glGetString( GL_VENDOR ) ) ;
     //printf( "RENDERER = %s\n", glGetString( GL_RENDERER ) ) ;
     //printf( "VERSION = %s\n", glGetString( GL_VERSION ) ) ;
 }
 
-void windowSize(GLFWwindow* window, int width, int height) {
-    printf("w %d h %d\n", width, height);
-    screenWidth = width;
-    screenHeight = height;
-    //glfwSetWindowSize(window, width, height);
-}
+//glfwSetWindowSize(window, width, height);

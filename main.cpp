@@ -1,9 +1,12 @@
                                   // main.cpp
 #include <stdio.h>
-#include "plot.h"
+#include "plot.hpp"
 
 int main() {
-    dot(1,2);
-    float points[] = {0,0, 0,1, 1,0};
-    dot(3, points);
+    init();
+    addPoint(0,0);
+    float points[] = {1,1, 0,1, 1,0};
+    addPoint(3, points);
+    draw();
+    return 0;
 }

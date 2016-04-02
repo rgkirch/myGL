@@ -1,4 +1,6 @@
                                      readme
 plot points
-function accepts reference to data and plots points...
+main will add points and then call a draw function
+when the draw funciton returns, the program exits
+this is so the windwow stays up
 
