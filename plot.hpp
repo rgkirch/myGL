@@ -10,4 +10,5 @@
 void init();
 void addPoint(float x, float y);
 void addPoint(int length, float* nums);
+void debug();
 void draw();

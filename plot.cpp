@@ -20,6 +20,7 @@ GLuint createShader(char* vertexShaderFileName, char* fragmentShaderFileName);
 void checkShaderStepSuccess(GLint program, GLuint status);
 void printShaderLog(char* errorMessage, GLuint shader);
 void init();
+void debug();
 
 const char* vertexShaderFileName = "vertexShader.glsl";
 const char* fragmentShaderFileName = "fragmentShader.glsl";
@@ -29,8 +30,17 @@ int initCalled;
 GLFWwindow* window;
 char windowTitle[] = "plot";
 vector<float*> points;
+vector<int> pointLengths;
 vector<GLuint> vbos;
 vector<GLuint> vaos;
+
+void debug(){
+    printf("pointLengths size %d\n", pointLengths.size());
+    for(int i = 0; i < pointLengths.size(); ++i){
+        printf("%d", pointLengths[i]);
+    }
+        printf("\n");
+}
 
 void findMinMax(float &min, float &max, int length, float* nums) {
     for( int i=0; i<length; ++i ) {
@@ -48,6 +58,7 @@ void addPoint(float x, float y) {
     point[0] = x;
     point[1] = y;
     points.push_back(point);
+    pointLengths.push_back(1);
     GLuint vbo;
     glGenBuffers(1, &vbo);
     vbos.push_back(vbo);
@@ -66,6 +77,23 @@ void addPoint(float x, float y) {
 }
 // add point will maintain the max and min and make buffers for the data
 void addPoint(int length, float* nums) {
+    points.push_back(nums);
+    pointLengths.push_back(length);
+    GLuint vbo;
+    glGenBuffers(1, &vbo);
+    vbos.push_back(vbo);
+    glBindBuffer(GL_ARRAY_BUFFER, vbo);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(float) * length, nums, GL_STATIC_DRAW);
+    //glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(float), &nums[0]);
+    //glBufferSubData(GL_ARRAY_BUFFER, sizeof(float), sizeof(float), &nums[0]);
+    GLuint vao;
+    glGenVertexArrays(1, &vao);
+    vaos.push_back(vao);
+    glBindVertexArray(vao);
+    glVertexAttribPointer(0, 1, GL_FLOAT, GL_FALSE, sizeof(float), NULL);
+    glVertexAttribPointer(1, 1, GL_FLOAT, GL_FALSE, sizeof(float), (GLvoid*)sizeof(float));
+    glEnableVertexAttribArray(0);
+    glEnableVertexAttribArray(1);
 }
 
 void draw() {
@@ -78,10 +106,11 @@ void draw() {
 	while( !glfwWindowShouldClose( window ) ) {
 		glfwPollEvents();
 		glClear( GL_COLOR_BUFFER_BIT );
-        glBindVertexArray(vao);
-        glBindBuffer(GL_ARRAY_BUFFER, vbo);
-        glDrawArrays(GL_POINTS, 0, 1);
-
+        for(int i = 0; i < pointLengths.size(); ++i) {
+            glBindVertexArray(vaos[i]);
+            glBindBuffer(GL_ARRAY_BUFFER, vbos[i]);
+            glDrawArrays(GL_POINTS, 0, pointLengths[i]);
+        }
 		glfwSwapBuffers( window );
 	}
 
