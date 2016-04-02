@@ -30,6 +30,7 @@ GLFWwindow* window;
 char windowTitle[] = "plot";
 vector<int> vbos;
 vector<int> vboLengths;
+GLuint vbo, vao;
 
 void findMinMax(float &min, float &max, int length, float* nums) {
     for( int i=0; i<length; ++i ) {
@@ -43,13 +44,16 @@ void findMinMax(float &min, float &max, int length, float* nums) {
 
 // sizeof(GL_FLOAT)?
 void addPoint(float x, float y) {
-    GLuint vbo;
+    float nums[2];
+    nums[0] = x;
+    nums[1] = y;
+    //GLuint vbo;
     glGenBuffers(1, &vbo);
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
     glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 2, NULL, GL_STATIC_DRAW);
-    glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(float), &x);
-    glBufferSubData(GL_ARRAY_BUFFER, sizeof(float), sizeof(float), &y);
-    GLuint vao;
+    glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(float), &nums[0]);
+    glBufferSubData(GL_ARRAY_BUFFER, sizeof(float), sizeof(float), &nums[1]);
+    //GLuint vao;
     glGenVertexArrays(1, &vao);
     glBindVertexArray(vao);
     glVertexAttribPointer(0, 1, GL_FLOAT, GL_FALSE, sizeof(float), NULL);
@@ -67,12 +71,13 @@ void draw() {
     glUseProgram(shaderProgram);
 
     glClearColor( 0.0f, 0.0f, 0.0f, 1.0f );
+    glPointSize(10);
 
 	while( !glfwWindowShouldClose( window ) ) {
 		glfwPollEvents();
 		glClear( GL_COLOR_BUFFER_BIT );
-        //glBindVertexArray(vao);
-        //glBindBuffer(GL_ARRAY_BUFFER, vbo);
+        glBindVertexArray(vao);
+        glBindBuffer(GL_ARRAY_BUFFER, vbo);
         glDrawArrays(GL_POINTS, 0, 1);
 
 		glfwSwapBuffers( window );
