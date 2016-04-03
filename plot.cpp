@@ -16,10 +16,28 @@
 
 using namespace std;
 
+void init();
+
 GLuint createShader(char* vertexShaderFileName, char* fragmentShaderFileName);
 void checkShaderStepSuccess(GLint program, GLuint status);
 void printShaderLog(char* errorMessage, GLuint shader);
-void init();
+struct shaderUniforms {
+    GLint cameraLocationXShaderUniformLocation;
+    GLint cameraLocationYShaderUniformLocation;
+    GLint cameraScaleXShaderUniformLocation;
+    GLint cameraScaleYShaderUniformLocation;
+};
+struct shaderUniforms shaderUniforms;
+
+void cursor_position_callback(GLFWwindow* window, double xpos, double ypos);
+void mouse_button_callback(GLFWwindow* window, int button, int action, int mods);
+void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
+struct mouseState {
+    GLint left;
+    GLint right;
+    GLint middle;
+};
+struct mouseState mouse;
 
 const char* vertexShaderFileName = "vertexShader.glsl";
 const char* fragmentShaderFileName = "fragmentShader.glsl";
@@ -32,6 +50,14 @@ vector<float*> points;
 vector<int> pointLengths;
 vector<GLuint> vbos;
 vector<GLuint> vaos;
+
+//camera - coord of top left of screen
+double cameraLocationX = -1.0;
+double cameraLocationY = 1.0;
+double cameraScaleX = 1.0;
+double cameraScaleY = 1.0;
+
+float scrollSpeedMultiplier = 0.1;
 
 void findMinMax(float &min, float &max, int length, float* nums) {
     for( int i=0; i<length; ++i ) {
@@ -90,6 +116,10 @@ void addPoint(int length, float* nums) {
 void draw() {
     GLuint shaderProgram = createShader((char*)vertexShaderFileName, (char*)fragmentShaderFileName);
     glUseProgram(shaderProgram);
+    shaderUniforms.cameraLocationXShaderUniformLocation = glGetUniformLocation(shaderProgram, "cameraLocationX");
+    shaderUniforms.cameraLocationYShaderUniformLocation = glGetUniformLocation(shaderProgram, "cameraLocationY");
+    shaderUniforms.cameraScaleXShaderUniformLocation = glGetUniformLocation(shaderProgram, "cameraScaleX");
+    shaderUniforms.cameraScaleYShaderUniformLocation = glGetUniformLocation(shaderProgram, "cameraScaleY");
 
     glClearColor( 0.0f, 0.0f, 0.0f, 1.0f );
     glPointSize(10);
@@ -97,6 +127,10 @@ void draw() {
 	while( !glfwWindowShouldClose( window ) ) {
 		glfwPollEvents();
 		glClear( GL_COLOR_BUFFER_BIT );
+        glUniform1f(shaderUniforms.cameraLocationXShaderUniformLocation, cameraLocationX);
+        glUniform1f(shaderUniforms.cameraLocationYShaderUniformLocation, cameraLocationY);
+        glUniform1f(shaderUniforms.cameraScaleXShaderUniformLocation, cameraScaleX);
+        glUniform1f(shaderUniforms.cameraScaleYShaderUniformLocation, cameraScaleY);
         for(int i = 0; i < pointLengths.size(); ++i) {
             glBindVertexArray(vaos[i]);
             glBindBuffer(GL_ARRAY_BUFFER, vbos[i]);
@@ -223,9 +257,33 @@ void init() {
 
 	glViewport( 0, 0, screenWidth, screenHeight );
 
+    glfwSetCursorPosCallback(window, cursor_position_callback);
+    glfwSetMouseButtonCallback(window, mouse_button_callback);
+    glfwSetScrollCallback(window, scroll_callback);
+
     //printf( "VENDOR = %s\n", glGetString( GL_VENDOR ) ) ;
     //printf( "RENDERER = %s\n", glGetString( GL_RENDERER ) ) ;
     //printf( "VERSION = %s\n", glGetString( GL_VERSION ) ) ;
 }
+
+void cursor_position_callback(GLFWwindow* window, double xpos, double ypos) {
+    //printf("x: %f y: %f\n", xpos, ypos);
+}
+void mouse_button_callback(GLFWwindow* window, int button, int action, int mods) {
+    //printf("mouse button callback\n\tbutton %d\n\taction %d\n\tmods %d\n", button, action, mods);
+    if(button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS) {
+        double xpos, ypos;
+        glfwGetCursorPos(window, &xpos, &ypos);
+        printf("add point at %f, %f\n", xpos, ypos);
+        addPoint(xpos / screenWidth, ypos / screenHeight);
+    }
+}
+void scroll_callback(GLFWwindow* window, double xoffset, double yoffset) {
+    printf("scroll x: %f y: %f\n", xoffset, yoffset);
+    cameraScaleX *= 1.0 + (yoffset * scrollSpeedMultiplier);
+    cameraScaleY *= 1.0 + (yoffset * scrollSpeedMultiplier);
+}
+
+
 
 //glfwSetWindowSize(window, width, height);
