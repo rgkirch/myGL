@@ -1,13 +1,14 @@
                                   // main.cpp
 #include <stdio.h>
+#include <math.h>
 #include "plot.hpp"
+#define NUM 100.0
 
 int main() {
     init();
-    addPoint(0.0,0.0);
-    debug();
-    float points[] = {1,1, 0,1, 1,0};
-    addPoint(3, points);
+    for(int i = 0; i < NUM; ++i) {
+        addPoint(i/NUM*2-1, sin(i/NUM*6-3));
+    }
     draw();
     return 0;
 }

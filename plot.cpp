@@ -20,7 +20,6 @@ GLuint createShader(char* vertexShaderFileName, char* fragmentShaderFileName);
 void checkShaderStepSuccess(GLint program, GLuint status);
 void printShaderLog(char* errorMessage, GLuint shader);
 void init();
-void debug();
 
 const char* vertexShaderFileName = "vertexShader.glsl";
 const char* fragmentShaderFileName = "fragmentShader.glsl";
@@ -33,14 +32,6 @@ vector<float*> points;
 vector<int> pointLengths;
 vector<GLuint> vbos;
 vector<GLuint> vaos;
-
-void debug(){
-    printf("pointLengths size %d\n", pointLengths.size());
-    for(int i = 0; i < pointLengths.size(); ++i){
-        printf("%d", pointLengths[i]);
-    }
-        printf("\n");
-}
 
 void findMinMax(float &min, float &max, int length, float* nums) {
     for( int i=0; i<length; ++i ) {
