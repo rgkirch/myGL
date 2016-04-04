@@ -16,6 +16,20 @@
 
 using namespace std;
 
+void cursor_position_callback(GLFWwindow* window, double xpos, double ypos);
+void mouse_button_callback(GLFWwindow* window, int button, int action, int mods);
+void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
+struct mouseState {
+    double pressX;
+    double pressY;
+    double releaseX;
+    double releaseY;
+    int button;
+    int action;
+    int mods;
+    vector<double> trail;
+};
+
 void init();
 
 GLuint createShader(char* vertexShaderFileName, char* fragmentShaderFileName);
@@ -27,18 +41,10 @@ struct shaderUniforms {
     GLint cameraScaleXShaderUniformLocation;
     GLint cameraScaleYShaderUniformLocation;
 };
-struct shaderUniforms shaderUniforms;
 
-void cursor_position_callback(GLFWwindow* window, double xpos, double ypos);
-void mouse_button_callback(GLFWwindow* window, int button, int action, int mods);
-void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
-struct mouseState {
-    double x;
-    double y;
-    GLint left;
-    GLint right;
-    GLint middle;
-};
+void addLinesFromMouseState();
+
+struct shaderUniforms shaderUniforms;
 struct mouseState mouse;
 
 
@@ -49,6 +55,7 @@ float xmax, ymax, xmin, ymin;
 GLFWwindow* window;
 char windowTitle[] = "plot";
 vector<float*> points;
+//vector<float*> lines;
 vector<int> pointLengths;
 vector<GLuint> vbos;
 vector<GLuint> vaos;
@@ -58,6 +65,8 @@ double cameraOffsetX = 0.0;
 double cameraOffsetY = 0.0;
 double cameraScaleX = 1.0;
 double cameraScaleY = 1.0;
+double physicalToRealX(double x);
+double physicalToRealY(double y);
 void physicalToReal(double &x, double &y);
 void physicalToScreen(double &x, double &y);
 void screenToReal(double &x, double &y);
@@ -72,6 +81,17 @@ void findMinMax(float &min, float &max, int length, float* nums) {
         } else if( min > nums[i] ) {
             min = nums[i];
         }
+    }
+}
+
+void testCursorPolling() {
+    static double lastTime = 0.0;
+    double thisTime;
+    double x, y;
+    if((thisTime = glfwGetTime()) - lastTime > 1) {
+        glfwGetCursorPos(window, &x, &y);
+        printf("%f, %f\n", x, y);
+        lastTime = thisTime;
     }
 }
 
@@ -143,6 +163,7 @@ void draw() {
             glDrawArrays(GL_POINTS, 0, pointLengths[i]);
         }
 		glfwSwapBuffers( window );
+        //testCursorPolling();
 	}
 
 	glfwDestroyWindow( window );
@@ -273,17 +294,29 @@ void init() {
 }
 
 void cursor_position_callback(GLFWwindow* window, double xpos, double ypos) {
-    //printf("x: %f y: %f\n", xpos, ypos);
-    physicalToReal(xpos, ypos);
-    addPoint(xpos, ypos);
+    static vector<double> trail;
+    if(mouse.action == GLFW_PRESS) {
+        mouse.trail.push_back(xpos);
+        mouse.trail.push_back(ypos);
+    }
 }
 void mouse_button_callback(GLFWwindow* window, int button, int action, int mods) {
     //printf("mouse button callback\n\tbutton %d\n\taction %d\n\tmods %d\n", button, action, mods);
-    if(button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS) {
-        double xpos, ypos;
-        glfwGetCursorPos(window, &xpos, &ypos);
-        physicalToReal(xpos, ypos);
-        addPoint(xpos, ypos);
+    if(button == GLFW_MOUSE_BUTTON_LEFT) {
+        if(action == GLFW_PRESS) {
+            glfwGetCursorPos(window, &mouse.pressX, &mouse.pressY);
+            mouse.action = GLFW_PRESS;
+        }
+        if(action == GLFW_RELEASE) {
+            glfwGetCursorPos(window, &mouse.releaseX, &mouse.releaseY);
+            mouse.action = GLFW_RELEASE;
+            if(mouse.pressX == mouse.releaseX && mouse.pressY == mouse.releaseY) {
+                addPoint(physicalToRealX(mouse.pressX), physicalToRealY(mouse.pressY));
+            } else {
+                addLinesFromMouseState();
+            }
+            mouse.trail.clear();
+        }
     }
 }
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset) {
@@ -307,6 +340,16 @@ void physicalToScreen(double &x, double &y) {
 void physicalToReal(double &x, double &y) {
 	x = ((x - (screenWidth / 2)) / (screenWidth / 2) / cameraScaleX) + cameraOffsetX;
 	y = (((screenHeight / 2) - y) / (screenHeight / 2) / cameraScaleY) + cameraOffsetY;
+}
+double physicalToRealX(double x) {
+	return ((x - (screenWidth / 2)) / (screenWidth / 2) / cameraScaleX) + cameraOffsetX;
+}
+double physicalToRealY(double y) {
+	return (((screenHeight / 2) - y) / (screenHeight / 2) / cameraScaleY) + cameraOffsetY;
+}
+
+void addLinesFromMouseState() {
+    
 }
 
 
