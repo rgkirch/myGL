@@ -40,13 +40,12 @@ struct mouseState {
     GLint middle;
 };
 struct mouseState mouse;
-void realToScreen(double &x, double &y);
+
 
 const char* vertexShaderFileName = "vertexShader.glsl";
 const char* fragmentShaderFileName = "fragmentShader.glsl";
 const GLuint screenWidth = 700, screenHeight = 700;
 float xmax, ymax, xmin, ymin;
-int initCalled;
 GLFWwindow* window;
 char windowTitle[] = "plot";
 vector<float*> points;
@@ -275,6 +274,8 @@ void init() {
 
 void cursor_position_callback(GLFWwindow* window, double xpos, double ypos) {
     //printf("x: %f y: %f\n", xpos, ypos);
+    physicalToReal(xpos, ypos);
+    addPoint(xpos, ypos);
 }
 void mouse_button_callback(GLFWwindow* window, int button, int action, int mods) {
     //printf("mouse button callback\n\tbutton %d\n\taction %d\n\tmods %d\n", button, action, mods);
@@ -286,7 +287,7 @@ void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
     }
 }
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset) {
-    printf("scroll x: %f y: %f\n", xoffset, yoffset);
+    //printf("scroll x: %f y: %f\n", xoffset, yoffset);
     cameraScaleX *= 1.0 + (yoffset * scrollSpeedMultiplier);
     cameraScaleY *= 1.0 + (yoffset * scrollSpeedMultiplier);
 }
