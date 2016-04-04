@@ -6,9 +6,10 @@
 
 int main() {
     init();
-    for(int i = 0; i < NUM; ++i) {
-        addPoint(i/NUM*2-1, sin(i/NUM*6-3));
-    }
+    addPoint(-0.5, 0.0);
+    addPoint(0.5, 0.0);
+    addPoint(0.0, 0.5);
+    addPoint(0.0, -0.5);
     draw();
     return 0;
 }

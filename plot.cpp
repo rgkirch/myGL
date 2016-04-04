@@ -22,8 +22,8 @@ GLuint createShader(char* vertexShaderFileName, char* fragmentShaderFileName);
 void checkShaderStepSuccess(GLint program, GLuint status);
 void printShaderLog(char* errorMessage, GLuint shader);
 struct shaderUniforms {
-    GLint cameraLocationXShaderUniformLocation;
-    GLint cameraLocationYShaderUniformLocation;
+    GLint cameraOffsetXShaderUniformLocation;
+    GLint cameraOffsetYShaderUniformLocation;
     GLint cameraScaleXShaderUniformLocation;
     GLint cameraScaleYShaderUniformLocation;
 };
@@ -33,11 +33,14 @@ void cursor_position_callback(GLFWwindow* window, double xpos, double ypos);
 void mouse_button_callback(GLFWwindow* window, int button, int action, int mods);
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 struct mouseState {
+    double x;
+    double y;
     GLint left;
     GLint right;
     GLint middle;
 };
 struct mouseState mouse;
+void realToScreen(double &x, double &y);
 
 const char* vertexShaderFileName = "vertexShader.glsl";
 const char* fragmentShaderFileName = "fragmentShader.glsl";
@@ -52,10 +55,14 @@ vector<GLuint> vbos;
 vector<GLuint> vaos;
 
 //camera - coord of top left of screen
-double cameraLocationX = -1.0;
-double cameraLocationY = 1.0;
+double cameraOffsetX = 0.0;
+double cameraOffsetY = 0.0;
 double cameraScaleX = 1.0;
 double cameraScaleY = 1.0;
+void physicalToReal(double &x, double &y);
+void physicalToScreen(double &x, double &y);
+void screenToReal(double &x, double &y);
+void realToScreen(double &x, double &y);
 
 float scrollSpeedMultiplier = 0.1;
 
@@ -116,8 +123,8 @@ void addPoint(int length, float* nums) {
 void draw() {
     GLuint shaderProgram = createShader((char*)vertexShaderFileName, (char*)fragmentShaderFileName);
     glUseProgram(shaderProgram);
-    shaderUniforms.cameraLocationXShaderUniformLocation = glGetUniformLocation(shaderProgram, "cameraLocationX");
-    shaderUniforms.cameraLocationYShaderUniformLocation = glGetUniformLocation(shaderProgram, "cameraLocationY");
+    shaderUniforms.cameraOffsetXShaderUniformLocation = glGetUniformLocation(shaderProgram, "cameraOffsetX");
+    shaderUniforms.cameraOffsetYShaderUniformLocation = glGetUniformLocation(shaderProgram, "cameraOffsetY");
     shaderUniforms.cameraScaleXShaderUniformLocation = glGetUniformLocation(shaderProgram, "cameraScaleX");
     shaderUniforms.cameraScaleYShaderUniformLocation = glGetUniformLocation(shaderProgram, "cameraScaleY");
 
@@ -127,8 +134,8 @@ void draw() {
 	while( !glfwWindowShouldClose( window ) ) {
 		glfwPollEvents();
 		glClear( GL_COLOR_BUFFER_BIT );
-        glUniform1f(shaderUniforms.cameraLocationXShaderUniformLocation, cameraLocationX);
-        glUniform1f(shaderUniforms.cameraLocationYShaderUniformLocation, cameraLocationY);
+        glUniform1f(shaderUniforms.cameraOffsetXShaderUniformLocation, cameraOffsetX);
+        glUniform1f(shaderUniforms.cameraOffsetYShaderUniformLocation, cameraOffsetY);
         glUniform1f(shaderUniforms.cameraScaleXShaderUniformLocation, cameraScaleX);
         glUniform1f(shaderUniforms.cameraScaleYShaderUniformLocation, cameraScaleY);
         for(int i = 0; i < pointLengths.size(); ++i) {
@@ -274,14 +281,31 @@ void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
     if(button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS) {
         double xpos, ypos;
         glfwGetCursorPos(window, &xpos, &ypos);
-        printf("add point at %f, %f\n", xpos, ypos);
-        addPoint(xpos / screenWidth, ypos / screenHeight);
+        physicalToReal(xpos, ypos);
+        addPoint(xpos, ypos);
     }
 }
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset) {
     printf("scroll x: %f y: %f\n", xoffset, yoffset);
     cameraScaleX *= 1.0 + (yoffset * scrollSpeedMultiplier);
     cameraScaleY *= 1.0 + (yoffset * scrollSpeedMultiplier);
+}
+
+void realToScreen(double &x, double &y) {
+	x = (x - cameraOffsetX) * cameraScaleX;
+	y = (y - cameraOffsetY) * cameraScaleY;
+}
+void screenToReal(double &x, double &y) {
+	x = (x / cameraScaleX) + cameraOffsetX;
+	y = (y / cameraScaleY) + cameraOffsetY;
+}
+void physicalToScreen(double &x, double &y) {
+    x = (x - (screenWidth / 2)) / (screenWidth / 2);
+    y = ((screenHeight / 2) - y) / (screenHeight / 2);
+}
+void physicalToReal(double &x, double &y) {
+	x = ((x - (screenWidth / 2)) / (screenWidth / 2) / cameraScaleX) + cameraOffsetX;
+	y = (((screenHeight / 2) - y) / (screenHeight / 2) / cameraScaleY) + cameraOffsetY;
 }
 
 
