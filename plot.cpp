@@ -27,7 +27,7 @@ struct mouseState {
     int button;
     int action;
     int mods;
-    vector<double> trail;
+    vector<float> trail;
 };
 
 void init();
@@ -54,11 +54,11 @@ const GLuint screenWidth = 700, screenHeight = 700;
 float xmax, ymax, xmin, ymin;
 GLFWwindow* window;
 char windowTitle[] = "plot";
-vector<float*> points;
 //vector<float*> lines;
 vector<int> pointLengths;
 vector<GLuint> vbos;
 vector<GLuint> vaos;
+vector<GLuint>primitiveType;
 
 //camera - coord of top left of screen
 double cameraOffsetX = 0.0;
@@ -100,8 +100,8 @@ void addPoint(float x, float y) {
     float* point = (float*)malloc(sizeof(float) * 2);
     point[0] = x;
     point[1] = y;
-    points.push_back(point);
     pointLengths.push_back(1);
+    primitiveType.push_back(GL_POINTS);
     GLuint vbo;
     glGenBuffers(1, &vbo);
     vbos.push_back(vbo);
@@ -113,15 +113,15 @@ void addPoint(float x, float y) {
     glGenVertexArrays(1, &vao);
     vaos.push_back(vao);
     glBindVertexArray(vao);
-    glVertexAttribPointer(0, 1, GL_FLOAT, GL_FALSE, sizeof(float), NULL);
-    glVertexAttribPointer(1, 1, GL_FLOAT, GL_FALSE, sizeof(float), (GLvoid*)sizeof(float));
+    glVertexAttribPointer(0, 1, GL_FLOAT, GL_FALSE, 2 * sizeof(float), NULL);
+    glVertexAttribPointer(1, 1, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (GLvoid*)sizeof(float));
     glEnableVertexAttribArray(0);
     glEnableVertexAttribArray(1);
 }
 // add point will maintain the max and min and make buffers for the data
 void addPoint(int length, float* nums) {
-    points.push_back(nums);
-    pointLengths.push_back(length);
+    pointLengths.push_back(length / 2);
+    primitiveType.push_back(GL_POINTS);
     GLuint vbo;
     glGenBuffers(1, &vbo);
     vbos.push_back(vbo);
@@ -133,8 +133,8 @@ void addPoint(int length, float* nums) {
     glGenVertexArrays(1, &vao);
     vaos.push_back(vao);
     glBindVertexArray(vao);
-    glVertexAttribPointer(0, 1, GL_FLOAT, GL_FALSE, sizeof(float), NULL);
-    glVertexAttribPointer(1, 1, GL_FLOAT, GL_FALSE, sizeof(float), (GLvoid*)sizeof(float));
+    glVertexAttribPointer(0, 1, GL_FLOAT, GL_FALSE, 2 * sizeof(float), NULL);
+    glVertexAttribPointer(1, 1, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (GLvoid*)sizeof(float));
     glEnableVertexAttribArray(0);
     glEnableVertexAttribArray(1);
 }
@@ -160,7 +160,8 @@ void draw() {
         for(int i = 0; i < pointLengths.size(); ++i) {
             glBindVertexArray(vaos[i]);
             glBindBuffer(GL_ARRAY_BUFFER, vbos[i]);
-            glDrawArrays(GL_POINTS, 0, pointLengths[i]);
+            // TODO - maybe add -1
+            glDrawArrays(primitiveType[i], 0, pointLengths[i]);
         }
 		glfwSwapBuffers( window );
         //testCursorPolling();
@@ -296,8 +297,8 @@ void init() {
 void cursor_position_callback(GLFWwindow* window, double xpos, double ypos) {
     static vector<double> trail;
     if(mouse.action == GLFW_PRESS) {
-        mouse.trail.push_back(xpos);
-        mouse.trail.push_back(ypos);
+        mouse.trail.push_back(physicalToRealX(xpos));
+        mouse.trail.push_back(physicalToRealY(ypos));
     }
 }
 void mouse_button_callback(GLFWwindow* window, int button, int action, int mods) {
@@ -349,7 +350,24 @@ double physicalToRealY(double y) {
 }
 
 void addLinesFromMouseState() {
-    
+    pointLengths.push_back(mouse.trail.size() / 2);
+    primitiveType.push_back(GL_LINE_STRIP);
+    GLuint vbo;
+    glGenBuffers(1, &vbo);
+    vbos.push_back(vbo);
+    glBindBuffer(GL_ARRAY_BUFFER, vbo);
+    // TODO - include mouse.press and mouse.release in the buffer
+    glBufferData(GL_ARRAY_BUFFER, sizeof(float) * mouse.trail.size(), &mouse.trail[0], GL_STATIC_DRAW);
+    GLuint vao;
+    glGenVertexArrays(1, &vao);
+    vaos.push_back(vao);
+    glBindVertexArray(vao);
+    glVertexAttribPointer(0, 1, GL_FLOAT, GL_FALSE, 2 * sizeof(float), NULL);
+    glVertexAttribPointer(1, 1, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (GLvoid*)sizeof(float));
+    glEnableVertexAttribArray(0);
+    glEnableVertexAttribArray(1);
+    //duplicate clear...
+    mouse.trail.clear();
 }
 
 
