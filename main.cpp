@@ -11,7 +11,7 @@ int main() {
     nums[2] = 1.0/100; nums[3] = -1.0/100;
     nums[4] = -1.0/1000; nums[5] = -1.0/1000;
     nums[6] = -1.0/10000; nums[7] = 1.0/10000;
-    addPoint(8, nums);
+    //addPoint(8, nums);
     free(nums);
    // addPoint(-0.5, 0.0);
    // addPoint(0.5, 0.0);

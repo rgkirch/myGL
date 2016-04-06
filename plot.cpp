@@ -163,6 +163,24 @@ void draw() {
             // TODO - maybe add -1
             glDrawArrays(primitiveType[i], 0, pointLengths[i]);
         }
+
+        // draw the in progress line
+        GLuint vbo;
+        glGenBuffers(1, &vbo);
+        glBindBuffer(GL_ARRAY_BUFFER, vbo);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(float) * mouse.trail.size(), &mouse.trail[0], GL_STREAM_DRAW);
+        GLuint vao;
+        glGenVertexArrays(1, &vao);
+        glBindVertexArray(vao);
+        glVertexAttribPointer(0, 1, GL_FLOAT, GL_FALSE, 2 * sizeof(float), NULL);
+        glVertexAttribPointer(1, 1, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (GLvoid*)sizeof(float));
+        glEnableVertexAttribArray(0);
+        glEnableVertexAttribArray(1);
+        glDrawArrays(GL_LINE_STRIP, 0, mouse.trail.size() / 2);
+        glDeleteBuffers(1, &vbo);
+        glDeleteVertexArrays(1, &vao);
+        // draw the in progress line
+
 		glfwSwapBuffers( window );
         //testCursorPolling();
 	}
