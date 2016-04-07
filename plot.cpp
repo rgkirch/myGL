@@ -313,7 +313,6 @@ void init() {
 }
 
 void cursor_position_callback(GLFWwindow* window, double xpos, double ypos) {
-    static vector<double> trail;
     if(mouse.action == GLFW_PRESS) {
         mouse.trail.push_back(physicalToRealX(xpos));
         mouse.trail.push_back(physicalToRealY(ypos));
@@ -339,9 +338,15 @@ void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
     }
 }
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset) {
+    double x, y;
     //printf("scroll x: %f y: %f\n", xoffset, yoffset);
     cameraScaleX *= 1.0 + (yoffset * scrollSpeedMultiplier);
     cameraScaleY *= 1.0 + (yoffset * scrollSpeedMultiplier);
+    glfwGetCursorPos(window, &x, &y);
+    if(mouse.action == GLFW_PRESS) {
+        mouse.trail.push_back(physicalToRealX(x));
+        mouse.trail.push_back(physicalToRealY(y));
+    }
 }
 
 void realToScreen(double &x, double &y) {
