@@ -19,6 +19,7 @@ using namespace std;
 void cursor_position_callback(GLFWwindow* window, double xpos, double ypos);
 void mouse_button_callback(GLFWwindow* window, int button, int action, int mods);
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
+void window_resize_callback(GLFWwindow* window, int width, int height);
 struct mouseState {
     double pressX;
     double pressY;
@@ -50,7 +51,7 @@ struct mouseState mouse;
 
 const char* vertexShaderFileName = "vertexShader.glsl";
 const char* fragmentShaderFileName = "fragmentShader.glsl";
-const GLuint screenWidth = 700, screenHeight = 700;
+int screenWidth = 700, screenHeight = 700;
 float xmax, ymax, xmin, ymin;
 GLFWwindow* window;
 char windowTitle[] = "plot";
@@ -306,6 +307,7 @@ void init() {
     glfwSetCursorPosCallback(window, cursor_position_callback);
     glfwSetMouseButtonCallback(window, mouse_button_callback);
     glfwSetScrollCallback(window, scroll_callback);
+    glfwSetWindowSizeCallback(window,  window_resize_callback);
 
     //printf( "VENDOR = %s\n", glGetString( GL_VENDOR ) ) ;
     //printf( "RENDERER = %s\n", glGetString( GL_RENDERER ) ) ;
@@ -393,6 +395,10 @@ void addLinesFromMouseState() {
     mouse.trail.clear();
 }
 
+void window_resize_callback(GLFWwindow* window, int width, int height) {
+    printf("%d, %d\n", width, height);
+    screenWidth = width;
+    screenHeight = height;
+	glViewport( 0, 0, screenWidth, screenHeight );
+}
 
-
-//glfwSetWindowSize(window, width, height);
