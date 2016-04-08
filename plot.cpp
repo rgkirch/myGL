@@ -41,6 +41,8 @@ struct shaderUniforms {
     GLint cameraOffsetYShaderUniformLocation;
     GLint cameraScaleXShaderUniformLocation;
     GLint cameraScaleYShaderUniformLocation;
+    GLint screenWidth;
+    GLint screenHeight;
 };
 
 void addLinesFromMouseState();
@@ -68,10 +70,6 @@ double cameraScaleX = 1.0;
 double cameraScaleY = 1.0;
 double physicalToRealX(double x);
 double physicalToRealY(double y);
-void physicalToReal(double &x, double &y);
-void physicalToScreen(double &x, double &y);
-void screenToReal(double &x, double &y);
-void realToScreen(double &x, double &y);
 
 float scrollSpeedMultiplier = 0.1;
 
@@ -147,6 +145,8 @@ void draw() {
     shaderUniforms.cameraOffsetYShaderUniformLocation = glGetUniformLocation(shaderProgram, "cameraOffsetY");
     shaderUniforms.cameraScaleXShaderUniformLocation = glGetUniformLocation(shaderProgram, "cameraScaleX");
     shaderUniforms.cameraScaleYShaderUniformLocation = glGetUniformLocation(shaderProgram, "cameraScaleY");
+    shaderUniforms.screenWidth= glGetUniformLocation(shaderProgram, "screenWidth");
+    shaderUniforms.screenHeight= glGetUniformLocation(shaderProgram, "screenHeight");
 
     glClearColor( 0.0f, 0.0f, 0.0f, 1.0f );
     glPointSize(10);
@@ -158,6 +158,8 @@ void draw() {
         glUniform1f(shaderUniforms.cameraOffsetYShaderUniformLocation, cameraOffsetY);
         glUniform1f(shaderUniforms.cameraScaleXShaderUniformLocation, cameraScaleX);
         glUniform1f(shaderUniforms.cameraScaleYShaderUniformLocation, cameraScaleY);
+        glUniform1f(shaderUniforms.screenWidth, screenWidth);
+        glUniform1f(shaderUniforms.screenHeight, screenHeight);
         for(int i = 0; i < pointLengths.size(); ++i) {
             glBindVertexArray(vaos[i]);
             glBindBuffer(GL_ARRAY_BUFFER, vbos[i]);
@@ -351,27 +353,11 @@ void scroll_callback(GLFWwindow* window, double xoffset, double yoffset) {
     }
 }
 
-void realToScreen(double &x, double &y) {
-	x = (x - cameraOffsetX) * cameraScaleX;
-	y = (y - cameraOffsetY) * cameraScaleY;
+double physicalToRealX(double px) {
+        return (px - (screenWidth / 2.0)) / cameraScaleX;
 }
-void screenToReal(double &x, double &y) {
-	x = (x / cameraScaleX) + cameraOffsetX;
-	y = (y / cameraScaleY) + cameraOffsetY;
-}
-void physicalToScreen(double &x, double &y) {
-    x = (x - (screenWidth / 2)) / (screenWidth / 2);
-    y = ((screenHeight / 2) - y) / (screenHeight / 2);
-}
-void physicalToReal(double &x, double &y) {
-	x = ((x - (screenWidth / 2)) / (screenWidth / 2) / cameraScaleX) + cameraOffsetX;
-	y = (((screenHeight / 2) - y) / (screenHeight / 2) / cameraScaleY) + cameraOffsetY;
-}
-double physicalToRealX(double x) {
-	return ((x - (screenWidth / 2)) / (screenWidth / 2) / cameraScaleX) + cameraOffsetX;
-}
-double physicalToRealY(double y) {
-	return (((screenHeight / 2) - y) / (screenHeight / 2) / cameraScaleY) + cameraOffsetY;
+double physicalToRealY(double py) {
+        return ((screenHeight - py) - (screenHeight / 2.0)) / cameraScaleY;
 }
 
 void addLinesFromMouseState() {

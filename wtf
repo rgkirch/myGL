@@ -1,0 +1,7 @@
+checkout -b new-branch
+checkout master
+diff head file
+add
+commit
+checkot new-branch
+where the fuck are my edits?
