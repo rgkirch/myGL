@@ -7,6 +7,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include <vector>
+#include <queue>
 
 //#include <fstream>
 //#include <sstream>
@@ -20,6 +21,7 @@ void cursor_position_callback(GLFWwindow* window, double xpos, double ypos);
 void mouse_button_callback(GLFWwindow* window, int button, int action, int mods);
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 void window_resize_callback(GLFWwindow* window, int width, int height);
+void window_move_callback(GLFWwindow* window, int x, int y);
 struct mouseState {
     int button;
     int action;
@@ -29,6 +31,9 @@ struct mouseState {
     double releaseX;
     double releaseY;
     vector<float> trail;
+};
+struct keyboardState {
+    queue<float> keylog;
 };
 
 void init();
@@ -317,6 +322,7 @@ void init() {
     glfwSetMouseButtonCallback(window, mouse_button_callback);
     glfwSetScrollCallback(window, scroll_callback);
     glfwSetWindowSizeCallback(window,  window_resize_callback);
+    glfwSetWindowPosCallback(window, window_move_callback);
 
     //printf( "VENDOR = %s\n", glGetString( GL_VENDOR ) ) ;
     //printf( "RENDERER = %s\n", glGetString( GL_RENDERER ) ) ;
@@ -404,9 +410,22 @@ void addLinesFromMouseState() {
 }
 
 void window_resize_callback(GLFWwindow* window, int width, int height) {
-    printf("%d, %d\n", width, height);
     screenWidth = width;
     screenHeight = height;
+    if(mouse.action == GLFW_PRESS) {
+        double x, y;
+        glfwGetCursorPos(window, &x, &y);
+        mouse.trail.push_back(physicalToRealX(x));
+        mouse.trail.push_back(physicalToRealY(y));
+    }
 	glViewport( 0, 0, screenWidth, screenHeight );
 }
 
+void window_move_callback(GLFWwindow* window, int x, int y) {
+    if(mouse.action == GLFW_PRESS) {
+        double x, y;
+        glfwGetCursorPos(window, &x, &y);
+        mouse.trail.push_back(physicalToRealX(x));
+        mouse.trail.push_back(physicalToRealY(y));
+    }
+}
