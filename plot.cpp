@@ -21,13 +21,13 @@ void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 void window_resize_callback(GLFWwindow* window, int width, int height);
 struct mouseState {
+    int button;
+    int action;
+    int mods;
     double pressX;
     double pressY;
     double releaseX;
     double releaseY;
-    int button;
-    int action;
-    int mods;
     vector<float> trail;
 };
 
@@ -37,10 +37,10 @@ GLuint createShader(char* vertexShaderFileName, char* fragmentShaderFileName);
 void checkShaderStepSuccess(GLint program, GLuint status);
 void printShaderLog(char* errorMessage, GLuint shader);
 struct shaderUniforms {
-    GLint cameraOffsetXShaderUniformLocation;
-    GLint cameraOffsetYShaderUniformLocation;
-    GLint cameraScaleXShaderUniformLocation;
-    GLint cameraScaleYShaderUniformLocation;
+    GLint cameraOffsetX;
+    GLint cameraOffsetY;
+    GLint cameraScaleX;
+    GLint cameraScaleY;
     GLint screenWidth;
     GLint screenHeight;
 };
@@ -141,12 +141,12 @@ void addPoint(int length, float* nums) {
 void draw() {
     GLuint shaderProgram = createShader((char*)vertexShaderFileName, (char*)fragmentShaderFileName);
     glUseProgram(shaderProgram);
-    shaderUniforms.cameraOffsetXShaderUniformLocation = glGetUniformLocation(shaderProgram, "cameraOffsetX");
-    shaderUniforms.cameraOffsetYShaderUniformLocation = glGetUniformLocation(shaderProgram, "cameraOffsetY");
-    shaderUniforms.cameraScaleXShaderUniformLocation = glGetUniformLocation(shaderProgram, "cameraScaleX");
-    shaderUniforms.cameraScaleYShaderUniformLocation = glGetUniformLocation(shaderProgram, "cameraScaleY");
-    shaderUniforms.screenWidth= glGetUniformLocation(shaderProgram, "screenWidth");
-    shaderUniforms.screenHeight= glGetUniformLocation(shaderProgram, "screenHeight");
+    shaderUniforms.cameraOffsetX = glGetUniformLocation(shaderProgram, "cameraOffsetX");
+    shaderUniforms.cameraOffsetY = glGetUniformLocation(shaderProgram, "cameraOffsetY");
+    shaderUniforms.cameraScaleX = glGetUniformLocation(shaderProgram, "cameraScaleX");
+    shaderUniforms.cameraScaleY = glGetUniformLocation(shaderProgram, "cameraScaleY");
+    shaderUniforms.screenWidth = glGetUniformLocation(shaderProgram, "screenWidth");
+    shaderUniforms.screenHeight = glGetUniformLocation(shaderProgram, "screenHeight");
 
     glClearColor( 0.0f, 0.0f, 0.0f, 1.0f );
     glPointSize(10);
@@ -154,10 +154,10 @@ void draw() {
 	while( !glfwWindowShouldClose( window ) ) {
 		glfwPollEvents();
 		glClear( GL_COLOR_BUFFER_BIT );
-        glUniform1f(shaderUniforms.cameraOffsetXShaderUniformLocation, cameraOffsetX);
-        glUniform1f(shaderUniforms.cameraOffsetYShaderUniformLocation, cameraOffsetY);
-        glUniform1f(shaderUniforms.cameraScaleXShaderUniformLocation, cameraScaleX);
-        glUniform1f(shaderUniforms.cameraScaleYShaderUniformLocation, cameraScaleY);
+        glUniform1f(shaderUniforms.cameraOffsetX, cameraOffsetX);
+        glUniform1f(shaderUniforms.cameraOffsetY, cameraOffsetY);
+        glUniform1f(shaderUniforms.cameraScaleX, cameraScaleX);
+        glUniform1f(shaderUniforms.cameraScaleY, cameraScaleY);
         glUniform1f(shaderUniforms.screenWidth, screenWidth);
         glUniform1f(shaderUniforms.screenHeight, screenHeight);
         for(int i = 0; i < pointLengths.size(); ++i) {
@@ -168,10 +168,15 @@ void draw() {
         }
 
         // draw the in progress line
+        float mousePressRelease[2];
+        mousePressRelease[0] = (float)mouse.pressX;
+        mousePressRelease[1] = (float)mouse.pressY;
         GLuint vbo;
         glGenBuffers(1, &vbo);
         glBindBuffer(GL_ARRAY_BUFFER, vbo);
-        glBufferData(GL_ARRAY_BUFFER, sizeof(float) * mouse.trail.size(), &mouse.trail[0], GL_STREAM_DRAW);
+        glBufferData(GL_ARRAY_BUFFER, (mouse.trail.size() + 2) * sizeof(float), NULL, GL_STATIC_DRAW);
+        glBufferSubData(GL_ARRAY_BUFFER, 0 * sizeof(float), 2 * sizeof(float), &mousePressRelease[0]);
+        glBufferSubData(GL_ARRAY_BUFFER, 2 * sizeof(float), sizeof(float) * mouse.trail.size(), &mouse.trail[0]);
         GLuint vao;
         glGenVertexArrays(1, &vao);
         glBindVertexArray(vao);
@@ -179,9 +184,11 @@ void draw() {
         glVertexAttribPointer(1, 1, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (GLvoid*)sizeof(float));
         glEnableVertexAttribArray(0);
         glEnableVertexAttribArray(1);
-        glDrawArrays(GL_LINE_STRIP, 0, mouse.trail.size() / 2);
+        glDrawArrays(GL_LINE_STRIP, 0, mouse.trail.size() / 2 + 1);
         glDeleteBuffers(1, &vbo);
         glDeleteVertexArrays(1, &vao);
+        glDisableVertexAttribArray(0);
+        glDisableVertexAttribArray(1);
         // draw the in progress line
 
 		glfwSwapBuffers( window );
