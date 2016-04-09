@@ -34,7 +34,7 @@ import os
 import ycm_core
 
 flags = [
-    #'-std=c++11',
+    '-std=c++11',
     '-I/usr/include',
     '-I/usr/local/include',
     '-lglfw',

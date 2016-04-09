@@ -324,16 +324,22 @@ void cursor_position_callback(GLFWwindow* window, double xpos, double ypos) {
 }
 void mouse_button_callback(GLFWwindow* window, int button, int action, int mods) {
     //printf("mouse button callback\n\tbutton %d\n\taction %d\n\tmods %d\n", button, action, mods);
+    double tempx, tempy;
     if(button == GLFW_MOUSE_BUTTON_LEFT) {
         if(action == GLFW_PRESS) {
-            glfwGetCursorPos(window, &mouse.pressX, &mouse.pressY);
+            //glfwGetCursorPos(window, &mouse.pressX, &mouse.pressY);
+            glfwGetCursorPos(window, &tempx, &tempy);
+            mouse.pressX = physicalToRealX(tempx);
+            mouse.pressY = physicalToRealY(tempy);
             mouse.action = GLFW_PRESS;
         }
         if(action == GLFW_RELEASE) {
-            glfwGetCursorPos(window, &mouse.releaseX, &mouse.releaseY);
+            glfwGetCursorPos(window, &tempx, &tempy);
+            mouse.releaseX = physicalToRealX(tempx);
+            mouse.releaseY = physicalToRealY(tempy);
             mouse.action = GLFW_RELEASE;
             if(mouse.pressX == mouse.releaseX && mouse.pressY == mouse.releaseY) {
-                addPoint(physicalToRealX(mouse.pressX), physicalToRealY(mouse.pressY));
+                addPoint(mouse.pressX, mouse.pressY);
             } else {
                 addLinesFromMouseState();
             }
@@ -361,14 +367,23 @@ double physicalToRealY(double py) {
 }
 
 void addLinesFromMouseState() {
-    pointLengths.push_back(mouse.trail.size() / 2);
+    float mousePressRelease[4];
+    mousePressRelease[0] = (float)mouse.pressX;
+    mousePressRelease[1] = (float)mouse.pressY;
+    mousePressRelease[2] = (float)mouse.releaseX;
+    mousePressRelease[3] = (float)mouse.releaseY;
+    pointLengths.push_back(mouse.trail.size() / 2 + 2);
     primitiveType.push_back(GL_LINE_STRIP);
     GLuint vbo;
     glGenBuffers(1, &vbo);
     vbos.push_back(vbo);
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
-    // TODO - include mouse.press and mouse.release in the buffer
-    glBufferData(GL_ARRAY_BUFFER, sizeof(float) * mouse.trail.size(), &mouse.trail[0], GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, (mouse.trail.size() + 4) * sizeof(float), NULL, GL_STATIC_DRAW);
+    glBufferSubData(GL_ARRAY_BUFFER, 0 * sizeof(float), 2 * sizeof(float), &mousePressRelease[0]);
+    //glBufferSubData(GL_ARRAY_BUFFER, 1 * sizeof(float), sizeof(float), &mouse.pressY);
+    glBufferSubData(GL_ARRAY_BUFFER, 2 * sizeof(float), sizeof(float) * mouse.trail.size(), &mouse.trail[0]);
+    glBufferSubData(GL_ARRAY_BUFFER, (mouse.trail.size() + 2) * sizeof(float), 2 * sizeof(float), &mousePressRelease[2]);
+    //glBufferSubData(GL_ARRAY_BUFFER, 1 * sizeof(float) * (mouse.trail.size() + 3), sizeof(float), &mouse.releaseY);
     GLuint vao;
     glGenVertexArrays(1, &vao);
     vaos.push_back(vao);
