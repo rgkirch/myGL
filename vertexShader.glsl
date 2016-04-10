@@ -10,5 +10,5 @@ uniform float screenWidth;
 uniform float screenHeight;
 
 void main() {
-	gl_Position = vec4(x * cameraScaleX / (screenWidth / 2.0), y * cameraScaleY / (screenHeight / 2), 0.0, 1.0);
+	gl_Position = vec4(x * cameraScaleX / (screenWidth / 2.0) + cameraOffsetX, y * cameraScaleY / (screenHeight / 2) + cameraOffsetY, 0.0, 1.0);
 }

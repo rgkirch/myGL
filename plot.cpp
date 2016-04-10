@@ -39,10 +39,11 @@ struct mouseState {
     double releaseY;
     std::vector<float> trail;
 };
-struct keyboardState {
-    std::queue<float> keylog;
-};
 
+enum class inputEvent {mouseLeftPress, mouseLeftRelease, mouseRightPress, mouseRightRelease, mouseMiddlePress, mouseMiddleRelease, cursorMove, keySpacePress, keySpaceRelease, keySlashPress, keySlashRelease};
+std::queue<inputEvent> inputQueue;
+
+void parseInputQueue();
 void savebufferasimage();
 
 void init();
@@ -473,14 +474,15 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
     switch(key) {
         case GLFW_KEY_SPACE: 
             if(action == GLFW_PRESS) {
-                glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
+                inputQueue.push(inputEvent::keySpacePress);
             } else if(action == GLFW_RELEASE) {
-                glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+                inputQueue.push(inputEvent::keySpaceRelease);
             }
             break;
         default:
             break;
     }
+    parseInputQueue();
 }
 
 void drop_callback(GLFWwindow* window, int count, const char** paths)
@@ -497,4 +499,18 @@ void savebufferasimage() {
     glReadPixels(0, 0, screenWidth, screenHeight, GL_RGBA, GL_UNSIGNED_BYTE, data);
     fwrite(data, screenWidth * screenHeight * 4, 1, file);
     fclose(file);
+}
+
+void parseInputQueue() {
+    while(!inputQueue.empty()) {
+        switch(inputQueue.front()) {
+            case inputEvent::keySpacePress:
+                glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
+                break;
+            case inputEvent::keySpaceRelease:
+                glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+                break;
+        }
+        inputQueue.pop();
+    }
 }
