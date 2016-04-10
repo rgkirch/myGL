@@ -4,10 +4,16 @@
 #include <GLFW/glfw3.h>
 
 #include <stdio.h>
+#include <string.h>
 #include <stdlib.h>
 #include <math.h>
+
+#include <iostream>
 #include <vector>
 #include <queue>
+
+//#include <boost/filesystem.hpp>
+#include <png.h>
 
 //#include <fstream>
 //#include <sstream>
@@ -15,13 +21,14 @@
 
 #include "plot.hpp"
 
-using namespace std;
-
 void cursor_position_callback(GLFWwindow* window, double xpos, double ypos);
 void mouse_button_callback(GLFWwindow* window, int button, int action, int mods);
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 void window_resize_callback(GLFWwindow* window, int width, int height);
 void window_move_callback(GLFWwindow* window, int x, int y);
+void character_callback(GLFWwindow* window, unsigned int codepoint);
+void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
+void drop_callback(GLFWwindow* window, int count, const char** paths);
 struct mouseState {
     int button;
     int action;
@@ -30,11 +37,13 @@ struct mouseState {
     double pressY;
     double releaseX;
     double releaseY;
-    vector<float> trail;
+    std::vector<float> trail;
 };
 struct keyboardState {
-    queue<float> keylog;
+    std::queue<float> keylog;
 };
+
+void savebufferasimage();
 
 void init();
 
@@ -63,10 +72,10 @@ float xmax, ymax, xmin, ymin;
 GLFWwindow* window;
 char windowTitle[] = "plot";
 //vector<float*> lines;
-vector<int> pointLengths;
-vector<GLuint> vbos;
-vector<GLuint> vaos;
-vector<GLuint>primitiveType;
+std::vector<int> pointLengths;
+std::vector<GLuint> vbos;
+std::vector<GLuint> vaos;
+std::vector<GLuint>primitiveType;
 
 //camera - coord of top left of screen
 double cameraOffsetX = 0.0;
@@ -155,9 +164,11 @@ void draw() {
 
     glClearColor( 0.0f, 0.0f, 0.0f, 1.0f );
     glPointSize(10);
+    glLineWidth(10);
 
 	while( !glfwWindowShouldClose( window ) ) {
-		glfwPollEvents();
+		//glfwPollEvents();
+        glfwWaitEvents();
 		glClear( GL_COLOR_BUFFER_BIT );
         glUniform1f(shaderUniforms.cameraOffsetX, cameraOffsetX);
         glUniform1f(shaderUniforms.cameraOffsetY, cameraOffsetY);
@@ -317,16 +328,35 @@ void init() {
 	}
 
 	glViewport( 0, 0, screenWidth, screenHeight );
+    glfwSwapInterval(1);
+    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 
     glfwSetCursorPosCallback(window, cursor_position_callback);
     glfwSetMouseButtonCallback(window, mouse_button_callback);
     glfwSetScrollCallback(window, scroll_callback);
     glfwSetWindowSizeCallback(window,  window_resize_callback);
     glfwSetWindowPosCallback(window, window_move_callback);
+    glfwSetCharCallback(window, character_callback);
+    glfwSetKeyCallback(window, key_callback);
+    glfwSetDropCallback(window, drop_callback);
 
     //printf( "VENDOR = %s\n", glGetString( GL_VENDOR ) ) ;
     //printf( "RENDERER = %s\n", glGetString( GL_RENDERER ) ) ;
     //printf( "VERSION = %s\n", glGetString( GL_VERSION ) ) ;
+    unsigned char pixels[16*16*4];
+    memset(pixels, 0xff, sizeof(pixels));
+    GLFWimage image;
+    image.width = 16;
+    image.height = 16;
+    image.pixels = pixels;
+    GLFWcursor* cursor = glfwCreateCursor(&image, 0, 0);
+    //GLFWcursor* cursor = glfwCreateStandardCursor(GLFW_HRESIZE_CURSOR);
+    if(cursor == NULL) {
+        printf("Failed to create GLFW cursor.\n");
+    }
+    if(glfwJoystickPresent(GLFW_JOYSTICK_1)) {
+        printf("Gamepad %s Connected.", glfwGetJoystickName(GLFW_JOYSTICK_1));
+    }
 }
 
 void cursor_position_callback(GLFWwindow* window, double xpos, double ypos) {
@@ -428,4 +458,43 @@ void window_move_callback(GLFWwindow* window, int x, int y) {
         mouse.trail.push_back(physicalToRealX(x));
         mouse.trail.push_back(physicalToRealY(y));
     }
+}
+
+void character_callback(GLFWwindow* window, unsigned int codepoint) {
+    if(codepoint == '/') {
+        savebufferasimage();
+    }
+    //printf("%c\n", codepoint);
+}
+
+// action (GLFW_PRESS, GLFW_RELEASE, GLFW_REPEAT)
+// key GLFW_UNKNOWN
+void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods) {
+    switch(key) {
+        case GLFW_KEY_SPACE: 
+            if(action == GLFW_PRESS) {
+                glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
+            } else if(action == GLFW_RELEASE) {
+                glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+            }
+            break;
+        default:
+            break;
+    }
+}
+
+void drop_callback(GLFWwindow* window, int count, const char** paths)
+{
+    for (int i = 0; i < count; ++i) {
+        printf("%s\n", paths[i]);
+    }
+}
+
+void savebufferasimage() {
+    printf("screenshot\n");
+    FILE* file = fopen("screenshot.BMP", "w");
+    GLvoid* data = (GLvoid*)malloc(screenWidth * screenHeight * 4);
+    glReadPixels(0, 0, screenWidth, screenHeight, GL_RGBA, GL_UNSIGNED_BYTE, data);
+    fwrite(data, screenWidth * screenHeight * 4, 1, file);
+    fclose(file);
 }
