@@ -1,0 +1,31 @@
+cursor disabled at 412 434
+last = keySpacePress
+cursor enabled at 412 434
+last = keySpaceRelease
+mouse left pressed at 412 434
+last = mouseLeftPress
+mouse left release
+point added at 62 -84
+last = mouseLeftRelease
+mouse left pressed at 412 434
+last = mouseLeftPress
+mouse left release
+add line
+last = mouseLeftRelease
+cursor disabled at 358 391
+last = keySpacePress
+cameraOffset = 0 -0cameraOffset = 0 -0cameraOffset = 0 -0cameraOffset = 0 -0cameraOffset = -0 -0cameraOffset = -0 -0cameraOffset = -0 -0cameraOffset = -0 -0cameraOffset = -0 -0cameraOffset = -0 -0cameraOffset = -0 -0cameraOffset = -0 -0cameraOffset = -0 -0cameraOffset = -0 -0cameraOffset = -0 -0cameraOffset = -0 -0cameraOffset = -0 -0cameraOffset = -0 -0cameraOffset = -0 -0cameraOffset = -0 -0cameraOffset = -0 -0cameraOffset = -0 -0cameraOffset = -0 -0cameraOffset = -0 -0cameraOffset = -0 -0cameraOffset = -0 -0cameraOffset = -0 -0cameraOffset = -0 -0cameraOffset = -0 -0cameraOffset = -0 -0cameraOffset = -0 -0cameraOffset = -0 -0cameraOffset = -0 -0cameraOffset = -0 -0cameraOffset = -0 -0cameraOffset = -0 -0cameraOffset = -0 -0cameraOffset = -0 -0cameraOffset = -0 -0cameraOffset = -0 -0cameraOffset = -0 -0cameraOffset = -0 -0cameraOffset = -0 -0cameraOffset = -0 -0cameraOffset = -0 -0cameraOffset = -0 -0cameraOffset = -0 -0cameraOffset = -0 -0cameraOffset = -0 -0cameraOffset = -0 -0cameraOffset = -0 -0cameraOffset = -0 -0cameraOffset = -0 -0cameraOffset = -0 -0cameraOffset = -0 -0cameraOffset = -0 -0cameraOffset = -0 -0cameraOffset = -0 -0cameraOffset = -0 -0cameraOffset = -0 -0cameraOffset = -0 -0cameraOffset = -0 -0cameraOffset = -0 -0cameraOffset = -0 -0cameraOffset = -0 -0cameraOffset = -0 -0cameraOffset = -0 -0cameraOffset = -0 -0cameraOffset = -0 -0cameraOffset = -0 -0cameraOffset = -0 -0cameraOffset = -0 -0cameraOffset = -0 -0cameraOffset = -0 -0cameraOffset = -0 -0cameraOffset = -0 -0cameraOffset = -0 -0cameraOffset = -0 -0cameraOffset = -0 -0cameraOffset = -0 -0cameraOffset = -0 -0cameraOffset = -0 -0cameraOffset = -0 -0cameraOffset = -0 -0cameraOffset = -0 -0cameraOffset = -0 -0cameraOffset = -0 -0cameraOffset = -0 -0cameraOffset = -0 -0cameraOffset = -0 -0cameraOffset = -0 -0cameraOffset = -0 -0cameraOffset = -0 -0cameraOffset = -0 -0cameraOffset = -0 -0cameraOffset = -0 -0cameraOffset = -0 -0cameraOffset = -0 -0cameraOffset = -0 -0cameraOffset = -0 -0cameraOffset = -0 -0cameraOffset = -0 -0cameraOffset = -0 -0cameraOffset = -0 -0cameraOffset = -0 -0cameraOffset = -0 -0cameraOffset = -0 -0cameraOffset = -0 -0cameraOffset = -0 -0cameraOffset = -0 -0cameraOffset = -0 -0cameraOffset = -0 -0cameraOffset = -0 -0cameraOffset = -0 -0cameraOffset = -0 -0cameraOffset = -0 -0cameraOffset = -0 -0cameraOffset = -0 -0cameraOffset = -0 -0cameraOffset = -0 -0cameraOffset = -0 -0cameraOffset = -0 -0cameraOffset = -0 -0cameraOffset = -0 -0cameraOffset = -0 -0cameraOffset = -0 -0cameraOffset = -0 -0cameraOffset = -0 -0cameraOffset = -0 -0cameraOffset = -0 -0cameraOffset = -0 -0cameraOffset = -0 -0cameraOffset = -0 -0cameraOffset = -0 0cameraOffset = -0 0cameraOffset = -0 0cameraOffset = -0 0cameraOffset = -0 0cameraOffset = -0 0cameraOffset = -0 0cameraOffset = -0 0cameraOffset = -0 0cameraOffset = -0 0cameraOffset = -0 0cameraOffset = -0 0cameraOffset = -0 0cameraOffset = -0 0cameraOffset = -0 0cameraOffset = -0 0cameraOffset = -0 0cameraOffset = -0 0cameraOffset = -0 0cameraOffset = -0 0cameraOffset = -0 0cameraOffset = -0 0cameraOffset = -0 0cameraOffset = -0 0cameraOffset = -0 0cameraOffset = -0 0cameraOffset = -0 0cameraOffset = -0 0cameraOffset = -0 0cameraOffset = -0 0cameraOffset = -0 0cameraOffset = -0 0cameraOffset = -0 0cameraOffset = -0 0cameraOffset = -0 0cameraOffset = -0 0cameraOffset = -0 0cameraOffset = -0 0cameraOffset = -0 0cameraOffset = -0 0cameraOffset = -0 0cameraOffset = -0 0mouse left release
+add line
+last = mouseLeftRelease
+mouse left pressed at 325 371
+last = mouseLeftPress
+mouse left release
+add line
+last = mouseLeftRelease
+mouse left pressed at 519 503
+last = mouseLeftPress
+mouse left release
+add line
+last = mouseLeftRelease
+cursor enabled at 358 391
+last = keySpaceRelease

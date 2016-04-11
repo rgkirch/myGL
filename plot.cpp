@@ -40,13 +40,18 @@ struct mouseState {
     std::vector<float> trail;
 };
 
-enum class inputEvent {mouseLeftPress, mouseLeftRelease, mouseRightPress, mouseRightRelease, mouseMiddlePress, mouseMiddleRelease, cursorMove, keySpacePress, keySpaceRelease, keySlashPress, keySlashRelease};
+enum class inputEvent {null, mouseLeftPress, mouseLeftRelease, mouseRightPress, mouseRightRelease, mouseMiddlePress, mouseMiddleRelease, cursorMovement, cursorEnter, cursorLeave, windowMovement, windowResize, keySpacePress, keySpaceRelease, keySlashPress, keySlashRelease, scrollUp, scrollDown, scrollLeft, scrollRight};
 std::queue<inputEvent> inputQueue;
+// When the cursor moves, the location is recorded in cursorMovement. As opposed
+// to mouse.trail, corsorMovement records all movement, mouse.trail is when
+// going to draw a line with those values.
+std::queue<double> cursorMovement;
 
 void parseInputQueue();
 void savebufferasimage();
 
 void init();
+FILE* stdLog;
 
 GLuint createShader(char* vertexShaderFileName, char* fragmentShaderFileName);
 void checkShaderStepSuccess(GLint program, GLuint status);
@@ -70,6 +75,9 @@ const char* vertexShaderFileName = "vertexShader.glsl";
 const char* fragmentShaderFileName = "fragmentShader.glsl";
 int screenWidth = 700, screenHeight = 700;
 float xmax, ymax, xmin, ymin;
+double mouseHiddenAtX;
+double mouseHiddenAtY;
+
 GLFWwindow* window;
 char windowTitle[] = "plot";
 //vector<float*> lines;
@@ -79,8 +87,10 @@ std::vector<GLuint> vaos;
 std::vector<GLuint>primitiveType;
 
 //camera - coord of top left of screen
-double cameraOffsetX = 0.0;
-double cameraOffsetY = 0.0;
+double currentPanX = 0.0;
+double currentPanY = 0.0;
+double previousPanX = 0.0;
+double previousPanY = 0.0;
 double cameraScaleX = 1.0;
 double cameraScaleY = 1.0;
 double physicalToRealX(double x);
@@ -168,11 +178,12 @@ void draw() {
     glLineWidth(10);
 
 	while( !glfwWindowShouldClose( window ) ) {
-		//glfwPollEvents();
-        glfwWaitEvents();
+        parseInputQueue();
+		glfwPollEvents();
+        //glfwWaitEvents();
 		glClear( GL_COLOR_BUFFER_BIT );
-        glUniform1f(shaderUniforms.cameraOffsetX, cameraOffsetX);
-        glUniform1f(shaderUniforms.cameraOffsetY, cameraOffsetY);
+        glUniform1f(shaderUniforms.cameraOffsetX, previousPanX + currentPanX);
+        glUniform1f(shaderUniforms.cameraOffsetY, previousPanY + currentPanY);
         glUniform1f(shaderUniforms.cameraScaleX, cameraScaleX);
         glUniform1f(shaderUniforms.cameraScaleY, cameraScaleY);
         glUniform1f(shaderUniforms.screenWidth, screenWidth);
@@ -185,15 +196,10 @@ void draw() {
         }
 
         // draw the in progress line
-        float mousePressRelease[2];
-        mousePressRelease[0] = (float)mouse.pressX;
-        mousePressRelease[1] = (float)mouse.pressY;
         GLuint vbo;
         glGenBuffers(1, &vbo);
         glBindBuffer(GL_ARRAY_BUFFER, vbo);
-        glBufferData(GL_ARRAY_BUFFER, (mouse.trail.size() + 2) * sizeof(float), NULL, GL_STATIC_DRAW);
-        glBufferSubData(GL_ARRAY_BUFFER, 0 * sizeof(float), 2 * sizeof(float), &mousePressRelease[0]);
-        glBufferSubData(GL_ARRAY_BUFFER, 2 * sizeof(float), sizeof(float) * mouse.trail.size(), &mouse.trail[0]);
+        glBufferData(GL_ARRAY_BUFFER, mouse.trail.size() * sizeof(float), &mouse.trail[0], GL_STATIC_DRAW);
         GLuint vao;
         glGenVertexArrays(1, &vao);
         glBindVertexArray(vao);
@@ -201,7 +207,7 @@ void draw() {
         glVertexAttribPointer(1, 1, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (GLvoid*)sizeof(float));
         glEnableVertexAttribArray(0);
         glEnableVertexAttribArray(1);
-        glDrawArrays(GL_LINE_STRIP, 0, mouse.trail.size() / 2 + 1);
+        glDrawArrays(GL_LINE_STRIP, 0, mouse.trail.size() / 2);
         glDeleteBuffers(1, &vbo);
         glDeleteVertexArrays(1, &vao);
         glDisableVertexAttribArray(0);
@@ -214,6 +220,7 @@ void draw() {
 
 	glfwDestroyWindow( window );
 	glfwTerminate();
+    fclose(stdLog);
 }
 
 // allocates memory for (shader) file contents
@@ -358,76 +365,68 @@ void init() {
     if(glfwJoystickPresent(GLFW_JOYSTICK_1)) {
         printf("Gamepad %s Connected.", glfwGetJoystickName(GLFW_JOYSTICK_1));
     }
+    stdLog = fopen("log.txt", "w");
 }
 
 void cursor_position_callback(GLFWwindow* window, double xpos, double ypos) {
-    if(mouse.action == GLFW_PRESS) {
-        mouse.trail.push_back(physicalToRealX(xpos));
-        mouse.trail.push_back(physicalToRealY(ypos));
-    }
+    inputQueue.push(inputEvent::cursorMovement);
+    cursorMovement.push(xpos);
+    cursorMovement.push(ypos);
+    parseInputQueue();
 }
 void mouse_button_callback(GLFWwindow* window, int button, int action, int mods) {
     //printf("mouse button callback\n\tbutton %d\n\taction %d\n\tmods %d\n", button, action, mods);
     double tempx, tempy;
     if(button == GLFW_MOUSE_BUTTON_LEFT) {
         if(action == GLFW_PRESS) {
-            //glfwGetCursorPos(window, &mouse.pressX, &mouse.pressY);
-            glfwGetCursorPos(window, &tempx, &tempy);
-            mouse.pressX = physicalToRealX(tempx);
-            mouse.pressY = physicalToRealY(tempy);
-            mouse.action = GLFW_PRESS;
+            inputQueue.push(inputEvent::mouseLeftPress);
+            ////glfwGetCursorPos(window, &mouse.pressX, &mouse.pressY);
+            //glfwGetCursorPos(window, &tempx, &tempy);
+            //mouse.pressX = physicalToRealX(tempx);
+            //mouse.pressY = physicalToRealY(tempy);
+            //mouse.action = GLFW_PRESS;
         }
         if(action == GLFW_RELEASE) {
-            glfwGetCursorPos(window, &tempx, &tempy);
-            mouse.releaseX = physicalToRealX(tempx);
-            mouse.releaseY = physicalToRealY(tempy);
-            mouse.action = GLFW_RELEASE;
-            if(mouse.pressX == mouse.releaseX && mouse.pressY == mouse.releaseY) {
-                addPoint(mouse.pressX, mouse.pressY);
-            } else {
-                addLinesFromMouseState();
-            }
-            mouse.trail.clear();
+            inputQueue.push(inputEvent::mouseLeftRelease);
+            //glfwGetCursorPos(window, &tempx, &tempy);
+            //mouse.releaseX = physicalToRealX(tempx);
+            //mouse.releaseY = physicalToRealY(tempy);
+            //mouse.action = GLFW_RELEASE;
+            //if(mouse.pressX == mouse.releaseX && mouse.pressY == mouse.releaseY) {
+            //    addPoint(mouse.pressX, mouse.pressY);
+            //} else {
+            //    addLinesFromMouseState();
+            //}
+            //mouse.trail.clear();
         }
     }
+    parseInputQueue();
 }
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset) {
-    double x, y;
-    //printf("scroll x: %f y: %f\n", xoffset, yoffset);
-    cameraScaleX *= 1.0 + (yoffset * scrollSpeedMultiplier);
-    cameraScaleY *= 1.0 + (yoffset * scrollSpeedMultiplier);
-    glfwGetCursorPos(window, &x, &y);
-    if(mouse.action == GLFW_PRESS) {
-        mouse.trail.push_back(physicalToRealX(x));
-        mouse.trail.push_back(physicalToRealY(y));
+    if(yoffset < 0) {
+        inputQueue.push(inputEvent::scrollDown);
+    } else if(yoffset > 0) {
+        inputQueue.push(inputEvent::scrollUp);
     }
+    parseInputQueue();
 }
 
 double physicalToRealX(double px) {
-        return (px - (screenWidth / 2.0)) / cameraScaleX;
+        return ((px + previousPanX + currentPanX) - (screenWidth / 2.0)) / cameraScaleX;
 }
 double physicalToRealY(double py) {
-        return ((screenHeight - py) - (screenHeight / 2.0)) / cameraScaleY;
+        return ((screenHeight - py) + previousPanY + currentPanY - (screenHeight / 2.0)) / cameraScaleY;
 }
 
 void addLinesFromMouseState() {
-    float mousePressRelease[4];
-    mousePressRelease[0] = (float)mouse.pressX;
-    mousePressRelease[1] = (float)mouse.pressY;
-    mousePressRelease[2] = (float)mouse.releaseX;
-    mousePressRelease[3] = (float)mouse.releaseY;
-    pointLengths.push_back(mouse.trail.size() / 2 + 2);
+    //printf("draw line with %d points\n", mouse.trail.size() / 2);
+    pointLengths.push_back(mouse.trail.size() / 2);
     primitiveType.push_back(GL_LINE_STRIP);
     GLuint vbo;
     glGenBuffers(1, &vbo);
     vbos.push_back(vbo);
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
-    glBufferData(GL_ARRAY_BUFFER, (mouse.trail.size() + 4) * sizeof(float), NULL, GL_STATIC_DRAW);
-    glBufferSubData(GL_ARRAY_BUFFER, 0 * sizeof(float), 2 * sizeof(float), &mousePressRelease[0]);
-    //glBufferSubData(GL_ARRAY_BUFFER, 1 * sizeof(float), sizeof(float), &mouse.pressY);
-    glBufferSubData(GL_ARRAY_BUFFER, 2 * sizeof(float), sizeof(float) * mouse.trail.size(), &mouse.trail[0]);
-    glBufferSubData(GL_ARRAY_BUFFER, (mouse.trail.size() + 2) * sizeof(float), 2 * sizeof(float), &mousePressRelease[2]);
-    //glBufferSubData(GL_ARRAY_BUFFER, 1 * sizeof(float) * (mouse.trail.size() + 3), sizeof(float), &mouse.releaseY);
+    glBufferData(GL_ARRAY_BUFFER, (mouse.trail.size() + 0) * sizeof(float), &mouse.trail[0], GL_STATIC_DRAW);
     GLuint vao;
     glGenVertexArrays(1, &vao);
     vaos.push_back(vao);
@@ -441,31 +440,24 @@ void addLinesFromMouseState() {
 }
 
 void window_resize_callback(GLFWwindow* window, int width, int height) {
+    inputQueue.push(inputEvent::windowResize);
     screenWidth = width;
     screenHeight = height;
-    if(mouse.action == GLFW_PRESS) {
-        double x, y;
-        glfwGetCursorPos(window, &x, &y);
-        mouse.trail.push_back(physicalToRealX(x));
-        mouse.trail.push_back(physicalToRealY(y));
-    }
 	glViewport( 0, 0, screenWidth, screenHeight );
+    parseInputQueue();
 }
 
 void window_move_callback(GLFWwindow* window, int x, int y) {
-    if(mouse.action == GLFW_PRESS) {
-        double x, y;
-        glfwGetCursorPos(window, &x, &y);
-        mouse.trail.push_back(physicalToRealX(x));
-        mouse.trail.push_back(physicalToRealY(y));
-    }
+    inputQueue.push(inputEvent::windowMovement);
+    parseInputQueue();
 }
 
 void character_callback(GLFWwindow* window, unsigned int codepoint) {
     if(codepoint == '/') {
-        savebufferasimage();
+        inputQueue.push(inputEvent::keySlashPress);
     }
     //printf("%c\n", codepoint);
+    parseInputQueue();
 }
 
 // action (GLFW_PRESS, GLFW_RELEASE, GLFW_REPEAT)
@@ -487,6 +479,7 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 
 void drop_callback(GLFWwindow* window, int count, const char** paths)
 {
+    fprintf(stdLog, "drop callback\n");
     for (int i = 0; i < count; ++i) {
         printf("%s\n", paths[i]);
     }
@@ -494,6 +487,7 @@ void drop_callback(GLFWwindow* window, int count, const char** paths)
 
 void savebufferasimage() {
     printf("screenshot\n");
+    fprintf(stdLog, "screenshot saved\n");
     FILE* file = fopen("screenshot.BMP", "w");
     GLvoid* data = (GLvoid*)malloc(screenWidth * screenHeight * 4);
     glReadPixels(0, 0, screenWidth, screenHeight, GL_RGBA, GL_UNSIGNED_BYTE, data);
@@ -501,16 +495,100 @@ void savebufferasimage() {
     fclose(file);
 }
 
+// mouseLeftPress mouseMovement
+//     add mouseMovement to trail
 void parseInputQueue() {
+    // so I know if I'm drawling a line or if I should ignore the mouse moving
+    static inputEvent last = inputEvent::null;
     while(!inputQueue.empty()) {
         switch(inputQueue.front()) {
+            case inputEvent::scrollUp:
+                cameraScaleX *= 1.0 + scrollSpeedMultiplier;
+                cameraScaleY *= 1.0 + scrollSpeedMultiplier;
+                fprintf(stdLog, "scroll up\n");
+                break;
+            case inputEvent::scrollDown:
+                cameraScaleX *= 1.0 + (-1.0 * scrollSpeedMultiplier);
+                cameraScaleY *= 1.0 + (-1.0 * scrollSpeedMultiplier);
+                fprintf(stdLog, "scroll down\n");
+                break;
+            case inputEvent::keySlashPress:
+                savebufferasimage();
+                break;
+            case inputEvent::keySlashRelease:
+                break;
             case inputEvent::keySpacePress:
-                glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
+                previousPanX += currentPanX;
+                previousPanY += currentPanY;
+                currentPanX = 0.0;
+                currentPanY = 0.0;
+                glfwGetCursorPos(window, &mouseHiddenAtX, &mouseHiddenAtY);
+                glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+                fprintf(stdLog, "cursor disabled at %.0f %.0f\n", mouseHiddenAtX, mouseHiddenAtY);
+                last = inputEvent::keySpacePress;
+                fprintf(stdLog, "last = keySpacePress\n");
                 break;
             case inputEvent::keySpaceRelease:
                 glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+                glfwSetCursorPos(window, mouseHiddenAtX, mouseHiddenAtY);
+                fprintf(stdLog, "cursor enabled at %.0f %.0f\n", mouseHiddenAtX, mouseHiddenAtY);
+                last = inputEvent::keySpaceRelease;
+                fprintf(stdLog, "last = keySpaceRelease\n");
+                break;
+            case inputEvent::mouseLeftPress:
+                if(last != inputEvent::keySpacePress) {
+                    mouse.trail.clear();
+                    double x, y;
+                    glfwGetCursorPos(window, &x, &y);
+                    mouse.trail.push_back(physicalToRealX(x));
+                    mouse.trail.push_back(physicalToRealY(y));
+                    fprintf(stdLog, "mouse left pressed at %.0f %.0f\n", x, y);
+                    last = inputEvent::mouseLeftPress;
+                    fprintf(stdLog, "last = mouseLeftPress\n");
+                }
+                break;
+            case inputEvent::mouseLeftRelease:
+                fprintf(stdLog, "mouse left release\n");
+                if(mouse.trail.size() == 2) {
+                    addPoint(mouse.trail[0], mouse.trail[1]);
+                    mouse.trail.clear();
+                    fprintf(stdLog, "point added at %.0f %.0f\n", mouse.trail[0], mouse.trail[1]);
+                } else {
+                    addLinesFromMouseState();
+                    fprintf(stdLog, "add line\n");
+                }
+                last = inputEvent::mouseLeftRelease;
+                fprintf(stdLog, "last = mouseLeftRelease\n");
+                break;
+            case inputEvent::cursorMovement:
+                if(last == inputEvent::mouseLeftPress) {
+                    mouse.trail.push_back(physicalToRealX(cursorMovement.front()));
+                    cursorMovement.pop();
+                    mouse.trail.push_back(physicalToRealY(cursorMovement.front()));
+                    cursorMovement.pop();
+                } else if(last == inputEvent::keySpacePress) {
+                    currentPanX = (cursorMovement.front() - mouseHiddenAtX) / 100.0;
+                    cursorMovement.pop();
+                    currentPanY = (mouseHiddenAtY - cursorMovement.front()) / 100.0;
+                    cursorMovement.pop();
+                    fprintf(stdLog, "cameraOffset = %.0f %.0f", previousPanX + currentPanX, previousPanY + currentPanY);
+                } else {
+                    cursorMovement.pop();
+                    cursorMovement.pop();
+                }
+                break;
+            default:
                 break;
         }
         inputQueue.pop();
     }
 }
+// if you want to like draw a line when resizing or moving the window then you can do this
+    //if(mouse.action == GLFW_PRESS) {
+    //    double x, y;
+    //    glfwGetCursorPos(window, &x, &y);
+    //    mouse.trail.push_back(physicalToRealX(x));
+    //    mouse.trail.push_back(physicalToRealY(y));
+    //}
+
+// should parseInputQueue() be called at the end of each draw? Probably not but it's possible. Right now it is in every callback.
