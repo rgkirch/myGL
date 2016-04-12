@@ -1,0 +1,5 @@
+mouse left pressed at 365 239
+last = mouseLeftPress
+mouse left release
+add line
+last = mouseLeftRelease

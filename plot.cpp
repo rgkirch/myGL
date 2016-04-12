@@ -317,6 +317,7 @@ void init() {
 	glfwWindowHint( GLFW_CONTEXT_VERSION_MINOR, 3 );
 	glfwWindowHint( GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE );
 	glfwWindowHint( GLFW_RESIZABLE, GL_FALSE );
+    glfwWindowHint( GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE );
 
 	/* Create a windowed mode window and its OpenGL context */
 	window = glfwCreateWindow( screenWidth, screenHeight, windowTitle, NULL, NULL );
@@ -409,7 +410,7 @@ void scroll_callback(GLFWwindow* window, double xoffset, double yoffset) {
     } else if(yoffset > 0) {
         inputQueue.push(inputEvent::scrollUp);
     }
-    printf("scale %.2f %.2f\n", unitsPerPixelX, unitsPerPixelY);
+    fprintf(stdLog, "scale %.2f %.2f\n", unitsPerPixelX, unitsPerPixelY);
     parseInputQueue();
 }
 
