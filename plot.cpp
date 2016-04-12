@@ -49,7 +49,7 @@ std::queue<inputEvent> inputQueue;
 std::queue<double> cursorMovement;
 
 void parseInputQueue();
-void savebufferasimage();
+void saveBufferAsBytes();
 
 void init();
 FILE* stdLog;
@@ -74,7 +74,7 @@ struct mouseState mouse;
 
 const char* vertexShaderFileName = "vertexShader.glsl";
 const char* fragmentShaderFileName = "fragmentShader.glsl";
-int screenWidth = 700, screenHeight = 700;
+int screenWidth = 16, screenHeight = 16;
 float xmax, ymax, xmin, ymin;
 double mouseHiddenAtX;
 double mouseHiddenAtY;
@@ -100,6 +100,7 @@ double pixelToRealY(double y);
 float scrollSpeedMultiplier = 0.1;
 
 int loadPNG();
+int writePNG();
 
 void findMinMax(float &min, float &max, int length, float* nums) {
     for( int i=0; i<length; ++i ) {
@@ -484,10 +485,10 @@ void drop_callback(GLFWwindow* window, int count, const char** paths)
     }
 }
 
-void savebufferasimage() {
+void saveBufferAsBytes() {
     printf("screenshot\n");
-    fprintf(stdLog, "screenshot saved\n");
-    FILE* file = fopen("screenshot.BMP", "w");
+    //fprintf(stdLog, "screenshot saved\n");
+    FILE* file = fopen("screenshot", "wb");
     GLvoid* data = (GLvoid*)malloc(screenWidth * screenHeight * 4);
     glReadPixels(0, 0, screenWidth, screenHeight, GL_RGBA, GL_UNSIGNED_BYTE, data);
     fwrite(data, screenWidth * screenHeight * 4, 1, file);
@@ -512,7 +513,8 @@ void parseInputQueue() {
                 fprintf(stdLog, "scroll down\n");
                 break;
             case inputEvent::keySlashPress:
-                savebufferasimage();
+                //saveBufferAsBytes();
+                writePNG();
                 break;
             case inputEvent::keySlashRelease:
                 break;
@@ -593,43 +595,41 @@ double pixelToRealY(double py) {
     return (py - (screenHeight / 2.0)) * unitsPerPixelY - viewOffsetRealY;
 }
 
-int loadPNG() {
-
+int writePNG() {
+    GLvoid* data = (GLvoid*)malloc(screenWidth * screenHeight * 4);
+    glReadPixels(0, 0, screenWidth, screenHeight, GL_RGBA, GL_UNSIGNED_BYTE, data);
+    png_image image;
+    //printf("sizeof image %d\n", sizeof(image));
+    memset(&image, 0x00, sizeof(image));
+    image.version = PNG_IMAGE_VERSION;
+    image.width = screenWidth;
+    image.height = screenHeight;
+    image.format = PNG_FORMAT_RGBA;
+    image.flags = 0;
+    image.opaque = NULL;
+    image.colormap_entries = 0;
+    png_image_write_to_file(&image, "screenshot.png", 0, data, 0, NULL);
+    png_image_free(&image);
     return 0;
 }
+int readPNG() {
 /*
-int loadPNG() {
-    char screenshotName = "screenshot.png";
-    FILE* fp = fopen(screenshotName, "rb");
-    if( !fp ) {
-        printf("error, could not read screenshot file");
-        return 1;
+    int imageSizeBytes = 0;
+    char imageName[] = "screenShot.png";
+    png_image image;
+    memset(&image, 0x00, imageSizeBytes);
+    image.version = PNG_IMAGE_VERSION;
+    image.width = screenWidth;
+    image.height = screenHeight;
+    if (png_image_begin_read_from_file(&image, imageName) != 0) {
+        png_bytep buffer;
+        image.format = PNG_FORMAT_RGBA;
+        buffer = (unsigned char*)malloc(PNG_IMAGE_SIZE(image));
+        if (buffer != NULL && png_image_finish_read(&image, NULL, buffer, 0, NULL) != 0) {
+        }
     }
-    fread(header, 1, number, fp);
-    is_png = !png_sig_cmp()header, 0, number;
-    if(!is_png) {
-        printf("Not a png file.\n");
-        return 1;
-    }
-    png_structp png_ptr = png_create_reade_struct(PNG_LIBPNG_VER_STRING, (png_voidp)user_error_ptr, user_eror_fn, user_warning_fn);
-    if(!png_ptr) {
-        printf("png error\n");
-        return 1;
-    }
-    png_infop info_ptr = png_create_struct(png_ptr);
-    if(!info_ptr) {
-        png_destroy_read_struct(&png_ptr, (png_infopp)NULL, (png_infopp)NULL);
-        printf("Error, png.\n");
-        return 1;
-    }
-    png_infop end_info = png_create_info_struct(png_ptr);
-    if(!end_info) {
-        png_destroy_read_struct(&png_ptr, &info_ptr, (png_infopp)NULL);
-        printf("error, png\n");
-        return 1;
-    }
-}
 */
+}
     //When libpng encounters an error, it expects to longjmp back to your routine. There- fore, you will need to call setjmp and pass your png_jmpbuf(png_ptr). If you read the file from different routines, you will need to update the jmpbuf field every time you enter a new routine that will call a png_*() function.
 
 // if you want to like draw a line when resizing or moving the window then you can do this
