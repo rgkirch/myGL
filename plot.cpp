@@ -14,7 +14,7 @@
 #include <queue>
 
 //#include <boost/filesystem.hpp>
-//#include <png.h>
+#include <png.h>
 
 //#include <fstream>
 //#include <sstream>
@@ -98,6 +98,8 @@ double pixelToRealX(double x);
 double pixelToRealY(double y);
 
 float scrollSpeedMultiplier = 0.1;
+
+int loadPNG();
 
 void findMinMax(float &min, float &max, int length, float* nums) {
     for( int i=0; i<length; ++i ) {
@@ -590,6 +592,46 @@ double pixelToRealX(double px) {
 double pixelToRealY(double py) {
     return (py - (screenHeight / 2.0)) * unitsPerPixelY - viewOffsetRealY;
 }
+
+int loadPNG() {
+
+    return 0;
+}
+/*
+int loadPNG() {
+    char screenshotName = "screenshot.png";
+    FILE* fp = fopen(screenshotName, "rb");
+    if( !fp ) {
+        printf("error, could not read screenshot file");
+        return 1;
+    }
+    fread(header, 1, number, fp);
+    is_png = !png_sig_cmp()header, 0, number;
+    if(!is_png) {
+        printf("Not a png file.\n");
+        return 1;
+    }
+    png_structp png_ptr = png_create_reade_struct(PNG_LIBPNG_VER_STRING, (png_voidp)user_error_ptr, user_eror_fn, user_warning_fn);
+    if(!png_ptr) {
+        printf("png error\n");
+        return 1;
+    }
+    png_infop info_ptr = png_create_struct(png_ptr);
+    if(!info_ptr) {
+        png_destroy_read_struct(&png_ptr, (png_infopp)NULL, (png_infopp)NULL);
+        printf("Error, png.\n");
+        return 1;
+    }
+    png_infop end_info = png_create_info_struct(png_ptr);
+    if(!end_info) {
+        png_destroy_read_struct(&png_ptr, &info_ptr, (png_infopp)NULL);
+        printf("error, png\n");
+        return 1;
+    }
+}
+*/
+    //When libpng encounters an error, it expects to longjmp back to your routine. There- fore, you will need to call setjmp and pass your png_jmpbuf(png_ptr). If you read the file from different routines, you will need to update the jmpbuf field every time you enter a new routine that will call a png_*() function.
+
 // if you want to like draw a line when resizing or moving the window then you can do this
     //if(mouse.action == GLFW_PRESS) {
     //    double x, y;

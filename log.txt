@@ -1,5 +1,1098 @@
-mouse left pressed at 365 239
+window resized to 1366 768
+mouse left pressed at 812 434
 last = mouseLeftPress
 mouse left release
 add line
+last = mouseLeftRelease
+mouse left pressed at 826 536
+last = mouseLeftPress
+mouse left release
+add line
+last = mouseLeftRelease
+scale 1.00 1.00
+scroll up
+scale 1.10 1.10
+scroll up
+scale 1.21 1.21
+scroll up
+scale 1.33 1.33
+scroll up
+scale 1.46 1.46
+scroll up
+scale 1.61 1.61
+scroll up
+scale 1.77 1.77
+scroll up
+scale 1.95 1.95
+scroll up
+scale 2.14 2.14
+scroll up
+scale 2.36 2.36
+scroll up
+scale 2.59 2.59
+scroll up
+scale 2.85 2.85
+scroll up
+scale 3.14 3.14
+scroll up
+scale 3.45 3.45
+scroll up
+scale 3.80 3.80
+scroll up
+scale 4.18 4.18
+scroll up
+scale 4.59 4.59
+scroll up
+scale 5.05 5.05
+scroll up
+scale 5.56 5.56
+scroll up
+scale 6.12 6.12
+scroll up
+scale 6.73 6.73
+scroll up
+scale 7.40 7.40
+scroll up
+mouse left pressed at 883 558
+last = mouseLeftPress
+mouse left release
+add line
+last = mouseLeftRelease
+scale 8.14 8.14
+scroll up
+scale 8.95 8.95
+scroll up
+scale 9.85 9.85
+scroll up
+scale 10.83 10.83
+scroll up
+scale 11.92 11.92
+scroll up
+scale 13.11 13.11
+scroll up
+scale 14.42 14.42
+scroll up
+scale 15.86 15.86
+scroll up
+scale 17.45 17.45
+scroll up
+scale 19.19 19.19
+scroll up
+scale 21.11 21.11
+scroll up
+scale 23.23 23.23
+scroll up
+scale 25.55 25.55
+scroll up
+scale 28.10 28.10
+scroll up
+scale 30.91 30.91
+scroll up
+scale 34.00 34.00
+scroll up
+scale 37.40 37.40
+scroll up
+scale 41.14 41.14
+scroll up
+scale 45.26 45.26
+scroll up
+scale 49.79 49.79
+scroll up
+scale 54.76 54.76
+scroll up
+scale 60.24 60.24
+scroll up
+mouse left pressed at 660 366
+last = mouseLeftPress
+mouse left release
+add line
+last = mouseLeftRelease
+cursor disabled at 466 433
+last = keySpacePress
+cursor enabled at 466 433
+last = keySpaceRelease
+mouse left pressed at 349 394
+last = mouseLeftPress
+mouse left release
+add line
+last = mouseLeftRelease
+mouse left pressed at 495 291
+last = mouseLeftPress
+mouse left release
+add line
+last = mouseLeftRelease
+mouse left pressed at 249 545
+last = mouseLeftPress
+mouse left release
+add line
+last = mouseLeftRelease
+mouse left pressed at 481 565
+last = mouseLeftPress
+mouse left release
+add line
+last = mouseLeftRelease
+scale 66.26 66.26
+scroll down
+mouse left pressed at 361 564
+last = mouseLeftPress
+mouse left release
+add line
+last = mouseLeftRelease
+scale 59.64 59.64
+scroll up
+scale 65.60 65.60
+scroll up
+scale 72.16 72.16
+scroll up
+scale 79.38 79.38
+scroll up
+mouse left pressed at 659 493
+last = mouseLeftPress
+mouse left release
+point added at -24585 -10976
+last = mouseLeftRelease
+scale 87.32 87.32
+scroll up
+scale 96.05 96.05
+scroll up
+scale 105.65 105.65
+scroll up
+scale 116.22 116.22
+scroll up
+scale 127.84 127.84
+scroll up
+scale 140.62 140.62
+scroll up
+scale 154.68 154.68
+scroll up
+scale 170.15 170.15
+scroll up
+scale 187.17 187.17
+scroll up
+scale 205.89 205.89
+scroll up
+scale 226.47 226.47
+scroll up
+scale 249.12 249.12
+scroll up
+scale 274.03 274.03
+scroll up
+scale 301.44 301.44
+scroll up
+scale 331.58 331.58
+scroll up
+scale 364.74 364.74
+scroll up
+scale 401.21 401.21
+scroll up
+scale 441.33 441.33
+scroll up
+scale 485.47 485.47
+scroll up
+scale 534.01 534.01
+scroll up
+scale 587.42 587.42
+scroll up
+scale 646.16 646.16
+scroll up
+scale 710.77 710.77
+scroll up
+scale 781.85 781.85
+scroll up
+scale 860.03 860.03
+scroll up
+mouse left pressed at 600 499
+last = mouseLeftPress
+mouse left release
+point added at -101011 -110253
+last = mouseLeftRelease
+mouse left pressed at 600 499
+last = mouseLeftPress
+mouse left release
+add line
+last = mouseLeftRelease
+mouse left pressed at 809 441
+last = mouseLeftPress
+mouse left release
+point added at 96711 -55383
+last = mouseLeftRelease
+mouse left pressed at 640 508
+last = mouseLeftPress
+mouse left release
+add line
+last = mouseLeftRelease
+mouse left pressed at 581 427
+last = mouseLeftPress
+mouse left release
+point added at -118986 -42138
+last = mouseLeftRelease
+mouse left pressed at 581 427
+last = mouseLeftPress
+mouse left release
+add line
+last = mouseLeftRelease
+mouse left pressed at 734 330
+last = mouseLeftPress
+mouse left release
+point added at 25758 49628
+last = mouseLeftRelease
+mouse left pressed at 734 330
+last = mouseLeftPress
+mouse left release
+point added at 25758 49628
+last = mouseLeftRelease
+mouse left pressed at 734 330
+last = mouseLeftPress
+mouse left release
+point added at 25758 49628
+last = mouseLeftRelease
+mouse left pressed at 759 340
+last = mouseLeftPress
+mouse left release
+point added at 49409 40167
+last = mouseLeftRelease
+mouse left pressed at 780 351
+last = mouseLeftPress
+mouse left release
+add line
+last = mouseLeftRelease
+mouse left pressed at 788 382
+last = mouseLeftPress
+mouse left release
+point added at 76844 434
+last = mouseLeftRelease
+mouse left pressed at 788 391
+last = mouseLeftPress
+mouse left release
+point added at 76844 -8081
+last = mouseLeftRelease
+mouse left pressed at 788 391
+last = mouseLeftPress
+mouse left release
+point added at 76844 -8081
+last = mouseLeftRelease
+mouse left pressed at 788 391
+last = mouseLeftPress
+mouse left release
+point added at 76844 -8081
+last = mouseLeftRelease
+mouse left pressed at 788 391
+last = mouseLeftPress
+mouse left release
+point added at 76844 -8081
+last = mouseLeftRelease
+mouse left pressed at 788 391
+last = mouseLeftPress
+mouse left release
+point added at 76844 -8081
+last = mouseLeftRelease
+mouse left pressed at 780 374
+last = mouseLeftPress
+mouse left release
+point added at 69276 8002
+last = mouseLeftRelease
+mouse left pressed at 562 234
+last = mouseLeftPress
+mouse left release
+point added at -136960 140447
+last = mouseLeftRelease
+mouse left pressed at 562 234
+last = mouseLeftPress
+mouse left release
+add line
+last = mouseLeftRelease
+mouse left pressed at 583 302
+last = mouseLeftPress
+mouse left release
+point added at -117094 76117
+last = mouseLeftRelease
+mouse left pressed at 583 302
+last = mouseLeftPress
+mouse left release
+point added at -117094 76117
+last = mouseLeftRelease
+mouse left pressed at 590 299
+last = mouseLeftPress
+mouse left release
+add line
+last = mouseLeftRelease
+mouse left pressed at 720 295
+last = mouseLeftPress
+mouse left release
+add line
+last = mouseLeftRelease
+mouse left pressed at 601 604
+last = mouseLeftPress
+mouse left release
+point added at -100065 -209587
+last = mouseLeftRelease
+mouse left pressed at 454 439
+last = mouseLeftPress
+mouse left release
+point added at -239132 -53491
+last = mouseLeftRelease
+mouse left pressed at 454 439
+last = mouseLeftPress
+mouse left release
+point added at -239132 -53491
+last = mouseLeftRelease
+mouse left pressed at 267 330
+last = mouseLeftPress
+mouse left release
+point added at -416042 49628
+last = mouseLeftRelease
+mouse left pressed at 267 330
+last = mouseLeftPress
+mouse left release
+point added at -416042 49628
+last = mouseLeftRelease
+mouse left pressed at 267 330
+last = mouseLeftPress
+mouse left release
+point added at -416042 49628
+last = mouseLeftRelease
+mouse left pressed at 267 330
+last = mouseLeftPress
+mouse left release
+point added at -416042 49628
+last = mouseLeftRelease
+mouse left pressed at 267 376
+last = mouseLeftPress
+mouse left release
+add line
+last = mouseLeftRelease
+mouse left pressed at 269 375
+last = mouseLeftPress
+mouse left release
+point added at -414149 7056
+last = mouseLeftRelease
+mouse left pressed at 269 465
+last = mouseLeftPress
+mouse left release
+point added at -414149 -78088
+last = mouseLeftRelease
+mouse left pressed at 269 465
+last = mouseLeftPress
+mouse left release
+point added at -414149 -78088
+last = mouseLeftRelease
+mouse left pressed at 269 323
+last = mouseLeftPress
+mouse left release
+add line
+last = mouseLeftRelease
+scale 946.04 946.04
+scroll up
+scale 1040.64 1040.64
+scroll up
+scale 1144.71 1144.71
+scroll up
+scale 1259.18 1259.18
+scroll up
+scale 1385.09 1385.09
+scroll up
+scale 1523.60 1523.60
+scroll up
+scale 1675.96 1675.96
+scroll up
+scale 1843.56 1843.56
+scroll up
+scale 2027.92 2027.92
+scroll up
+scale 2230.71 2230.71
+scroll up
+scale 2453.78 2453.78
+scroll up
+scale 2699.16 2699.16
+scroll down
+scale 2429.24 2429.24
+scroll down
+scale 2186.32 2186.32
+scroll down
+scale 1967.69 1967.69
+scroll down
+scale 1770.92 1770.92
+scroll down
+scale 1593.83 1593.83
+scroll down
+scale 1434.44 1434.44
+scroll down
+scale 1291.00 1291.00
+scroll down
+scale 1161.90 1161.90
+scroll down
+scale 1045.71 1045.71
+scroll down
+scale 941.14 941.14
+scroll down
+scale 847.02 847.02
+scroll down
+scale 762.32 762.32
+scroll down
+scale 686.09 686.09
+scroll down
+scale 617.48 617.48
+scroll down
+scale 555.73 555.73
+scroll down
+scale 500.16 500.16
+scroll down
+scale 450.14 450.14
+scroll down
+scale 405.13 405.13
+scroll down
+scale 364.62 364.62
+scroll down
+scale 328.15 328.15
+scroll down
+scale 295.34 295.34
+scroll down
+scale 265.81 265.81
+scroll down
+scale 239.22 239.22
+scroll down
+scale 215.30 215.30
+scroll down
+scale 193.77 193.77
+scroll down
+scale 174.39 174.39
+scroll down
+scale 156.96 156.96
+scroll down
+scale 141.26 141.26
+scroll down
+scale 127.13 127.13
+scroll down
+scale 114.42 114.42
+scroll down
+scale 102.98 102.98
+scroll down
+scale 92.68 92.68
+scroll down
+scale 83.41 83.41
+scroll down
+scale 75.07 75.07
+scroll down
+scale 67.56 67.56
+scroll down
+scale 60.81 60.81
+scroll down
+scale 54.73 54.73
+scroll down
+scale 49.25 49.25
+scroll up
+mouse left pressed at 226 632
+last = mouseLeftPress
+mouse left release
+add line
+last = mouseLeftRelease
+mouse left pressed at 634 616
+last = mouseLeftPress
+mouse left release
+add line
+last = mouseLeftRelease
+mouse left pressed at 887 540
+last = mouseLeftPress
+mouse left release
+add line
+last = mouseLeftRelease
+mouse left pressed at 897 651
+last = mouseLeftPress
+mouse left release
+add line
+last = mouseLeftRelease
+scale 54.18 54.18
+scroll up
+scale 59.60 59.60
+scroll up
+scale 65.56 65.56
+scroll up
+scale 72.11 72.11
+scroll up
+scale 79.32 79.32
+scroll up
+scale 87.26 87.26
+scroll up
+scale 95.98 95.98
+scroll up
+scale 105.58 105.58
+scroll up
+scale 116.14 116.14
+scroll up
+scale 127.75 127.75
+scroll up
+scale 140.53 140.53
+scroll up
+scale 154.58 154.58
+scroll up
+scale 170.04 170.04
+scroll up
+scale 187.04 187.04
+scroll up
+scale 205.75 205.75
+scroll up
+scale 226.32 226.32
+scroll up
+scale 248.95 248.95
+scroll up
+scale 273.85 273.85
+scroll up
+scale 301.23 301.23
+scroll up
+scale 331.36 331.36
+scroll up
+scale 364.49 364.49
+scroll up
+scale 400.94 400.94
+scroll up
+scale 441.04 441.04
+scroll up
+scale 485.14 485.14
+scroll up
+scale 533.66 533.66
+scroll up
+scale 587.02 587.02
+scroll up
+scale 645.72 645.72
+scroll up
+scale 710.29 710.29
+scroll up
+scale 781.32 781.32
+scroll up
+scale 859.46 859.46
+scroll up
+scale 945.40 945.40
+scroll up
+scale 1039.94 1039.94
+scroll up
+scale 1143.94 1143.94
+scroll up
+scale 1258.33 1258.33
+scroll up
+scale 1384.16 1384.16
+scroll up
+scale 1522.58 1522.58
+scroll up
+scale 1674.84 1674.84
+scroll up
+scale 1842.32 1842.32
+scroll up
+scale 2026.55 2026.55
+scroll up
+scale 2229.21 2229.21
+scroll up
+scale 2452.13 2452.13
+scroll up
+scale 2697.34 2697.34
+scroll up
+scale 2967.08 2967.08
+scroll up
+scale 3263.79 3263.79
+scroll up
+scale 3590.16 3590.16
+scroll up
+scale 3949.18 3949.18
+scroll up
+scale 4344.10 4344.10
+scroll up
+scale 4778.51 4778.51
+scroll up
+scale 5256.36 5256.36
+scroll up
+scale 5782.00 5782.00
+scroll up
+scale 6360.19 6360.19
+scroll up
+scale 6996.21 6996.21
+scroll up
+scale 7695.84 7695.84
+scroll up
+scale 8465.42 8465.42
+scroll up
+scale 9311.96 9311.96
+scroll up
+scale 10243.16 10243.16
+scroll up
+scale 11267.47 11267.47
+scroll up
+scale 12394.22 12394.22
+scroll up
+scale 13633.64 13633.64
+scroll up
+scale 14997.01 14997.01
+scroll up
+scale 16496.71 16496.71
+scroll up
+scale 18146.38 18146.38
+scroll up
+scale 19961.02 19961.02
+scroll up
+scale 21957.12 21957.12
+scroll up
+scale 24152.83 24152.83
+scroll up
+scale 26568.11 26568.11
+scroll up
+scale 29224.92 29224.92
+scroll up
+scale 32147.42 32147.42
+scroll up
+scale 35362.16 35362.16
+scroll up
+scale 38898.37 38898.37
+scroll up
+scale 42788.21 42788.21
+scroll up
+scale 47067.03 47067.03
+scroll up
+scale 51773.74 51773.74
+scroll down
+scale 46596.36 46596.36
+scroll down
+scale 41936.73 41936.73
+scroll down
+scale 37743.05 37743.05
+scroll down
+scale 33968.75 33968.75
+scroll down
+scale 30571.87 30571.87
+scroll down
+scale 27514.69 27514.69
+scroll down
+scale 24763.22 24763.22
+scroll down
+scale 22286.90 22286.90
+scroll down
+scale 20058.21 20058.21
+scroll down
+scale 18052.39 18052.39
+scroll down
+scale 16247.15 16247.15
+scroll down
+scale 14622.43 14622.43
+scroll down
+scale 13160.19 13160.19
+scroll down
+scale 11844.17 11844.17
+scroll down
+scale 10659.75 10659.75
+scroll down
+scale 9593.78 9593.78
+scroll down
+scale 8634.40 8634.40
+scroll down
+scale 7770.96 7770.96
+scroll down
+scale 6993.86 6993.86
+scroll down
+scale 6294.48 6294.48
+scroll down
+scale 5665.03 5665.03
+scroll down
+scale 5098.53 5098.53
+scroll down
+scale 4588.67 4588.67
+scroll down
+scale 4129.81 4129.81
+scroll down
+scale 3716.83 3716.83
+scroll down
+scale 3345.14 3345.14
+scroll down
+scale 3010.63 3010.63
+scroll down
+scale 2709.57 2709.57
+scroll down
+scale 2438.61 2438.61
+scroll down
+scale 2194.75 2194.75
+scroll down
+scale 1975.27 1975.27
+scroll down
+scale 1777.75 1777.75
+scroll down
+scale 1599.97 1599.97
+scroll down
+scale 1439.97 1439.97
+scroll down
+scale 1295.98 1295.98
+scroll down
+scale 1166.38 1166.38
+scroll down
+scale 1049.74 1049.74
+scroll down
+scale 944.77 944.77
+scroll down
+scale 850.29 850.29
+scroll down
+scale 765.26 765.26
+scroll down
+scale 688.74 688.74
+scroll down
+scale 619.86 619.86
+scroll down
+scale 557.88 557.88
+scroll down
+scale 502.09 502.09
+scroll down
+scale 451.88 451.88
+scroll down
+scale 406.69 406.69
+scroll down
+scale 366.02 366.02
+scroll down
+scale 329.42 329.42
+scroll down
+scale 296.48 296.48
+scroll down
+scale 266.83 266.83
+scroll down
+scale 240.15 240.15
+scroll down
+scale 216.13 216.13
+scroll down
+scale 194.52 194.52
+scroll down
+scale 175.07 175.07
+scroll down
+scale 157.56 157.56
+scroll down
+scale 141.80 141.80
+scroll down
+scale 127.62 127.62
+scroll down
+scale 114.86 114.86
+scroll down
+scale 103.38 103.38
+scroll down
+scale 93.04 93.04
+scroll down
+scale 83.73 83.73
+scroll down
+scale 75.36 75.36
+scroll down
+scale 67.82 67.82
+scroll down
+scale 61.04 61.04
+scroll down
+scale 54.94 54.94
+scroll up
+scale 60.43 60.43
+scroll up
+scale 66.47 66.47
+scroll up
+scale 73.12 73.12
+scroll up
+scale 80.43 80.43
+scroll up
+scale 88.48 88.48
+scroll up
+scale 97.33 97.33
+scroll up
+scale 107.06 107.06
+scroll up
+scale 117.76 117.76
+scroll up
+scale 129.54 129.54
+scroll down
+scale 116.59 116.59
+scroll down
+scale 104.93 104.93
+scroll up
+scale 115.42 115.42
+scroll up
+scale 126.96 126.96
+scroll up
+scale 139.66 139.66
+scroll up
+scale 153.63 153.63
+scroll up
+scale 168.99 168.99
+scroll up
+scale 185.89 185.89
+scroll down
+scale 167.30 167.30
+scroll down
+scale 150.57 150.57
+scroll down
+scale 135.51 135.51
+scroll down
+scale 121.96 121.96
+scroll down
+scale 109.76 109.76
+scroll down
+scale 98.79 98.79
+scroll down
+scale 88.91 88.91
+scroll down
+scale 80.02 80.02
+scroll down
+scale 72.02 72.02
+scroll down
+scale 64.81 64.81
+scroll down
+scale 58.33 58.33
+scroll down
+scale 52.50 52.50
+scroll down
+scale 47.25 47.25
+scroll down
+scale 42.52 42.52
+scroll down
+scale 38.27 38.27
+scroll up
+scale 42.10 42.10
+scroll up
+scale 46.31 46.31
+scroll up
+scale 50.94 50.94
+scroll up
+scale 56.03 56.03
+scroll up
+scale 61.64 61.64
+scroll up
+scale 67.80 67.80
+scroll up
+scale 74.58 74.58
+scroll up
+scale 82.04 82.04
+scroll down
+scale 73.84 73.84
+scroll down
+scale 66.45 66.45
+scroll down
+scale 59.81 59.81
+scroll down
+scale 53.83 53.83
+scroll up
+scale 59.21 59.21
+scroll up
+scale 65.13 65.13
+scroll up
+scale 71.64 71.64
+scroll down
+scale 64.48 64.48
+scroll down
+scale 58.03 58.03
+scroll down
+scale 52.23 52.23
+scroll down
+scale 47.01 47.01
+scroll up
+scale 51.71 51.71
+scroll up
+scale 56.88 56.88
+scroll up
+scale 62.56 62.56
+scroll down
+scale 56.31 56.31
+scroll up
+scale 61.94 61.94
+scroll down
+scale 55.74 55.74
+scroll down
+scale 50.17 50.17
+scroll down
+scale 45.15 45.15
+scroll up
+scale 49.67 49.67
+scroll up
+scale 54.64 54.64
+scroll up
+scale 60.10 60.10
+scroll up
+scale 66.11 66.11
+scroll up
+scale 72.72 72.72
+scroll up
+scale 79.99 79.99
+scroll up
+scale 87.99 87.99
+scroll up
+scale 96.79 96.79
+scroll up
+scale 106.47 106.47
+scroll up
+scale 117.12 117.12
+scroll up
+scale 128.83 128.83
+scroll up
+scale 141.71 141.71
+scroll up
+scale 155.88 155.88
+scroll up
+scale 171.47 171.47
+scroll up
+scale 188.61 188.61
+scroll up
+scale 207.48 207.48
+scroll up
+scale 228.22 228.22
+scroll up
+scale 251.05 251.05
+scroll up
+scale 276.15 276.15
+scroll up
+scale 303.77 303.77
+scroll up
+scale 334.14 334.14
+scroll up
+scale 367.56 367.56
+scroll up
+scale 404.31 404.31
+scroll up
+scale 444.74 444.74
+scroll up
+scale 489.22 489.22
+scroll up
+scale 538.14 538.14
+scroll up
+scale 591.95 591.95
+scroll up
+scale 651.15 651.15
+scroll up
+scale 716.27 716.27
+scroll up
+scale 787.89 787.89
+scroll up
+scale 866.68 866.68
+scroll up
+scale 953.35 953.35
+scroll up
+scale 1048.68 1048.68
+scroll up
+scale 1153.55 1153.55
+scroll up
+scale 1268.91 1268.91
+scroll up
+scale 1395.80 1395.80
+scroll up
+scale 1535.38 1535.38
+scroll up
+scale 1688.92 1688.92
+scroll up
+scale 1857.81 1857.81
+scroll up
+scale 2043.59 2043.59
+scroll up
+scale 2247.95 2247.95
+scroll up
+scale 2472.74 2472.74
+scroll up
+scale 2720.02 2720.02
+scroll up
+scale 2992.02 2992.02
+scroll up
+scale 3291.22 3291.22
+scroll up
+scale 3620.34 3620.34
+scroll up
+scale 3982.37 3982.37
+scroll down
+scale 3584.14 3584.14
+scroll down
+scale 3225.72 3225.72
+scroll down
+scale 2903.15 2903.15
+scroll down
+scale 2612.84 2612.84
+scroll down
+scale 2351.55 2351.55
+scroll down
+scale 2116.40 2116.40
+scroll down
+scale 1904.76 1904.76
+scroll down
+scale 1714.28 1714.28
+scroll down
+scale 1542.85 1542.85
+scroll down
+scale 1388.57 1388.57
+scroll down
+scale 1249.71 1249.71
+scroll down
+scale 1124.74 1124.74
+scroll down
+scale 1012.27 1012.27
+scroll down
+scale 911.04 911.04
+scroll down
+scale 819.94 819.94
+scroll down
+scale 737.94 737.94
+scroll down
+scale 664.15 664.15
+scroll down
+scale 597.73 597.73
+scroll down
+scale 537.96 537.96
+scroll down
+scale 484.16 484.16
+scroll down
+scale 435.75 435.75
+scroll down
+scale 392.17 392.17
+scroll down
+scale 352.96 352.96
+scroll down
+scale 317.66 317.66
+scroll down
+scale 285.89 285.89
+scroll down
+scale 257.30 257.30
+scroll down
+scale 231.57 231.57
+scroll down
+scale 208.42 208.42
+scroll down
+scale 187.57 187.57
+scroll down
+scale 168.82 168.82
+scroll down
+scale 151.94 151.94
+scroll down
+scale 136.74 136.74
+scroll down
+scale 123.07 123.07
+scroll down
+scale 110.76 110.76
+scroll down
+scale 99.69 99.69
+scroll down
+scale 89.72 89.72
+scroll down
+scale 80.74 80.74
+scroll down
+scale 72.67 72.67
+scroll down
+scale 65.40 65.40
+scroll down
+scale 58.86 58.86
+scroll down
+scale 52.98 52.98
+scroll down
+cursor disabled at 412 37
+last = keySpacePress
+cursor enabled at 412 37
+last = keySpaceRelease
+mouse left pressed at 283 628
+last = mouseLeftPress
+mouse left release
+add line
+last = mouseLeftRelease
+mouse left pressed at 1193 677
+last = mouseLeftPress
+mouse left release
+point added at -6782 -22805
+last = mouseLeftRelease
+cursor disabled at 1111 172
+last = keySpacePress
+cursor enabled at 1111 172
+last = keySpaceRelease
+screenshot saved
+window resized to 700 700
+mouse left pressed at 508 417
+last = mouseLeftPress
+mouse left release
+point added at -16556 -9602
 last = mouseLeftRelease
