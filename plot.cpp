@@ -57,10 +57,10 @@ GLuint createShader(char* vertexShaderFileName, char* fragmentShaderFileName);
 void checkShaderStepSuccess(GLint program, GLuint status);
 void printShaderLog(char* errorMessage, GLuint shader);
 struct shaderUniforms {
-    GLint cameraOffsetX;
-    GLint cameraOffsetY;
-    GLint cameraScaleX;
-    GLint cameraScaleY;
+    GLint viewOffsetX;
+    GLint viewOffsetY;
+    GLint unitsPerPixelX;
+    GLint unitsPerPixelY;
     GLint screenWidth;
     GLint screenHeight;
 };
@@ -87,14 +87,14 @@ std::vector<GLuint> vaos;
 std::vector<GLuint>primitiveType;
 
 //camera - coord of top left of screen
-double currentPanX = 0.0;
-double currentPanY = 0.0;
-double previousPanX = 0.0;
-double previousPanY = 0.0;
-double cameraScaleX = 1.0;
-double cameraScaleY = 1.0;
-double physicalToRealX(double x);
-double physicalToRealY(double y);
+double tempViewOffsetX = 0.0;
+double tempViewOffsetY = 0.0;
+double viewOffsetRealX = 0.0;
+double viewOffsetRealY = 0.0;
+double unitsPerPixelX = 1.0;
+double unitsPerPixelY = 1.0;
+double pixelToRealX(double x);
+double pixelToRealY(double y);
 
 float scrollSpeedMultiplier = 0.1;
 
@@ -114,7 +114,7 @@ void testCursorPolling() {
     double x, y;
     if((thisTime = glfwGetTime()) - lastTime > 1) {
         glfwGetCursorPos(window, &x, &y);
-        printf("%f, %f\n", x, y);
+        printf("%f, %f\n", x, screenHeight - y);
         lastTime = thisTime;
     }
 }
@@ -166,10 +166,10 @@ void addPoint(int length, float* nums) {
 void draw() {
     GLuint shaderProgram = createShader((char*)vertexShaderFileName, (char*)fragmentShaderFileName);
     glUseProgram(shaderProgram);
-    shaderUniforms.cameraOffsetX = glGetUniformLocation(shaderProgram, "cameraOffsetX");
-    shaderUniforms.cameraOffsetY = glGetUniformLocation(shaderProgram, "cameraOffsetY");
-    shaderUniforms.cameraScaleX = glGetUniformLocation(shaderProgram, "cameraScaleX");
-    shaderUniforms.cameraScaleY = glGetUniformLocation(shaderProgram, "cameraScaleY");
+    shaderUniforms.viewOffsetX = glGetUniformLocation(shaderProgram, "viewOffsetX");
+    shaderUniforms.viewOffsetY = glGetUniformLocation(shaderProgram, "viewOffsetY");
+    shaderUniforms.unitsPerPixelX = glGetUniformLocation(shaderProgram, "unitsPerPixelX");
+    shaderUniforms.unitsPerPixelY = glGetUniformLocation(shaderProgram, "unitsPerPixelY");
     shaderUniforms.screenWidth = glGetUniformLocation(shaderProgram, "screenWidth");
     shaderUniforms.screenHeight = glGetUniformLocation(shaderProgram, "screenHeight");
 
@@ -182,10 +182,10 @@ void draw() {
 		glfwPollEvents();
         //glfwWaitEvents();
 		glClear( GL_COLOR_BUFFER_BIT );
-        glUniform1f(shaderUniforms.cameraOffsetX, previousPanX + currentPanX);
-        glUniform1f(shaderUniforms.cameraOffsetY, previousPanY + currentPanY);
-        glUniform1f(shaderUniforms.cameraScaleX, cameraScaleX);
-        glUniform1f(shaderUniforms.cameraScaleY, cameraScaleY);
+        glUniform1f(shaderUniforms.viewOffsetX, viewOffsetRealX + tempViewOffsetX);
+        glUniform1f(shaderUniforms.viewOffsetY, viewOffsetRealY + tempViewOffsetY);
+        glUniform1f(shaderUniforms.unitsPerPixelX, unitsPerPixelX);
+        glUniform1f(shaderUniforms.unitsPerPixelY, unitsPerPixelY);
         glUniform1f(shaderUniforms.screenWidth, screenWidth);
         glUniform1f(shaderUniforms.screenHeight, screenHeight);
         for(int i = 0; i < pointLengths.size(); ++i) {
@@ -371,7 +371,7 @@ void init() {
 void cursor_position_callback(GLFWwindow* window, double xpos, double ypos) {
     inputQueue.push(inputEvent::cursorMovement);
     cursorMovement.push(xpos);
-    cursorMovement.push(ypos);
+    cursorMovement.push(screenHeight - ypos);
     parseInputQueue();
 }
 void mouse_button_callback(GLFWwindow* window, int button, int action, int mods) {
@@ -408,14 +408,8 @@ void scroll_callback(GLFWwindow* window, double xoffset, double yoffset) {
     } else if(yoffset > 0) {
         inputQueue.push(inputEvent::scrollUp);
     }
+    printf("scale %.2f %.2f\n", unitsPerPixelX, unitsPerPixelY);
     parseInputQueue();
-}
-
-double physicalToRealX(double px) {
-        return ((px + previousPanX + currentPanX) - (screenWidth / 2.0)) / cameraScaleX;
-}
-double physicalToRealY(double py) {
-        return ((screenHeight - py) + previousPanY + currentPanY - (screenHeight / 2.0)) / cameraScaleY;
 }
 
 void addLinesFromMouseState() {
@@ -444,6 +438,7 @@ void window_resize_callback(GLFWwindow* window, int width, int height) {
     screenWidth = width;
     screenHeight = height;
 	glViewport( 0, 0, screenWidth, screenHeight );
+    fprintf(stdLog, "window resized to %d %d\n", screenWidth, screenHeight);
     parseInputQueue();
 }
 
@@ -503,13 +498,13 @@ void parseInputQueue() {
     while(!inputQueue.empty()) {
         switch(inputQueue.front()) {
             case inputEvent::scrollUp:
-                cameraScaleX *= 1.0 + scrollSpeedMultiplier;
-                cameraScaleY *= 1.0 + scrollSpeedMultiplier;
+                unitsPerPixelX *= 1.0 + scrollSpeedMultiplier;
+                unitsPerPixelY *= 1.0 + scrollSpeedMultiplier;
                 fprintf(stdLog, "scroll up\n");
                 break;
             case inputEvent::scrollDown:
-                cameraScaleX *= 1.0 + (-1.0 * scrollSpeedMultiplier);
-                cameraScaleY *= 1.0 + (-1.0 * scrollSpeedMultiplier);
+                unitsPerPixelX *= 1.0 - scrollSpeedMultiplier;
+                unitsPerPixelY *= 1.0 - scrollSpeedMultiplier;
                 fprintf(stdLog, "scroll down\n");
                 break;
             case inputEvent::keySlashPress:
@@ -518,19 +513,20 @@ void parseInputQueue() {
             case inputEvent::keySlashRelease:
                 break;
             case inputEvent::keySpacePress:
-                previousPanX += currentPanX;
-                previousPanY += currentPanY;
-                currentPanX = 0.0;
-                currentPanY = 0.0;
                 glfwGetCursorPos(window, &mouseHiddenAtX, &mouseHiddenAtY);
+                mouseHiddenAtY = screenHeight - mouseHiddenAtY;
                 glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
                 fprintf(stdLog, "cursor disabled at %.0f %.0f\n", mouseHiddenAtX, mouseHiddenAtY);
                 last = inputEvent::keySpacePress;
                 fprintf(stdLog, "last = keySpacePress\n");
                 break;
             case inputEvent::keySpaceRelease:
+                viewOffsetRealX += tempViewOffsetX;
+                viewOffsetRealY += tempViewOffsetY;
+                tempViewOffsetX = 0.0;
+                tempViewOffsetY = 0.0;
                 glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
-                glfwSetCursorPos(window, mouseHiddenAtX, mouseHiddenAtY);
+                glfwSetCursorPos(window, mouseHiddenAtX, screenHeight - mouseHiddenAtY);
                 fprintf(stdLog, "cursor enabled at %.0f %.0f\n", mouseHiddenAtX, mouseHiddenAtY);
                 last = inputEvent::keySpaceRelease;
                 fprintf(stdLog, "last = keySpaceRelease\n");
@@ -540,8 +536,8 @@ void parseInputQueue() {
                     mouse.trail.clear();
                     double x, y;
                     glfwGetCursorPos(window, &x, &y);
-                    mouse.trail.push_back(physicalToRealX(x));
-                    mouse.trail.push_back(physicalToRealY(y));
+                    mouse.trail.push_back(pixelToRealX(x));
+                    mouse.trail.push_back(pixelToRealY(screenHeight - y));
                     fprintf(stdLog, "mouse left pressed at %.0f %.0f\n", x, y);
                     last = inputEvent::mouseLeftPress;
                     fprintf(stdLog, "last = mouseLeftPress\n");
@@ -562,18 +558,19 @@ void parseInputQueue() {
                 break;
             case inputEvent::cursorMovement:
                 if(last == inputEvent::mouseLeftPress) {
-                    mouse.trail.push_back(physicalToRealX(cursorMovement.front()));
+                    mouse.trail.push_back(pixelToRealX(cursorMovement.front()));
                     cursorMovement.pop();
-                    mouse.trail.push_back(physicalToRealY(cursorMovement.front()));
+                    mouse.trail.push_back(pixelToRealY(cursorMovement.front()));
                     cursorMovement.pop();
                 } else if(last == inputEvent::keySpacePress) {
-                    currentPanX = (cursorMovement.front() - mouseHiddenAtX) / 100.0;
+                    tempViewOffsetX = (cursorMovement.front() - mouseHiddenAtX) * unitsPerPixelX;
                     cursorMovement.pop();
-                    currentPanY = (mouseHiddenAtY - cursorMovement.front()) / 100.0;
+                    tempViewOffsetY = (cursorMovement.front() - mouseHiddenAtY) * unitsPerPixelY;
                     cursorMovement.pop();
-                    fprintf(stdLog, "cameraOffset = %.0f %.0f", previousPanX + currentPanX, previousPanY + currentPanY);
                 } else {
+                    //printf("%.2f\t", pixelToRealX(cursorMovement.front()));
                     cursorMovement.pop();
+                    //printf("%.2f\n", pixelToRealX(cursorMovement.front()));
                     cursorMovement.pop();
                 }
                 break;
@@ -582,6 +579,14 @@ void parseInputQueue() {
         }
         inputQueue.pop();
     }
+}
+
+double pixelToRealX(double px) {
+    return (px - (screenWidth / 2.0)) * unitsPerPixelX - viewOffsetRealX;
+}
+
+double pixelToRealY(double py) {
+    return (py - (screenHeight / 2.0)) * unitsPerPixelY - viewOffsetRealY;
 }
 // if you want to like draw a line when resizing or moving the window then you can do this
     //if(mouse.action == GLFW_PRESS) {
