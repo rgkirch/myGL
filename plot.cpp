@@ -4,11 +4,14 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
+//#include <stdio.h>
+//#include <string.h>
+//#include <stdlib.h>
 #include <math.h>
 
+#include <cstdio>
+#include <cstring>
+#include <cstdlib>
 #include <iostream>
 #include <vector>
 #include <queue>
@@ -100,7 +103,7 @@ double pixelToRealY(double y);
 float scrollSpeedMultiplier = 0.1;
 
 int loadPNG();
-int writePNG();
+void writePNG(char* imageName);
 
 void findMinMax(float &min, float &max, int length, float* nums) {
     for( int i=0; i<length; ++i ) {
@@ -110,6 +113,23 @@ void findMinMax(float &min, float &max, int length, float* nums) {
             min = nums[i];
         }
     }
+}
+
+char* intToString(int num) {
+    if(num <= 0) return NULL;
+    int cpy = num;
+    int length = 0;
+    while(cpy > 0) {
+        ++length;
+        cpy /= 10;
+    }
+    char* string = (char*)malloc(length * sizeof(char) + 1);
+    string[length] = '\0';
+    for(int i = 1; num > 0; ++i) {
+        string[length - i] = num % 10 + '0';
+        num /= 10;
+    }
+    return string;
 }
 
 void testCursorPolling() {
@@ -452,13 +472,6 @@ void window_move_callback(GLFWwindow* window, int x, int y) {
     parseInputQueue();
 }
 
-void character_callback(GLFWwindow* window, unsigned int codepoint) {
-    if(codepoint == '/') {
-        inputQueue.push(inputEvent::keySlashPress);
-    }
-    //printf("%c\n", codepoint);
-    parseInputQueue();
-}
 
 // action (GLFW_PRESS, GLFW_RELEASE, GLFW_REPEAT)
 // key GLFW_UNKNOWN
@@ -495,6 +508,29 @@ void saveBufferAsBytes() {
     fclose(file);
 }
 
+void character_callback(GLFWwindow* window, unsigned int codepoint) {
+    switch(codepoint) {
+        case '/':
+            //saveBufferAsBytes();
+            writePNG((char*)"screenshot.png");
+            break;
+        case 'c':
+            static int i = 33;
+            if(i < 127) {
+                char name[8] = {'\0'};
+                strcpy(name, intToString(i));
+                strcat(name, ".png");
+                printf("saving %s\n", name);
+                writePNG(name);
+                printf("next %c\n", i + 1);
+                ++i;
+            }
+            break;
+        default:
+            break;
+    }
+}
+
 // mouseLeftPress mouseMovement
 //     add mouseMovement to trail
 void parseInputQueue() {
@@ -511,10 +547,6 @@ void parseInputQueue() {
                 unitsPerPixelX *= 1.0 - scrollSpeedMultiplier;
                 unitsPerPixelY *= 1.0 - scrollSpeedMultiplier;
                 fprintf(stdLog, "scroll down\n");
-                break;
-            case inputEvent::keySlashPress:
-                //saveBufferAsBytes();
-                writePNG();
                 break;
             case inputEvent::keySlashRelease:
                 break;
@@ -595,7 +627,7 @@ double pixelToRealY(double py) {
     return (py - (screenHeight / 2.0)) * unitsPerPixelY - viewOffsetRealY;
 }
 
-int writePNG() {
+void writePNG(char* imageName) {
     GLvoid* data = (GLvoid*)malloc(screenWidth * screenHeight * 4);
     glReadPixels(0, 0, screenWidth, screenHeight, GL_RGBA, GL_UNSIGNED_BYTE, data);
     png_image image;
@@ -608,10 +640,10 @@ int writePNG() {
     image.flags = 0;
     image.opaque = NULL;
     image.colormap_entries = 0;
-    png_image_write_to_file(&image, "screenshot.png", 0, data, 0, NULL);
+    png_image_write_to_file(&image, imageName, 0, data, 0, NULL);
     png_image_free(&image);
-    return 0;
 }
+
 int readPNG() {
 /*
     int imageSizeBytes = 0;
