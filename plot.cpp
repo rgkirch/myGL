@@ -1,4 +1,5 @@
                                 // plot.cpp
+// Richard Kirchofer
 #define GLEW_STATIC
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
@@ -13,7 +14,7 @@
 #include <queue>
 
 //#include <boost/filesystem.hpp>
-#include <png.h>
+//#include <png.h>
 
 //#include <fstream>
 //#include <sstream>

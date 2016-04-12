@@ -1,4 +1,5 @@
                                   // main.cpp
+// Richard Kirchofer
 #include <stdio.h>
 #include <math.h>
 #include "plot.hpp"

@@ -1,3 +1,5 @@
+Richard Kirchofer
+
 checkout -b new-branch
 checkout master
 diff head file

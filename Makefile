@@ -1,3 +1,4 @@
+# Richard Kirchofer
 all: app.exe
 app.exe: main.cpp plot.o
 	g++ -g -o app.exe main.cpp plot.o -std=c++11 -I/usr/include -I/usr/local/include -lglfw -lGLEW -lGLU -lGL
