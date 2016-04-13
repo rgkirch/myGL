@@ -1,4 +1,4 @@
-                                // plot.hpp
+                                // draw.hpp
 // Richard Kirchofer
 #define GLEW_STATIC
 #include <GL/glew.h>

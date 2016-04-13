@@ -1,4 +1,4 @@
-                                // plot.cpp
+                                // draw.cpp
 // Richard Kirchofer
 #define GLEW_STATIC
 #include <GL/glew.h>
@@ -16,14 +16,14 @@
 #include <vector>
 #include <queue>
 
-//#include <boost/filesystem.hpp>
+#include <boost/filesystem.hpp>
 #include <png.h>
 
 //#include <fstream>
 //#include <sstream>
 //#include <iostream>
 
-#include "plot.hpp"
+#include "draw.hpp"
 
 void cursor_position_callback(GLFWwindow* window, double xpos, double ypos);
 void mouse_button_callback(GLFWwindow* window, int button, int action, int mods);
@@ -104,6 +104,7 @@ float scrollSpeedMultiplier = 0.1;
 
 int loadPNG();
 void writePNG(char* imageName);
+void manualMapKeys();
 
 void findMinMax(float &min, float &max, int length, float* nums) {
     for( int i=0; i<length; ++i ) {
@@ -509,6 +510,7 @@ void saveBufferAsBytes() {
 }
 
 void character_callback(GLFWwindow* window, unsigned int codepoint) {
+    /*
     switch(codepoint) {
         case '/':
             //saveBufferAsBytes();
@@ -529,6 +531,7 @@ void character_callback(GLFWwindow* window, unsigned int codepoint) {
         default:
             break;
     }
+    */
 }
 
 // mouseLeftPress mouseMovement
@@ -631,7 +634,6 @@ void writePNG(char* imageName) {
     GLvoid* data = (GLvoid*)malloc(screenWidth * screenHeight * 4);
     glReadPixels(0, 0, screenWidth, screenHeight, GL_RGBA, GL_UNSIGNED_BYTE, data);
     png_image image;
-    //printf("sizeof image %d\n", sizeof(image));
     memset(&image, 0x00, sizeof(image));
     image.version = PNG_IMAGE_VERSION;
     image.width = screenWidth;
@@ -642,6 +644,11 @@ void writePNG(char* imageName) {
     image.colormap_entries = 0;
     png_image_write_to_file(&image, imageName, 0, data, 0, NULL);
     png_image_free(&image);
+}
+
+void manualMapKeys() {
+    for(int i = 33; i <= 126; ++i) {
+    }
 }
 
 int readPNG() {
