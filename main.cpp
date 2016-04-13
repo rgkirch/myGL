@@ -2,7 +2,7 @@
 // Richard Kirchofer
 #include <stdio.h>
 #include <math.h>
-#include "plot.hpp"
+#include "draw.hpp"
 #define NUM 100.0
 
 int main() {
