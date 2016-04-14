@@ -40,7 +40,10 @@ flags = [
     '-lglfw',
     '-lGLEW',
     '-lGLU',
-    '-lGL'
+    '-lGL',
+    '-lpng',
+    '-lboost_system',
+    '-lboost_filesystem'
 ]
 
 
