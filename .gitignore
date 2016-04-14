@@ -7,3 +7,4 @@ screenshot.BMP
 other.dump
 log.txt
 doc/*
+.ycm_extra_conf.pyc

@@ -44,13 +44,18 @@ struct mouseState {
     std::vector<float> trail;
 };
 
-enum class inputEvent {null, mouseLeftPress, mouseLeftRelease, mouseRightPress, mouseRightRelease, mouseMiddlePress, mouseMiddleRelease, cursorMovement, cursorEnter, cursorLeave, windowMovement, windowResize, keySpacePress, keySpaceRelease, keySlashPress, keySlashRelease, scrollUp, scrollDown, scrollLeft, scrollRight};
-std::queue<inputEvent> inputQueue;
+// In vim command mode, place the cursor over the 'Y' character on the following line and press the keys in the line above.
+
+enum class inputEvent {null, mouseLeftPress, mouseLeftHold, mouseLeftRelease, mouseRightPress, mouseRightHold, mouseRightRelease, mouseMiddlePress, mouseMiddleHold, mouseMiddleRelease, cursorMovement, cursorEnter, cursorLeave, windowMovement, windowResize, keySpacePress, keySpaceHold, keySpaceRelease, keySlashPress, keySlashHold, keySlashRelease, scrollUp, scrollDown, scrollLeft, scrollRight, mouseLeftDrag};
+char const * inputEventNames[] {"null", "mouseLeftPress", "mouseLeftHold", "mouseLeftRelease", "mouseRightPress", "mouseRightHold", "mouseRightRelease", "mouseMiddlePress", "mouseMiddleHold", "mouseMiddleRelease", "cursorMovement", "cursorEnter", "cursorLeave", "windowMovement", "windowResize", "keySpacePress", "keySpaceHold", "keySpaceRelease", "keySlashPress", "keySlashHold", "keySlashRelease", "scrollUp", "scrollDown", "scrollLeft", "scrollRight", "mouseLeftDrag"};
+
+std::list<inputEvent> inputEvents;
 // When the cursor moves, the location is recorded in cursorMovement. As opposed
 // to mouse.trail, corsorMovement records all movement, mouse.trail is when
 // going to draw a line with those values.
 std::queue<double> cursorMovement;
 
+void printInputEvents();
 void parseInputQueue();
 void saveBufferAsBytes();
 
@@ -77,7 +82,7 @@ struct mouseState mouse;
 
 const char* vertexShaderFileName = "vertexShader.glsl";
 const char* fragmentShaderFileName = "fragmentShader.glsl";
-int screenWidth = 16, screenHeight = 16;
+int screenWidth = 700, screenHeight = 700;
 float xmax, ymax, xmin, ymin;
 double mouseHiddenAtX;
 double mouseHiddenAtY;
@@ -88,7 +93,8 @@ char windowTitle[] = "plot";
 std::vector<int> pointLengths;
 std::vector<GLuint> vbos;
 std::vector<GLuint> vaos;
-std::vector<GLuint>primitiveType;
+std::vector<GLuint> primitiveType;
+std::vector<float> glRect;
 
 //camera - coord of top left of screen
 double tempViewOffsetX = 0.0;
@@ -203,7 +209,7 @@ void draw() {
     glLineWidth(10);
 
 	while( !glfwWindowShouldClose( window ) ) {
-        parseInputQueue();
+        //parseInputQueue();
 		glfwPollEvents();
         //glfwWaitEvents();
 		glClear( GL_COLOR_BUFFER_BIT );
@@ -395,7 +401,7 @@ void init() {
 }
 
 void cursor_position_callback(GLFWwindow* window, double xpos, double ypos) {
-    inputQueue.push(inputEvent::cursorMovement);
+    inputEvents.push_back(inputEvent::cursorMovement);
     cursorMovement.push(xpos);
     cursorMovement.push(screenHeight - ypos);
     parseInputQueue();
@@ -405,7 +411,7 @@ void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
     double tempx, tempy;
     if(button == GLFW_MOUSE_BUTTON_LEFT) {
         if(action == GLFW_PRESS) {
-            inputQueue.push(inputEvent::mouseLeftPress);
+            inputEvents.push_back(inputEvent::mouseLeftPress);
             ////glfwGetCursorPos(window, &mouse.pressX, &mouse.pressY);
             //glfwGetCursorPos(window, &tempx, &tempy);
             //mouse.pressX = physicalToRealX(tempx);
@@ -413,7 +419,7 @@ void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
             //mouse.action = GLFW_PRESS;
         }
         if(action == GLFW_RELEASE) {
-            inputQueue.push(inputEvent::mouseLeftRelease);
+            inputEvents.push_back(inputEvent::mouseLeftRelease);
             //glfwGetCursorPos(window, &tempx, &tempy);
             //mouse.releaseX = physicalToRealX(tempx);
             //mouse.releaseY = physicalToRealY(tempy);
@@ -430,9 +436,9 @@ void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
 }
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset) {
     if(yoffset < 0) {
-        inputQueue.push(inputEvent::scrollDown);
+        inputEvents.push_back(inputEvent::scrollDown);
     } else if(yoffset > 0) {
-        inputQueue.push(inputEvent::scrollUp);
+        inputEvents.push_back(inputEvent::scrollUp);
     }
     fprintf(stdLog, "scale %.2f %.2f\n", unitsPerPixelX, unitsPerPixelY);
     parseInputQueue();
@@ -460,7 +466,7 @@ void addLinesFromMouseState() {
 }
 
 void window_resize_callback(GLFWwindow* window, int width, int height) {
-    inputQueue.push(inputEvent::windowResize);
+    inputEvents.push_back(inputEvent::windowResize);
     screenWidth = width;
     screenHeight = height;
 	glViewport( 0, 0, screenWidth, screenHeight );
@@ -469,7 +475,7 @@ void window_resize_callback(GLFWwindow* window, int width, int height) {
 }
 
 void window_move_callback(GLFWwindow* window, int x, int y) {
-    inputQueue.push(inputEvent::windowMovement);
+    inputEvents.push_back(inputEvent::windowMovement);
     parseInputQueue();
 }
 
@@ -478,11 +484,12 @@ void window_move_callback(GLFWwindow* window, int x, int y) {
 // key GLFW_UNKNOWN
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods) {
     switch(key) {
+        printf("%d\n", key);
         case GLFW_KEY_SPACE: 
             if(action == GLFW_PRESS) {
-                inputQueue.push(inputEvent::keySpacePress);
+                inputEvents.push_back(inputEvent::keySpacePress);
             } else if(action == GLFW_RELEASE) {
-                inputQueue.push(inputEvent::keySpaceRelease);
+                inputEvents.push_back(inputEvent::keySpaceRelease);
             }
             break;
         default:
@@ -534,91 +541,178 @@ void character_callback(GLFWwindow* window, unsigned int codepoint) {
     */
 }
 
+void printInputEvents() {
+    printf("<");
+    printf("%s", inputEventNames[(int)inputEvents.front()]);
+    for(std::list<inputEvent>::iterator iter = inputEvents.begin(); iter != inputEvents.end(); ++iter) {
+        printf(", %s", inputEventNames[(int)*iter]);
+    }
+    printf(">\n");
+}
+
 // mouseLeftPress mouseMovement
 //     add mouseMovement to trail
 void parseInputQueue() {
-    // so I know if I'm drawling a line or if I should ignore the mouse moving
-    static inputEvent last = inputEvent::null;
-    while(!inputQueue.empty()) {
-        switch(inputQueue.front()) {
+    if(!inputEvents.empty()) {
+        double x, y;
+        // so I know if I'm drawling a line or if I should ignore the mouse moving
+        switch(inputEvents.front()) {
             case inputEvent::scrollUp:
+                fprintf(stdLog, "scroll up\n");
                 unitsPerPixelX *= 1.0 + scrollSpeedMultiplier;
                 unitsPerPixelY *= 1.0 + scrollSpeedMultiplier;
-                fprintf(stdLog, "scroll up\n");
+                inputEvents.pop_front();
+                if(!inputEvents.empty()) parseInputQueue();
                 break;
             case inputEvent::scrollDown:
+                fprintf(stdLog, "scroll down\n");
                 unitsPerPixelX *= 1.0 - scrollSpeedMultiplier;
                 unitsPerPixelY *= 1.0 - scrollSpeedMultiplier;
-                fprintf(stdLog, "scroll down\n");
+                inputEvents.pop_front();
+                if(!inputEvents.empty()) parseInputQueue();
+                break;
+            case inputEvent::keySlashPress:
+                fprintf(stdLog, "slash press\n");
+                inputEvents.pop_front();
+                if(!inputEvents.empty()) parseInputQueue();
                 break;
             case inputEvent::keySlashRelease:
+                fprintf(stdLog, "slash release\n");
+                inputEvents.pop_front();
+                if(!inputEvents.empty()) parseInputQueue();
                 break;
             case inputEvent::keySpacePress:
+                fprintf(stdLog, "space press\n");
+                // record where the mouse is hidden (for calculating view offset
+                // and so we know where to put it back to)
                 glfwGetCursorPos(window, &mouseHiddenAtX, &mouseHiddenAtY);
+                fprintf(stdLog, "mouse hidden at X: %.2f\n", mouseHiddenAtX);
+                // invert the y coord so that it is saved as if 0 is bottom
                 mouseHiddenAtY = screenHeight - mouseHiddenAtY;
+                // hide the cursor, this also makes it unbounded. Can get 
+                // values for cursor position only limited by int and not by window.
                 glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
                 fprintf(stdLog, "cursor disabled at %.0f %.0f\n", mouseHiddenAtX, mouseHiddenAtY);
-                last = inputEvent::keySpacePress;
-                fprintf(stdLog, "last = keySpacePress\n");
+                inputEvents.pop_front();
+                inputEvents.push_front(inputEvent::keySpaceHold);
+                if(!inputEvents.empty()) parseInputQueue();
+                break;
+            case inputEvent::keySpaceHold:
+                if(inputEvents.size() > 1) {
+                    switch(*std::next(inputEvents.begin())) {
+                        case inputEvent::cursorMovement:
+                            tempViewOffsetX = (cursorMovement.front() - mouseHiddenAtX) * unitsPerPixelX;
+                            cursorMovement.pop();
+                            tempViewOffsetY = (cursorMovement.front() - mouseHiddenAtY) * unitsPerPixelY;
+                            cursorMovement.pop();
+                            inputEvents.erase(std::next(inputEvents.begin()));
+                            if(!inputEvents.empty()) parseInputQueue();
+                            break;
+                        case inputEvent::keySpaceRelease:
+                            viewOffsetRealX += tempViewOffsetX;
+                            viewOffsetRealY += tempViewOffsetY;
+                            tempViewOffsetX = 0.0;
+                            tempViewOffsetY = 0.0;
+                            glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+                            glfwSetCursorPos(window, mouseHiddenAtX, screenHeight - mouseHiddenAtY);
+                            fprintf(stdLog, "cursor enabled at %.0f %.0f\n", mouseHiddenAtX, mouseHiddenAtY);
+                            // pop spacePress and spaceRelease
+                            inputEvents.pop_front();
+                            inputEvents.pop_front();
+                            if(!inputEvents.empty()) parseInputQueue();
+                            break;
+                        default:
+                            // while not cursorMove or spaceRelease
+                            inputEvents.erase(std::next(inputEvents.begin()));
+                            if(!inputEvents.empty()) parseInputQueue();
+                            break;
+                    }
+                }
                 break;
             case inputEvent::keySpaceRelease:
-                viewOffsetRealX += tempViewOffsetX;
-                viewOffsetRealY += tempViewOffsetY;
-                tempViewOffsetX = 0.0;
-                tempViewOffsetY = 0.0;
-                glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
-                glfwSetCursorPos(window, mouseHiddenAtX, screenHeight - mouseHiddenAtY);
-                fprintf(stdLog, "cursor enabled at %.0f %.0f\n", mouseHiddenAtX, mouseHiddenAtY);
-                last = inputEvent::keySpaceRelease;
-                fprintf(stdLog, "last = keySpaceRelease\n");
+                fprintf(stdLog, "space release\n");
+                printf("error, first input is keySpaceRelease\n");
+                inputEvents.pop_front();
+                if(!inputEvents.empty()) parseInputQueue();
                 break;
             case inputEvent::mouseLeftPress:
-                if(last != inputEvent::keySpacePress) {
-                    mouse.trail.clear();
-                    double x, y;
-                    glfwGetCursorPos(window, &x, &y);
-                    mouse.trail.push_back(pixelToRealX(x));
-                    mouse.trail.push_back(pixelToRealY(screenHeight - y));
-                    fprintf(stdLog, "mouse left pressed at %.0f %.0f\n", x, y);
-                    last = inputEvent::mouseLeftPress;
-                    fprintf(stdLog, "last = mouseLeftPress\n");
+                fprintf(stdLog, "mouse left press\n");
+                if(inputEvents.size() > 1) {
+                    switch(*(std::next(inputEvents.begin()))) {
+                        case inputEvent::cursorMovement:
+                            x = y = 0.0;
+                            glfwGetCursorPos(window, &x, &y);
+                            mouse.trail.clear();
+                            mouse.trail.push_back(pixelToRealX(x));
+                            mouse.trail.push_back(pixelToRealY(screenHeight - y));
+                            fprintf(stdLog, "mouse left pressed at %.0f %.0f\n", x, y);
+                            inputEvents.pop_front();
+                            inputEvents.push_front(inputEvent::mouseLeftDrag);
+                            if(!inputEvents.empty()) parseInputQueue();
+                            break;
+                        case inputEvent::mouseLeftRelease:
+                            x = y = 0.0;
+                            glfwGetCursorPos(window, &x, &y);
+                            addPoint(pixelToRealX(x), pixelToRealY(screenHeight - y));
+                            fprintf(stdLog, "point added at %.0f %.0f\n", x, y);
+                            inputEvents.pop_front();
+                            inputEvents.pop_front();
+                            break;
+                        default:
+                            inputEvents.erase(std::next(inputEvents.begin()));
+                            break;
+                    }
                 }
+                break;
+            case inputEvent::mouseLeftDrag:
+                fprintf(stdLog, "mouse left drag\n");
+                if(inputEvents.size() > 1) {
+                    switch(*(std::next(inputEvents.begin()))) {
+                        // if mouseDrag then curMove
+                        // add the curMove location to line data and pop curMove
+                        // mouseLeftDrag -> cursorMovement 
+                        case inputEvent::cursorMovement:
+                            while(*(std::next(inputEvents.begin())) == inputEvent::cursorMovement) {
+                                mouse.trail.push_back(pixelToRealX(cursorMovement.front()));
+                                cursorMovement.pop();
+                                mouse.trail.push_back(pixelToRealY(cursorMovement.front()));
+                                cursorMovement.pop();
+                                inputEvents.erase(std::next(inputEvents.begin()));
+                            }
+                            if(!inputEvents.empty()) parseInputQueue();
+                            break;
+                        // mouseLeftDrag -> mouseLeftRelease
+                        case inputEvent::mouseLeftRelease:
+                            addLinesFromMouseState();
+                            inputEvents.pop_front();
+                            inputEvents.pop_front();
+                if(!inputEvents.empty()) parseInputQueue();
+                            break;
+                        default:
+                            inputEvents.erase(std::next(inputEvents.begin()));
+                            break;
+                    }
                 break;
             case inputEvent::mouseLeftRelease:
-                fprintf(stdLog, "mouse left release\n");
-                if(mouse.trail.size() == 2) {
-                    addPoint(mouse.trail[0], mouse.trail[1]);
-                    mouse.trail.clear();
-                    fprintf(stdLog, "point added at %.0f %.0f\n", mouse.trail[0], mouse.trail[1]);
-                } else {
-                    addLinesFromMouseState();
-                    fprintf(stdLog, "add line\n");
-                }
-                last = inputEvent::mouseLeftRelease;
-                fprintf(stdLog, "last = mouseLeftRelease\n");
+                printf("error, begining with mouse release?\n");
+                inputEvents.pop_front();
+                if(!inputEvents.empty()) parseInputQueue();
                 break;
             case inputEvent::cursorMovement:
-                if(last == inputEvent::mouseLeftPress) {
-                    mouse.trail.push_back(pixelToRealX(cursorMovement.front()));
-                    cursorMovement.pop();
-                    mouse.trail.push_back(pixelToRealY(cursorMovement.front()));
-                    cursorMovement.pop();
-                } else if(last == inputEvent::keySpacePress) {
-                    tempViewOffsetX = (cursorMovement.front() - mouseHiddenAtX) * unitsPerPixelX;
-                    cursorMovement.pop();
-                    tempViewOffsetY = (cursorMovement.front() - mouseHiddenAtY) * unitsPerPixelY;
-                    cursorMovement.pop();
-                } else {
-                    //printf("%.2f\t", pixelToRealX(cursorMovement.front()));
-                    cursorMovement.pop();
-                    //printf("%.2f\n", pixelToRealX(cursorMovement.front()));
-                    cursorMovement.pop();
-                }
+                fprintf(stdLog, "cursor movement\n");
+                //printf("%.2f\t", pixelToRealX(cursorMovement.front()));
+                cursorMovement.pop();
+                //printf("%.2f\n", pixelToRealX(cursorMovement.front()));
+                cursorMovement.pop();
+                inputEvents.pop_front();
+                if(!inputEvents.empty()) parseInputQueue();
                 break;
             default:
+                inputEvents.pop_front();
+                if(!inputEvents.empty()) parseInputQueue();
                 break;
+            }
         }
-        inputQueue.pop();
     }
 }
 
@@ -668,6 +762,7 @@ int readPNG() {
         }
     }
 */
+    return 0;
 }
     //When libpng encounters an error, it expects to longjmp back to your routine. There- fore, you will need to call setjmp and pass your png_jmpbuf(png_ptr). If you read the file from different routines, you will need to update the jmpbuf field every time you enter a new routine that will call a png_*() function.
 
