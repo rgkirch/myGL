@@ -8,7 +8,7 @@
 #include <stdlib.h>
 #include <math.h>
 
-void init();
+void init(int argc, char** argv);
 void addPoint(float x, float y);
 void addPoint(int length, float* nums);
 void debug();

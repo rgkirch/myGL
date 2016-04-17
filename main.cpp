@@ -5,8 +5,8 @@
 #include "draw.hpp"
 #define NUM 100.0
 
-int main() {
-    init();
+int main(int argc, char** argv) {
+    init(argc, argv);
     float* nums = (float*)malloc(sizeof(float)*8);
     nums[0] = 1.0/10; nums[1] = 1.0/10;
     nums[2] = 1.0/100; nums[3] = -1.0/100;
