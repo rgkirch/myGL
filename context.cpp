@@ -23,7 +23,7 @@ void Composer::mb(MouseButton mb) {
         switch(lastScancode) {
             // l key
             case 33:
-                currentShape = new Line((float)x, (float)y);
+                currentShape = new Line(pixelToRealX((float)x), pixelToRealY(screenHeight - (float)y));
                 break;
             // r key
             case 32:
@@ -47,6 +47,7 @@ void Composer::render() {
     for(int i = 0; i < shapes.size(); ++i) {
         shapes[i]->render();
     }
+    if(currentShape) currentShape->render();
 }
 
 Shape::Shape() {
@@ -98,8 +99,8 @@ void Shape::render() {
 }
 
 Line::Line(float x, float y) {
-    data.push_back(pixelToRealX(x));
-    data.push_back(pixelToRealY(y));
+    data.push_back(x);
+    data.push_back(y);
     finished = false;
     primitiveType = GL_LINE_STRIP;
 }
@@ -115,10 +116,11 @@ Line::~Line() {
 
 void Line::cursorMovement(CursorMovement cm) {
     data.push_back(pixelToRealX((float)cm.x));
-    data.push_back(pixelToRealY((float)cm.y));
+    data.push_back(pixelToRealY(screenHeight - (float)cm.y));
 }
 
 Rectangle::Rectangle(float x, float y) {
+    data.reserve(4);
     data[0] = x;
     data[1] = y;
     finished = false;

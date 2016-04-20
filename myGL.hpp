@@ -125,7 +125,7 @@ public:
     GLuint vbo;
     GLuint vao;
     GLenum primitiveType;
-    float* data;
+    std::vector<float> data;
 };
 
 class Line: public Shape {
@@ -133,7 +133,6 @@ public:
     Line(float x, float y);
     ~Line();
     void cursorMovement(CursorMovement) override;
-    std::vector<float> data;
     int dataLength() override;
     GLenum primativeType = GL_LINE_STRIP;
 };
@@ -143,7 +142,6 @@ public:
     Rectangle(float x, float y);
     void cursorMovement(CursorMovement) override;
     int dataLength() override;
-    float data[4];
     int lengthOfData = 4;
 };
 
@@ -171,7 +169,6 @@ public:
     void render() override;
     Shape* currentShape;
     std::vector<Shape*> shapes;
-    std::vector<float> data;
 };
 
 extern FILE* stdLog;

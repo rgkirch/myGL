@@ -141,6 +141,7 @@ void draw() {
         glUniform1f(shaderUniforms.unitsPerPixelY, unitsPerPixelY);
         glUniform1f(shaderUniforms.screenWidth, screenWidth);
         glUniform1f(shaderUniforms.screenHeight, screenHeight);
+
         currentContext->render();
 
 		glfwSwapBuffers( window );
