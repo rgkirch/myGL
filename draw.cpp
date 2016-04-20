@@ -73,6 +73,7 @@ void testCursorPolling() {
     }
 }
 
+/*
 // sizeof(GL_FLOAT)?
 void addPoint(float x, float y) {
     float* point = (float*)malloc(sizeof(float) * 2);
@@ -96,6 +97,7 @@ void addPoint(float x, float y) {
     glEnableVertexAttribArray(0);
     glEnableVertexAttribArray(1);
 }
+
 // add point will maintain the max and min and make buffers for the data
 void addPoint(int length, float* nums) {
     pointLengths.push_back(length / 2);
@@ -116,8 +118,11 @@ void addPoint(int length, float* nums) {
     glEnableVertexAttribArray(0);
     glEnableVertexAttribArray(1);
 }
+*/
 
 void draw() {
+    currentContext = new Composer();
+
     GLuint shaderProgram = createShader((char*)vertexShaderFileName, (char*)fragmentShaderFileName);
     glUseProgram(shaderProgram);
     shaderUniforms.viewOffsetX = glGetUniformLocation(shaderProgram, "viewOffsetX");
@@ -132,8 +137,8 @@ void draw() {
     glLineWidth(10);
 
 	while( !glfwWindowShouldClose( window ) ) {
-		glfwPollEvents();
-        //glfwWaitEvents();
+		//glfwPollEvents();
+        glfwWaitEvents();
 		glClear( GL_COLOR_BUFFER_BIT );
         glUniform1f(shaderUniforms.viewOffsetX, viewOffsetRealX + tempViewOffsetX);
         glUniform1f(shaderUniforms.viewOffsetY, viewOffsetRealY + tempViewOffsetY);
@@ -142,7 +147,7 @@ void draw() {
         glUniform1f(shaderUniforms.screenWidth, screenWidth);
         glUniform1f(shaderUniforms.screenHeight, screenHeight);
 
-        currentContext->render();
+        if(currentContext) currentContext->render();
 
 		glfwSwapBuffers( window );
         //testCursorPolling();
@@ -255,10 +260,6 @@ void init(int argc, char* argv[]) {
             }
         }
     }
-    //functions.reserve(1);
-    //functions[contextEnums::DRAW].reserve(100);
-    //functions[contextEnums::DRAW][GLFW_KEY_SPACE] = pan;
-    currentContext = new Composer();
 
 	/* Initialize the library */
 	if ( !glfwInit() ) {
@@ -326,15 +327,14 @@ void init(int argc, char* argv[]) {
 
 void cursor_position_callback(GLFWwindow* window, double xpos, double ypos) {
     CursorMovement input {xpos, ypos};
-    currentContext->cursorMovement(input);
+    if(currentContext) currentContext->cursorMovement(input);
 }
 void mouse_button_callback(GLFWwindow* window, int button, int action, int mods) {
     //printf("mouse button callback\n\tbutton %d\n\taction %d\n\tmods %d\n", button, action, mods);
     MouseButton input {button, action, mods};
-    currentContext->mouseButton(input);
+    if(currentContext) currentContext->mouseButton(input);
 }
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset) {
-    arguments arg;
     if(yoffset < 0) {
         zoomOut();
     } else if(yoffset > 0) {
@@ -359,7 +359,7 @@ void window_move_callback(GLFWwindow* window, int x, int y) {
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods) {
     printf("%d %d %d\n", key, scancode, mods);
     Key input {key, scancode, action, mods};
-    currentContext->key(input);
+    if(currentContext) currentContext->key(input);
 }
 
 void drop_callback(GLFWwindow* window, int count, const char** paths)
@@ -416,37 +416,6 @@ void zoomIn() {
     fprintf(stdLog, "scroll down\n");
     unitsPerPixelX *= 1.0 - scrollSpeedMultiplier;
     unitsPerPixelY *= 1.0 - scrollSpeedMultiplier;
-}
-
-void pan(arguments arg) {
-    if(arg.argumentType == arguments::KEY_CALLBACK) {
-        if(arg.kAction == GLFW_PRESS) {
-            fprintf(stdLog, "space press\n");
-            // record where the mouse is hidden (for calculating view offset
-            // and so we know where to put it back to)
-            glfwGetCursorPos(window, &mouseHiddenAtX, &mouseHiddenAtY);
-            fprintf(stdLog, "mouse hidden at X: %.2f\n", mouseHiddenAtX);
-            // invert the y coord so that it is saved as if 0 is bottom
-            mouseHiddenAtY = screenHeight - mouseHiddenAtY;
-            // hide the cursor, this also makes it unbounded. Can get 
-            // values for cursor position only limited by int and not by window.
-            glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-            fprintf(stdLog, "cursor disabled at %.0f %.0f\n", mouseHiddenAtX, mouseHiddenAtY);
-        } else if(arg.kAction == GLFW_RELEASE) {
-            viewOffsetRealX += tempViewOffsetX;
-            viewOffsetRealY += tempViewOffsetY;
-            tempViewOffsetX = 0.0;
-            tempViewOffsetY = 0.0;
-            glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
-            glfwSetCursorPos(window, mouseHiddenAtX, screenHeight - mouseHiddenAtY);
-            fprintf(stdLog, "cursor enabled at %.0f %.0f\n", mouseHiddenAtX, mouseHiddenAtY);
-        }
-    } else if(arg.argumentType == arguments::CURSOR_POSITION) {
-        tempViewOffsetX = (arg.x - mouseHiddenAtX) * unitsPerPixelX;
-        tempViewOffsetY = (screenHeight - arg.y - mouseHiddenAtY) * unitsPerPixelY;
-    }
-
-    // pop spacePress and spaceRelease
 }
 
 void writePNG(char* imageName) {

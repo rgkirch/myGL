@@ -76,16 +76,12 @@ void init(int argc, char** argv);
 GLuint createShader(char* vertexShaderFileName, char* fragmentShaderFileName);
 void checkShaderStepSuccess(GLint program, GLuint status);
 void printShaderLog(char* errorMessage, GLuint shader);
-void addLinesFromMouseState();
 
 int loadPNG();
 void writePNG(char* imageName);
 void manualMapKeys();
 void zoomIn();
 void zoomOut();
-void pan(arguments);
-void drawLine(arguments);
-
 
 class Input {
 };
@@ -114,34 +110,53 @@ public:
     int mods;
 };
 
+class View {
+public:
+    View();
+    void cursorMovement(CursorMovement);
+    void pan();
+    void endPan();
+    bool panning;
+    double mouseHiddenAtX;
+    double mouseHiddenAtY;
+};
+
 class Shape {
 public:
     Shape();
-    virtual void finish();
-    void render();
+    virtual void finish()=0;
+    virtual void render()=0;
     virtual void cursorMovement(CursorMovement)=0;
     virtual int dataLength()=0;
     bool finished;
     GLuint vbo;
     GLuint vao;
-    GLenum primitiveType;
+};
+
+class primitiveShape : public Shape {
+public:
+    void finish() override;
+    void render() override;
     std::vector<float> data;
 };
 
-class Line: public Shape {
+class Line : public primitiveShape {
 public:
     Line(float x, float y);
     ~Line();
     void cursorMovement(CursorMovement) override;
     int dataLength() override;
-    GLenum primativeType = GL_LINE_STRIP;
+    GLenum primitiveType = GL_LINE_STRIP;
 };
 
 class Rectangle : public Shape {
 public:
     Rectangle(float x, float y);
     void cursorMovement(CursorMovement) override;
+    void render() override;
     int dataLength() override;
+    void finish() override;
+    float data[4];
     int lengthOfData = 4;
 };
 
@@ -163,10 +178,12 @@ public:
 
 class Composer : public Context {
 public:
+    Composer();
     void cursorMovement(CursorMovement) override;
     void mb(MouseButton) override;
     void key(Key) override;
     void render() override;
+    View* view;
     Shape* currentShape;
     std::vector<Shape*> shapes;
 };

@@ -1,5 +1,35 @@
 #include "myGL.hpp"
 
+View::View() {
+    panning = false;
+    mouseHiddenAtX = 0.0;
+    mouseHiddenAtY = 0.0;
+}
+
+void View::pan() {
+    panning = true;
+    glfwGetCursorPos(window, &mouseHiddenAtX, &mouseHiddenAtY);
+    mouseHiddenAtY = screenHeight - mouseHiddenAtY;
+    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+}
+
+void View::endPan() {
+    panning = false;
+    viewOffsetRealX += tempViewOffsetX;
+    viewOffsetRealY += tempViewOffsetY;
+    tempViewOffsetX = 0.0;
+    tempViewOffsetY = 0.0;
+    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+    glfwSetCursorPos(window, mouseHiddenAtX, screenHeight - mouseHiddenAtY);
+}
+
+void View::cursorMovement(CursorMovement cm) {
+    if(panning) {
+        tempViewOffsetX = (cm.x - mouseHiddenAtX) * unitsPerPixelX;
+        tempViewOffsetY = (screenHeight - cm.y - mouseHiddenAtY) * unitsPerPixelY;
+    }
+}
+
 // records if the mouse is currently pressed
 void Context::mouseButton(MouseButton input) {
     if(input.action == GLFW_PRESS) {
@@ -10,10 +40,16 @@ void Context::mouseButton(MouseButton input) {
     mb(input);
 }
 
+Composer::Composer() {
+    view = new View();
+    currentShape = NULL;
+}
+
 void Composer::cursorMovement(CursorMovement input) {
     if(currentShape && mousePressed) {
         currentShape->cursorMovement(input);
     }
+    if(view) view->cursorMovement(input);
 }
 
 void Composer::mb(MouseButton mb) {
@@ -27,10 +63,12 @@ void Composer::mb(MouseButton mb) {
                 break;
             // r key
             case 32:
-                currentShape = new Rectangle((float)x, (float)y);
+                currentShape = new Rectangle(pixelToRealX((float)x), pixelToRealY(screenHeight - (float)y));
                 break;
+
         }
     } else if(currentShape && mb.action == GLFW_RELEASE) {
+        printf("finished current shape\n");
         currentShape->finish();
         shapes.push_back(currentShape);
         currentShape = NULL;
@@ -40,6 +78,19 @@ void Composer::mb(MouseButton mb) {
 void Composer::key(Key key) {
     if(key.action == GLFW_PRESS && key.mods == 0) {
         lastScancode = key.scancode;
+        switch(key.scancode) {
+            // space
+            case 65:
+                view->pan();
+                break;
+        }
+    } else if(key.action == GLFW_RELEASE && key.mods == 0) {
+        switch(key.scancode) {
+            // space
+            case 65:
+                view->endPan();
+                break;
+        }
     }
 }
 
@@ -54,7 +105,7 @@ Shape::Shape() {
     finished = false;
 }
 
-void Shape::finish() {
+void primitiveShape::finish() {
     finished = true;
     glGenBuffers(1, &vbo);
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
@@ -67,7 +118,7 @@ void Shape::finish() {
     glBindVertexArray(0);
 }
 
-void Shape::render() {
+void primitiveShape::render() {
     if(!finished) {
         glGenBuffers(1, &vbo);
         glBindBuffer(GL_ARRAY_BUFFER, vbo);
@@ -78,7 +129,7 @@ void Shape::render() {
         glVertexAttribPointer(1, 1, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (GLvoid*)sizeof(float));
         glEnableVertexAttribArray(0);
         glEnableVertexAttribArray(1);
-        glDrawArrays(primitiveType, 0, dataLength() / 2);
+        glDrawArrays(GL_LINE_STRIP, 0, dataLength() / 2);
         glDisableVertexAttribArray(0);
         glDisableVertexAttribArray(1);
         glDeleteBuffers(1, &vbo);
@@ -90,7 +141,7 @@ void Shape::render() {
         glBindVertexArray(vao);
         glEnableVertexAttribArray(0);
         glEnableVertexAttribArray(1);
-        glDrawArrays(primitiveType, 0, dataLength() / 2);
+        glDrawArrays(GL_LINE_STRIP, 0, dataLength() / 2);
         glDisableVertexAttribArray(0);
         glDisableVertexAttribArray(1);
         glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -120,17 +171,22 @@ void Line::cursorMovement(CursorMovement cm) {
 }
 
 Rectangle::Rectangle(float x, float y) {
-    data.reserve(4);
     data[0] = x;
     data[1] = y;
     finished = false;
 }
 
 void Rectangle::cursorMovement(CursorMovement cm) {
-    data[2] = (float)cm.x;
-    data[3] = (float)cm.y;
+    data[2] = pixelToRealX((float)cm.x);
+    data[3] = pixelToRealY((float)cm.y);
+}
+
+void Rectangle::render() {
+    glRectf(data[0], data[1], data[2], data[3]);
 }
 
 int Rectangle::dataLength() {
     return lengthOfData;
 }
+
+void Rectangle::finish() {}
