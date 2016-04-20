@@ -1,0 +1,14 @@
+Named namespaces                namespace N { /∗ ... ∗/ }
+inline namespaces               inline namespace N { /∗ ... ∗/ }
+Type definitions                struct Point { int x, y; };
+Template declarations           template<class T> class Z;
+Template definitions            template<class T> class V { /∗ ... ∗/ };
+Function declarations           extern int strlen(const char∗);
+inline function definitions     inline char get(char∗ p) { /∗ ... ∗/ }
+constexpr function definitions  constexpr int fac(int n) { return (n<2) ? 1 : fac(n−1); }
+Data declarations               extern int a;
+const definitions               const float pi = 3.141593;
+constexpr definitions           constexpr float pi2 = pi∗pi;
+Enumerations                    enum class Light { red, yellow, green };
+Name declarations               class Matrix;
+Type aliases                    using value_type = long;

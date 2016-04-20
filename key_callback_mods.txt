@@ -1,0 +1,15 @@
+shift
+ctrl
+ctrl + shift
+alt
+alt + shift
+alt + ctrl
+alt + ctrl + shift
+super
+super + shift
+super + ctrl
+super + shift + ctrl
+super + alt
+super + alt + shift
+super + alt + ctrl
+super + alt + ctrl + shift

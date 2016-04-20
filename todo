@@ -1,3 +1,13 @@
 Richard Kirchofer
 
+considerations:
+    where are the different contexts saved?
+    vector<Context*> contexts;
+
 Any input to the program can be tokens into a queue. You could literally write a grammar for that shit and use a parser generator to gen the code that calls your functions at just the right time.
+
+When I make the readPNG function I should replace the blurlock convert with my own program. blurlock script in /usr/sbin/blurlock
+
+Context:
+    Compose: think ms paint
+    typing practise. either random words or you can submit some text and it will walk through the text as you type with some visual feedback on your correctness

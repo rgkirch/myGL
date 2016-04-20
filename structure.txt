@@ -1,0 +1,3 @@
+Context - abstract class
+    Paint inheriets from context
+Input
