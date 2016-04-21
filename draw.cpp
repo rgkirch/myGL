@@ -132,7 +132,7 @@ void draw() {
     shaderUniforms.screenWidth = glGetUniformLocation(shaderProgram, "screenWidth");
     shaderUniforms.screenHeight = glGetUniformLocation(shaderProgram, "screenHeight");
 
-    glClearColor( 0.0f, 0.0f, 0.0f, 1.0f );
+    glClearColor( 0.3f, 0.0f, 0.3f, 1.0f );
     glPointSize(10);
     glLineWidth(10);
 
@@ -146,7 +146,7 @@ void draw() {
         glUniform1f(shaderUniforms.unitsPerPixelY, unitsPerPixelY);
         glUniform1f(shaderUniforms.screenWidth, screenWidth);
         glUniform1f(shaderUniforms.screenHeight, screenHeight);
-
+        
         if(currentContext) currentContext->render();
 
 		glfwSwapBuffers( window );

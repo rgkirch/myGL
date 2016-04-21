@@ -96,57 +96,63 @@ void Composer::key(Key key) {
 
 void Composer::render() {
     for(int i = 0; i < shapes.size(); ++i) {
-        shapes[i]->render();
+        (shapes[i]->*renderPtr)();
     }
-    if(currentShape) currentShape->render();
+    if(currentShape) (currentShape->*renderPtr)();
 }
 
 Shape::Shape() {
-    finished = false;
+    Shape::renderPtr = &Shape::frameRender;
+    bufferUsage = GL_STREAM_DRAW;
 }
 
-void primitiveShape::finish() {
-    finished = true;
-    glGenBuffers(1, &vbo);
+void Shape::frameRender() {
+    prepareTheData();
+    genAndBindBufferAndVao();
+    glDrawArrays(primitiveType, 0, dataLength() / 2);
+    unbindBufferAndVao();
+    glDeleteBuffers(1, &vbo);
+    glDeleteVertexArrays(1, &vao);
+}
+
+void Shape::bindBufferAndVao() {
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
-    glBufferData(GL_ARRAY_BUFFER, dataLength() * sizeof(float), &data[0], GL_STATIC_DRAW);
-    glGenVertexArrays(1, &vao);
     glBindVertexArray(vao);
-    glVertexAttribPointer(0, 1, GL_FLOAT, GL_FALSE, 2 * sizeof(float), NULL);
-    glVertexAttribPointer(1, 1, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (GLvoid*)sizeof(float));
+    glEnableVertexAttribArray(0);
+    glEnableVertexAttribArray(1);
+}
+
+void Shape::unbindBufferAndVao() {
+    glDisableVertexAttribArray(0);
+    glDisableVertexAttribArray(1);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
 }
 
-void primitiveShape::render() {
-    if(!finished) {
-        glGenBuffers(1, &vbo);
-        glBindBuffer(GL_ARRAY_BUFFER, vbo);
-        glBufferData(GL_ARRAY_BUFFER, dataLength() * sizeof(float), &data[0], GL_STREAM_DRAW);
-        glGenVertexArrays(1, &vao);
-        glBindVertexArray(vao);
-        glVertexAttribPointer(0, 1, GL_FLOAT, GL_FALSE, 2 * sizeof(float), NULL);
-        glVertexAttribPointer(1, 1, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (GLvoid*)sizeof(float));
-        glEnableVertexAttribArray(0);
-        glEnableVertexAttribArray(1);
-        glDrawArrays(GL_LINE_STRIP, 0, dataLength() / 2);
-        glDisableVertexAttribArray(0);
-        glDisableVertexAttribArray(1);
-        glDeleteBuffers(1, &vbo);
-        glDeleteVertexArrays(1, &vao);
-        glBindBuffer(GL_ARRAY_BUFFER, 0);
-        glBindVertexArray(0);
-    } else {
-        glBindBuffer(GL_ARRAY_BUFFER, vbo);
-        glBindVertexArray(vao);
-        glEnableVertexAttribArray(0);
-        glEnableVertexAttribArray(1);
-        glDrawArrays(GL_LINE_STRIP, 0, dataLength() / 2);
-        glDisableVertexAttribArray(0);
-        glDisableVertexAttribArray(1);
-        glBindBuffer(GL_ARRAY_BUFFER, 0);
-        glBindVertexArray(0);
-    }
+// buffer the data one last time
+void Shape::finish() {
+    bufferUsage = GL_STATIC_DRAW;
+    prepareTheData();
+    genAndBindBufferAndVao();
+    renderPtr = &Shape::finalRender;
+}
+
+void Shape::finalRender() {
+    bindBufferAndVao();
+    glDrawArrays(primitiveType, 0, dataLength() / 2);
+    unbindBufferAndVao();
+}
+
+void Shape::genAndBindBufferAndVao() {
+    glGenBuffers(1, &vbo);
+    glBindBuffer(GL_ARRAY_BUFFER, vbo);
+    glBufferData(GL_ARRAY_BUFFER, dataLength() * sizeof(float), &data[0], bufferUsage);
+    glGenVertexArrays(1, &vao);
+    glBindVertexArray(vao);
+    glVertexAttribPointer(0, 1, GL_FLOAT, GL_FALSE, 2 * sizeof(float), NULL);
+    glVertexAttribPointer(1, 1, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (GLvoid*)sizeof(float));
+    glEnableVertexAttribArray(0);
+    glEnableVertexAttribArray(1);
 }
 
 Line::Line(float x, float y) {
@@ -154,6 +160,10 @@ Line::Line(float x, float y) {
     data.push_back(y);
     finished = false;
     primitiveType = GL_LINE_STRIP;
+}
+
+void Line::prepareTheData() {
+    //no-op
 }
 
 int Line::dataLength() {
@@ -171,22 +181,36 @@ void Line::cursorMovement(CursorMovement cm) {
 }
 
 Rectangle::Rectangle(float x, float y) {
-    data[0] = x;
-    data[1] = y;
+    startX = x;
+    startY = y;
+    endX = x;
+    endY = y;
     finished = false;
+    primitiveType = GL_TRIANGLES;
 }
 
 void Rectangle::cursorMovement(CursorMovement cm) {
-    data[2] = pixelToRealX((float)cm.x);
-    data[3] = pixelToRealY((float)cm.y);
+    endX = pixelToRealX((float)cm.x);
+    endY = pixelToRealY(screenHeight - (float)cm.y);
 }
 
-void Rectangle::render() {
-    glRectf(data[0], data[1], data[2], data[3]);
+void Rectangle::prepareTheData() {
+    data.reserve(12);
+    data[0] = startX;
+    data[1] = startY;
+    data[2] = endX;
+    data[3] = startY;
+    data[4] = startX;
+    data[5] = endY;
+    data[6] = endX;
+    data[7] = endY;
+    data[8] = startX;
+    data[9] = endY;
+    data[10] = endX;
+    data[11] = startY;
 }
 
 int Rectangle::dataLength() {
     return lengthOfData;
 }
 
-void Rectangle::finish() {}

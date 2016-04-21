@@ -124,40 +124,43 @@ public:
 class Shape {
 public:
     Shape();
-    virtual void finish()=0;
-    virtual void render()=0;
+    // finish will create the final buffers
     virtual void cursorMovement(CursorMovement)=0;
     virtual int dataLength()=0;
+    virtual void prepareTheData()=0;
+    void finish();
+    void frameRender();
+    void finalRender();
+    void genAndBindBufferAndVao();
+    void unbindBufferAndVao();
+    void bindBufferAndVao();
+    typedef void (Shape::*renderFunc)();
+    renderFunc renderPtr;
     bool finished;
     GLuint vbo;
     GLuint vao;
-};
-
-class primitiveShape : public Shape {
-public:
-    void finish() override;
-    void render() override;
+    GLenum primitiveType;
+    GLenum bufferUsage;
     std::vector<float> data;
 };
 
-class Line : public primitiveShape {
+class Line : public Shape {
 public:
     Line(float x, float y);
+    virtual void prepareTheData() override;
     ~Line();
     void cursorMovement(CursorMovement) override;
     int dataLength() override;
-    GLenum primitiveType = GL_LINE_STRIP;
 };
 
 class Rectangle : public Shape {
 public:
     Rectangle(float x, float y);
     void cursorMovement(CursorMovement) override;
-    void render() override;
+    void prepareTheData() override;
     int dataLength() override;
-    void finish() override;
-    float data[4];
-    int lengthOfData = 4;
+    float startX, startY, endX, endY;
+    int lengthOfData = 12;
 };
 
 class Context {
