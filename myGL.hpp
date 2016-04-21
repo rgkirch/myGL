@@ -20,9 +20,14 @@
 //#include <iostream>
 
 #include "draw.hpp"
+
+
 //#include "shape.hpp"
 //#include "context.hpp"
 //#include "input.hpp"
+
+#ifndef MYGL_HPP
+#define MYGL_HPP
 
 // data declarations
 struct arguments {
@@ -134,7 +139,8 @@ public:
     void genAndBindBufferAndVao();
     void unbindBufferAndVao();
     void bindBufferAndVao();
-    typedef void (Shape::*renderFunc)();
+    void render();
+    typedef void (Shape::*renderFunc)(void);
     renderFunc renderPtr;
     bool finished;
     GLuint vbo;
@@ -211,3 +217,5 @@ inline double pixelToRealX(double px) {
 inline double pixelToRealY(double py) {
     return (py - (screenHeight / 2.0)) * unitsPerPixelY - viewOffsetRealY;
 }
+
+#endif
