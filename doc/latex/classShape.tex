@@ -1,0 +1,139 @@
+\hypertarget{classShape}{}\section{Shape Class Reference}
+\label{classShape}\index{Shape@{Shape}}
+
+
+{\ttfamily \#include $<$my\+G\+L.\+hpp$>$}
+
+Inheritance diagram for Shape\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=2.000000cm]{classShape}
+\end{center}
+\end{figure}
+\subsection*{Public Types}
+\begin{DoxyCompactItemize}
+\item 
+typedef void(Shape\+::$\ast$ \hyperlink{classShape_ab0227d9b119beea793bce34ba3e0b5b8}{render\+Func}) (void)
+\end{DoxyCompactItemize}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+virtual void {\bfseries cursor\+Movement} (\hyperlink{classCursorMovement}{Cursor\+Movement})=0\hypertarget{classShape_a0961d7281bca29285d6612b75bb157d9}{}\label{classShape_a0961d7281bca29285d6612b75bb157d9}
+
+\item 
+virtual int {\bfseries data\+Length} ()=0\hypertarget{classShape_a32cbd03b3856b47df4130bfe8146845b}{}\label{classShape_a32cbd03b3856b47df4130bfe8146845b}
+
+\item 
+virtual void {\bfseries prepare\+The\+Data} ()=0\hypertarget{classShape_a0a6013295cf3ca8f46616071fd758343}{}\label{classShape_a0a6013295cf3ca8f46616071fd758343}
+
+\item 
+void \hyperlink{classShape_a3651abfa2b1d449f35c83b3dc64f64f2}{finish} ()
+\item 
+void \hyperlink{classShape_a54656be292bf729d6ea90b06f5c7960e}{frame\+Render} ()
+\item 
+void \hyperlink{classShape_a00ca157cc139d7ba9259ba3e2967c908}{final\+Render} ()
+\item 
+void \hyperlink{classShape_a4802e77733cb6d47f7eb69fcb4fdf089}{gen\+And\+Bind\+Buffer\+And\+Vao} ()
+\item 
+void \hyperlink{classShape_a3a78a69fcfd3a2bc9f80ad5a00fdf669}{unbind\+Buffer\+And\+Vao} ()
+\item 
+void \hyperlink{classShape_aff33547fafee1a528cdee387c0fb54aa}{bind\+Buffer\+And\+Vao} ()
+\item 
+void \hyperlink{classShape_ad62ee6dbad795d967e2f572f6e4e27fb}{render} ()
+\end{DoxyCompactItemize}
+\subsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\hyperlink{classShape_ab0227d9b119beea793bce34ba3e0b5b8}{render\+Func} {\bfseries render\+Ptr}\hypertarget{classShape_a016f40915d3586c308b3e8fdfb9d9bc5}{}\label{classShape_a016f40915d3586c308b3e8fdfb9d9bc5}
+
+\item 
+bool \hyperlink{classShape_ad766ebc1fafeb7f6c76d37ccfed88be4}{finished}
+\item 
+G\+Luint {\bfseries vbo}\hypertarget{classShape_a9772bed5d7baa4d326238e0abdc9d902}{}\label{classShape_a9772bed5d7baa4d326238e0abdc9d902}
+
+\item 
+G\+Luint {\bfseries vao}\hypertarget{classShape_ab0690d5f4e6d3de615e90002bc3913c7}{}\label{classShape_ab0690d5f4e6d3de615e90002bc3913c7}
+
+\item 
+G\+Lenum {\bfseries primitive\+Type}\hypertarget{classShape_ad05ed5f7c01b7d0ee1b8e5a5400aa2b7}{}\label{classShape_ad05ed5f7c01b7d0ee1b8e5a5400aa2b7}
+
+\item 
+G\+Lenum {\bfseries buffer\+Usage}\hypertarget{classShape_a9203986d2f0e566c7cf66be7478eca59}{}\label{classShape_a9203986d2f0e566c7cf66be7478eca59}
+
+\item 
+std\+::vector$<$ float $>$ {\bfseries data}\hypertarget{classShape_a540c062d8d9719147efb7723ce0ceeea}{}\label{classShape_a540c062d8d9719147efb7723ce0ceeea}
+
+\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+The \hyperlink{classShape}{Shape} class allows a very nice vector$<$\+Shape$\ast$$>$ in \hyperlink{classContext}{Context}. The common stuff for rendering goes here. 
+
+\subsection{Member Typedef Documentation}
+\index{Shape@{Shape}!render\+Func@{render\+Func}}
+\index{render\+Func@{render\+Func}!Shape@{Shape}}
+\subsubsection[{\texorpdfstring{render\+Func}{renderFunc}}]{\setlength{\rightskip}{0pt plus 5cm}typedef void(Shape\+::$\ast$ Shape\+::render\+Func) (void)}\hypertarget{classShape_ab0227d9b119beea793bce34ba3e0b5b8}{}\label{classShape_ab0227d9b119beea793bce34ba3e0b5b8}
+\hyperlink{classContext}{Context}\textquotesingle{}s render renders all shapes in vector$<$\+Shape$\ast$$>$ and \hyperlink{classShape_ad62ee6dbad795d967e2f572f6e4e27fb}{Shape\+::render} calls whatever render\+Ptr points to 
+
+\subsection{Member Function Documentation}
+\index{Shape@{Shape}!bind\+Buffer\+And\+Vao@{bind\+Buffer\+And\+Vao}}
+\index{bind\+Buffer\+And\+Vao@{bind\+Buffer\+And\+Vao}!Shape@{Shape}}
+\subsubsection[{\texorpdfstring{bind\+Buffer\+And\+Vao()}{bindBufferAndVao()}}]{\setlength{\rightskip}{0pt plus 5cm}void Shape\+::bind\+Buffer\+And\+Vao (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)}\hypertarget{classShape_aff33547fafee1a528cdee387c0fb54aa}{}\label{classShape_aff33547fafee1a528cdee387c0fb54aa}
+dissables vertex attrib arrays and unbinds vbo and vao \index{Shape@{Shape}!final\+Render@{final\+Render}}
+\index{final\+Render@{final\+Render}!Shape@{Shape}}
+\subsubsection[{\texorpdfstring{final\+Render()}{finalRender()}}]{\setlength{\rightskip}{0pt plus 5cm}void Shape\+::final\+Render (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)}\hypertarget{classShape_a00ca157cc139d7ba9259ba3e2967c908}{}\label{classShape_a00ca157cc139d7ba9259ba3e2967c908}
+gens buffers and cleans them up afterwards, leaves nothing bound, used for shapes that are in progress \index{Shape@{Shape}!finish@{finish}}
+\index{finish@{finish}!Shape@{Shape}}
+\subsubsection[{\texorpdfstring{finish()}{finish()}}]{\setlength{\rightskip}{0pt plus 5cm}void Shape\+::finish (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)}\hypertarget{classShape_a3651abfa2b1d449f35c83b3dc64f64f2}{}\label{classShape_a3651abfa2b1d449f35c83b3dc64f64f2}
+e.\+g. allows a rectangle to fill \textquotesingle{}vector$<$float$>$ data\textquotesingle{} from start\+X\+Yend\+XY before the buffers are made \index{Shape@{Shape}!frame\+Render@{frame\+Render}}
+\index{frame\+Render@{frame\+Render}!Shape@{Shape}}
+\subsubsection[{\texorpdfstring{frame\+Render()}{frameRender()}}]{\setlength{\rightskip}{0pt plus 5cm}void Shape\+::frame\+Render (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)}\hypertarget{classShape_a54656be292bf729d6ea90b06f5c7960e}{}\label{classShape_a54656be292bf729d6ea90b06f5c7960e}
+prep the data, gen the buffers, and make \textquotesingle{}render\+Ptr\textquotesingle{} point to \textquotesingle{}final\+Render\textquotesingle{} called before pushing the current shape onto context\textquotesingle{}s vector$<$\+Shape$\ast$$>$ \index{Shape@{Shape}!gen\+And\+Bind\+Buffer\+And\+Vao@{gen\+And\+Bind\+Buffer\+And\+Vao}}
+\index{gen\+And\+Bind\+Buffer\+And\+Vao@{gen\+And\+Bind\+Buffer\+And\+Vao}!Shape@{Shape}}
+\subsubsection[{\texorpdfstring{gen\+And\+Bind\+Buffer\+And\+Vao()}{genAndBindBufferAndVao()}}]{\setlength{\rightskip}{0pt plus 5cm}void Shape\+::gen\+And\+Bind\+Buffer\+And\+Vao (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)}\hypertarget{classShape_a4802e77733cb6d47f7eb69fcb4fdf089}{}\label{classShape_a4802e77733cb6d47f7eb69fcb4fdf089}
+bind, draw, and unbind; assumes that the correct buffers are already generated \index{Shape@{Shape}!render@{render}}
+\index{render@{render}!Shape@{Shape}}
+\subsubsection[{\texorpdfstring{render()}{render()}}]{\setlength{\rightskip}{0pt plus 5cm}void Shape\+::render (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)}\hypertarget{classShape_ad62ee6dbad795d967e2f572f6e4e27fb}{}\label{classShape_ad62ee6dbad795d967e2f572f6e4e27fb}
+binds vao and vbo and enables attrib arrays \index{Shape@{Shape}!unbind\+Buffer\+And\+Vao@{unbind\+Buffer\+And\+Vao}}
+\index{unbind\+Buffer\+And\+Vao@{unbind\+Buffer\+And\+Vao}!Shape@{Shape}}
+\subsubsection[{\texorpdfstring{unbind\+Buffer\+And\+Vao()}{unbindBufferAndVao()}}]{\setlength{\rightskip}{0pt plus 5cm}void Shape\+::unbind\+Buffer\+And\+Vao (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)}\hypertarget{classShape_a3a78a69fcfd3a2bc9f80ad5a00fdf669}{}\label{classShape_a3a78a69fcfd3a2bc9f80ad5a00fdf669}
+gens, binds, and leaves them bound 
+
+\subsection{Member Data Documentation}
+\index{Shape@{Shape}!finished@{finished}}
+\index{finished@{finished}!Shape@{Shape}}
+\subsubsection[{\texorpdfstring{finished}{finished}}]{\setlength{\rightskip}{0pt plus 5cm}bool Shape\+::finished}\hypertarget{classShape_ad766ebc1fafeb7f6c76d37ccfed88be4}{}\label{classShape_ad766ebc1fafeb7f6c76d37ccfed88be4}
+points to either frame\+Render or final\+Render 
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+my\+G\+L.\+hpp\item 
+context.\+cpp\end{DoxyCompactItemize}
