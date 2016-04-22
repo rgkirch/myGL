@@ -86,6 +86,12 @@ void manualMapKeys();
 void zoomIn();
 void zoomOut();
 
+/**
+ * The PNG class is for reading and writing '.png' files. There are two static functions called readPNG() and writePNG() that can be used without instantiating an instance of the class.
+ * This class was made to solve the problem that
+ *      writePNG(readPNG(fileName));
+ * writePNG in the above statement doesn't know the width and height of the image. Now the width and height are stored in the object itself.
+ */
 class PNG {
 public:
     PNG();
@@ -102,6 +108,11 @@ public:
     unsigned char* data;
 };
 
+class ShaderProgram {
+};
+/**
+ * The member variables of CursorMovement, MouseButton, and Key match what is provided in the respective GLFW callback functions.
+ */
 class Input {
 };
 
@@ -129,6 +140,9 @@ public:
     int mods;
 };
 
+/**
+ * The context has a view. The view has member variables to allow for mapping the 'real' world coordinate space to screen coordinates. Screen coordinates are such that only points in the range of [-1, 1] are visible. Not sure about the inclusion actually.
+ */
 class View {
 public:
     View();
@@ -141,22 +155,25 @@ public:
     double mouseHiddenAtY;
 };
 
+/**
+ * The Shape class allows a very nice vector<Shape*> in Context. The common stuff for rendering goes here.
+ */
 class Shape {
 public:
     Shape();
     // finish will create the final buffers
     virtual void cursorMovement(CursorMovement)=0;
     virtual int dataLength()=0;
-    virtual void prepareTheData()=0;
-    void finish();
-    void frameRender();
-    void finalRender();
-    void genAndBindBufferAndVao();
-    void unbindBufferAndVao();
-    void bindBufferAndVao();
-    void render();
+    virtual void prepareTheData()=0; /** e.g. allows a rectangle to fill 'vector<float> data' from startXYendXY before the buffers are made */
+    void finish(); /** prep the data, gen the buffers, and make 'renderPtr' point to 'finalRender' called before pushing the current shape onto context's vector<Shape*> */
+    void frameRender(); /** gens buffers and cleans them up afterwards, leaves nothing bound, used for shapes that are in progress */
+    void finalRender(); /** bind, draw, and unbind; assumes that the correct buffers are already generated */
+    void genAndBindBufferAndVao(); /** gens, binds, and leaves them bound **/
+    void unbindBufferAndVao(); /** dissables vertex attrib arrays and unbinds vbo and vao */
+    void bindBufferAndVao(); /** binds vao and vbo and enables attrib arrays */
+    void render(); /** Context's render renders all shapes in vector<Shape*> and Shape::render calls whatever renderPtr points to */
     typedef void (Shape::*renderFunc)(void);
-    renderFunc renderPtr;
+    renderFunc renderPtr; /** points to either frameRender or finalRender */
     bool finished;
     GLuint vbo;
     GLuint vao;
@@ -190,7 +207,7 @@ public:
     virtual void cursorMovement(CursorMovement)=0;
     virtual void key(Key)=0;
     // public, visible to user
-    void mouseButton(MouseButton);
+    void mouseButton(MouseButton); /** updates 'mousePressed' before calling mb() */
     // protected, hidden to user
     virtual void mb(MouseButton)=0;
     // not sure if all contexts will have a render function, use dynamic cast in draw.cpp
@@ -226,6 +243,7 @@ extern double viewOffsetRealY;
 extern double unitsPerPixelX;
 extern double unitsPerPixelY;
 
+// maybe should be in view?
 inline double pixelToRealX(double px) {
     return (px - (screenWidth / 2.0)) * unitsPerPixelX - viewOffsetRealX;
 }
