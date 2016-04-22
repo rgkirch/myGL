@@ -35,6 +35,25 @@ double pixelToRealY(double y);
 
 float scrollSpeedMultiplier = 0.1;
 
+void testCode() {
+    char name[] = "100.png";
+    PNG* image = new PNG(name);
+    int levelOfDetail = 0; // base level
+
+    Rectangle* rect = new Rectangle(-300.0, -300.0, 300.0, 300.0);
+    GLuint tex;
+    glGenTextures(1, &tex);
+    glBindTexture(GL_TEXTURE_2D, tex);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+    glTexImage2D(GL_TEXTURE_2D, levelOfDetail, GL_RGBA, image->width(), image->height(), 0, GL_RGBA, GL_UNSIGNED_BYTE, image->pixels());
+    //glGenerateMipmap(GL_TEXTURE_2D);
+    rect->render();
+}
+
 void findMinMax(float &min, float &max, int length, float* nums) {
     for( int i=0; i<length; ++i ) {
         if( max < nums[i] ) {
@@ -148,6 +167,8 @@ void draw() {
         glUniform1f(shaderUniforms.screenHeight, screenHeight);
         
         if(currentContext) currentContext->render();
+
+        //testCode();
 
 		glfwSwapBuffers( window );
         //testCursorPolling();
@@ -418,44 +439,8 @@ void zoomIn() {
     unitsPerPixelY *= 1.0 - scrollSpeedMultiplier;
 }
 
-void writePNG(char* imageName) {
-    GLvoid* data = (GLvoid*)malloc(screenWidth * screenHeight * 4);
-    glReadPixels(0, 0, screenWidth, screenHeight, GL_RGBA, GL_UNSIGNED_BYTE, data);
-    png_image image;
-    memset(&image, 0x00, sizeof(image));
-    image.version = PNG_IMAGE_VERSION;
-    image.width = screenWidth;
-    image.height = screenHeight;
-    image.format = PNG_FORMAT_RGBA;
-    image.flags = 0;
-    image.opaque = NULL;
-    image.colormap_entries = 0;
-    png_image_write_to_file(&image, imageName, 0, data, 0, NULL);
-    png_image_free(&image);
-}
-
 void manualMapKeys() {
     for(int i = 33; i <= 126; ++i) {
     }
-}
-
-int readPNG() {
-/*
-    int imageSizeBytes = 0;
-    char imageName[] = "screenShot.png";
-    png_image image;
-    memset(&image, 0x00, imageSizeBytes);
-    image.version = PNG_IMAGE_VERSION;
-    image.width = screenWidth;
-    image.height = screenHeight;
-    if (png_image_begin_read_from_file(&image, imageName) != 0) {
-        png_bytep buffer;
-        image.format = PNG_FORMAT_RGBA;
-        buffer = (unsigned char*)malloc(PNG_IMAGE_SIZE(image));
-        if (buffer != NULL && png_image_finish_read(&image, NULL, buffer, 0, NULL) != 0) {
-        }
-    }
-*/
-    return 0;
 }
     //When libpng encounters an error, it expects to longjmp back to your routine. There- fore, you will need to call setjmp and pass your png_jmpbuf(png_ptr). If you read the file from different routines, you will need to update the jmpbuf field every time you enter a new routine that will call a png_*() function.

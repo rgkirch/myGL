@@ -82,11 +82,25 @@ GLuint createShader(char* vertexShaderFileName, char* fragmentShaderFileName);
 void checkShaderStepSuccess(GLint program, GLuint status);
 void printShaderLog(char* errorMessage, GLuint shader);
 
-int loadPNG();
-void writePNG(char* imageName);
 void manualMapKeys();
 void zoomIn();
 void zoomOut();
+
+class PNG {
+public:
+    PNG();
+    PNG(char imageName[]);
+    static unsigned char* readPNG(char* imageName);
+    static void writePNG(char imageName[], unsigned char* data, int width, int height);
+    void read();
+    void write();
+    int width();
+    int height();
+    unsigned char* pixels();
+    png_image image;
+    char* imageName;
+    unsigned char* data;
+};
 
 class Input {
 };
@@ -122,6 +136,7 @@ public:
     void pan();
     void endPan();
     bool panning;
+    bool reversePan;
     double mouseHiddenAtX;
     double mouseHiddenAtY;
 };
@@ -162,6 +177,7 @@ public:
 class Rectangle : public Shape {
 public:
     Rectangle(float x, float y);
+    Rectangle(float ax, float ay, float bx, float by);
     void cursorMovement(CursorMovement) override;
     void prepareTheData() override;
     int dataLength() override;

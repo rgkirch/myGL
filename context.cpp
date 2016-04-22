@@ -1,7 +1,70 @@
 #include "myGL.hpp"
 
+// need to be able to change reverse pan
+
+typedef void (Shape::*renderFunc)();
+
+PNG::PNG() : imageName(NULL), data(NULL) {
+    memset(&image, 0x00, sizeof(image));
+}
+
+PNG::PNG(char imageName[]) : imageName(NULL), data(NULL) {
+    memset(&image, 0x00, sizeof(image));
+    image.version = PNG_IMAGE_VERSION;
+    image.opaque = NULL;
+    png_image_begin_read_from_file(&image, imageName);
+    image.format = PNG_FORMAT_RGBA;
+    image.colormap_entries = 0;
+    data = (unsigned char*)malloc(image.width * image.height * 4 * sizeof(unsigned char));
+    png_image_finish_read(&image, NULL, data, 0, NULL);
+}
+
+int PNG::width() {
+    return image.width;
+}
+
+int PNG::height() {
+    return image.height;
+}
+
+unsigned char* PNG::pixels() {
+    return data;
+}
+
+unsigned char* PNG::readPNG(char* imageName) {
+    unsigned char* data = NULL;
+    png_image image;
+    memset(&image, 0x00, sizeof(image));
+    image.version = PNG_IMAGE_VERSION;
+    image.opaque = NULL;
+    png_image_begin_read_from_file(&image, imageName);
+    image.format = PNG_FORMAT_RGBA;
+    image.colormap_entries = 0;
+    data = (unsigned char*)malloc(image.width * image.height * 4 * sizeof(unsigned char));
+    png_image_finish_read(&image, NULL, data, 0, NULL);
+    png_image_free(&image);
+    return data;
+}
+
+void PNG::writePNG(char imageName[], unsigned char* data, int width, int height) {
+    //GLvoid* data = (GLvoid*)malloc(screenWidth * screenHeight * 4);
+    //glReadPixels(0, 0, screenWidth, screenHeight, GL_RGBA, GL_UNSIGNED_BYTE, data);
+    png_image image;
+    memset(&image, 0x00, sizeof(image));
+    image.version = PNG_IMAGE_VERSION;
+    image.width = width;
+    image.height = height;
+    image.format = PNG_FORMAT_RGBA;
+    image.flags = 0;
+    image.opaque = NULL;
+    image.colormap_entries = 0;
+    png_image_write_to_file(&image, imageName, 0, data, 0, NULL);
+    png_image_free(&image);
+}
+
 View::View() {
     panning = false;
+    reversePan = true;
     mouseHiddenAtX = 0.0;
     mouseHiddenAtY = 0.0;
 }
@@ -25,8 +88,8 @@ void View::endPan() {
 
 void View::cursorMovement(CursorMovement cm) {
     if(panning) {
-        tempViewOffsetX = (cm.x - mouseHiddenAtX) * unitsPerPixelX;
-        tempViewOffsetY = (screenHeight - cm.y - mouseHiddenAtY) * unitsPerPixelY;
+        tempViewOffsetX = (reversePan ? mouseHiddenAtX - cm.x : cm.x - mouseHiddenAtX ) * unitsPerPixelX;
+        tempViewOffsetY = (reversePan ? (cm.y + mouseHiddenAtY - screenHeight) : (screenHeight - cm.y - mouseHiddenAtY)) * unitsPerPixelY;
     }
 }
 
@@ -68,7 +131,6 @@ void Composer::mb(MouseButton mb) {
 
         }
     } else if(currentShape && mb.action == GLFW_RELEASE) {
-        printf("finished current shape\n");
         currentShape->finish();
         shapes.push_back(currentShape);
         currentShape = NULL;
@@ -77,11 +139,13 @@ void Composer::mb(MouseButton mb) {
 
 void Composer::key(Key key) {
     if(key.action == GLFW_PRESS && key.mods == 0) {
-        lastScancode = key.scancode;
         switch(key.scancode) {
             // space
             case 65:
                 view->pan();
+                break;
+            default:
+                lastScancode = key.scancode;
                 break;
         }
     } else if(key.action == GLFW_RELEASE && key.mods == 0) {
@@ -90,20 +154,30 @@ void Composer::key(Key key) {
             case 65:
                 view->endPan();
                 break;
+            default:
+                lastScancode = key.scancode;
+                break;
         }
     }
 }
 
 void Composer::render() {
     for(int i = 0; i < shapes.size(); ++i) {
-        (shapes[i]->*renderPtr)();
+        shapes[i]->render();
     }
-    if(currentShape) (currentShape->*renderPtr)();
+    if(currentShape) {
+        //(currentShape->*Shape::renderPtr)();
+        currentShape->render();
+    }
 }
 
 Shape::Shape() {
-    Shape::renderPtr = &Shape::frameRender;
+    renderPtr = &Shape::frameRender;
     bufferUsage = GL_STREAM_DRAW;
+}
+
+void Shape::render() {
+    (this->*renderPtr)();
 }
 
 void Shape::frameRender() {
@@ -189,13 +263,22 @@ Rectangle::Rectangle(float x, float y) {
     primitiveType = GL_TRIANGLES;
 }
 
+Rectangle::Rectangle(float ax, float ay, float bx, float by) {
+    startX = ax;
+    startY = ay;
+    endX = bx;
+    endY = by;
+    finished = true;
+    primitiveType = GL_TRIANGLES;
+}
+
 void Rectangle::cursorMovement(CursorMovement cm) {
     endX = pixelToRealX((float)cm.x);
     endY = pixelToRealY(screenHeight - (float)cm.y);
 }
 
 void Rectangle::prepareTheData() {
-    data.reserve(12);
+    data.reserve(lengthOfData);
     data[0] = startX;
     data[1] = startY;
     data[2] = endX;
