@@ -6,7 +6,6 @@ screenshot.BMP
 *.o
 other.dump
 log.txt
-doc/*
 *.pyc
 template
 .ycm_extra_conf.pyc
