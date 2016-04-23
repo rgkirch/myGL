@@ -1,0 +1,5 @@
+<map id="Input" name="Input">
+<area shape="rect" id="node2" href="$classCursorMovement.html" title="CursorMovement" alt="" coords="5,80,128,107"/>
+<area shape="rect" id="node3" href="$classKey.html" title="Key" alt="" coords="152,80,197,107"/>
+<area shape="rect" id="node4" href="$classMouseButton.html" title="MouseButton" alt="" coords="221,80,320,107"/>
+</map>
