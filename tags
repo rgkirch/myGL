@@ -1,0 +1,106 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
+!_TAG_PROGRAM_NAME	Exuberant Ctags	//
+!_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
+!_TAG_PROGRAM_VERSION	5.8	//
+A	functionPointerTest.cpp	/^    enum {A, B} type;$/;"	e	enum:args::__anon1	file:
+B	functionPointerTest.cpp	/^    enum {A, B} type;$/;"	e	enum:args::__anon1	file:
+Composer	context.cpp	/^Composer::Composer() {$/;"	f	class:Composer
+Line	context.cpp	/^Line::Line(float x, float y) {$/;"	f	class:Line
+PNG	context.cpp	/^PNG::PNG() : imageName(NULL), data(NULL) {$/;"	f	class:PNG
+PNG	context.cpp	/^PNG::PNG(char imageName[]) : imageName(NULL), data(NULL) {$/;"	f	class:PNG
+Rectangle	context.cpp	/^Rectangle::Rectangle(float ax, float ay, float bx, float by) {$/;"	f	class:Rectangle
+Rectangle	context.cpp	/^Rectangle::Rectangle(float x, float y) {$/;"	f	class:Rectangle
+Shape	context.cpp	/^Shape::Shape() {$/;"	f	class:Shape
+View	context.cpp	/^View::View() {$/;"	f	class:View
+args	functionPointerTest.cpp	/^struct args {$/;"	s	file:
+bindBufferAndVao	context.cpp	/^void Shape::bindBufferAndVao() {$/;"	f	class:Shape
+character_callback	draw.cpp	/^void character_callback(GLFWwindow* window, unsigned int codepoint) {$/;"	f
+checkShaderStepSuccess	draw.cpp	/^void checkShaderStepSuccess(GLint program, GLuint status) {$/;"	f
+createShader	draw.cpp	/^GLuint createShader(char* vertexShaderFileName, char* fragmentShaderFileName) {$/;"	f
+currentContext	draw.cpp	/^Context* currentContext;$/;"	v
+currentFunction	functionPointerTest.cpp	/^void(*currentFunction)(args);$/;"	v
+cursorMovement	context.cpp	/^void Composer::cursorMovement(CursorMovement input) {$/;"	f	class:Composer
+cursorMovement	context.cpp	/^void Line::cursorMovement(CursorMovement cm) {$/;"	f	class:Line
+cursorMovement	context.cpp	/^void Rectangle::cursorMovement(CursorMovement cm) {$/;"	f	class:Rectangle
+cursorMovement	context.cpp	/^void View::cursorMovement(CursorMovement cm) {$/;"	f	class:View
+cursor_position_callback	draw.cpp	/^void cursor_position_callback(GLFWwindow* window, double xpos, double ypos) {$/;"	f
+dataLength	context.cpp	/^int Line::dataLength() {$/;"	f	class:Line
+dataLength	context.cpp	/^int Rectangle::dataLength() {$/;"	f	class:Rectangle
+dec	functionPointerTest.cpp	/^void dec(args arg) {$/;"	f
+draw	draw.cpp	/^void draw() {$/;"	f
+drop_callback	draw.cpp	/^void drop_callback(GLFWwindow* window, int count, const char** paths)$/;"	f
+endPan	context.cpp	/^void View::endPan() {$/;"	f	class:View
+finalRender	context.cpp	/^void Shape::finalRender() {$/;"	f	class:Shape
+findMinMax	draw.cpp	/^void findMinMax(float &min, float &max, int length, float* nums) {$/;"	f
+finish	context.cpp	/^void Shape::finish() {$/;"	f	class:Shape
+fragmentShaderFileName	draw.cpp	/^const char* fragmentShaderFileName = "fragmentShader.glsl";$/;"	v
+frameRender	context.cpp	/^void Shape::frameRender() {$/;"	f	class:Shape
+functions	functionPointerTest.cpp	/^std::vector<void(*)(args)> functions;$/;"	v
+genAndBindBufferAndVao	context.cpp	/^void Shape::genAndBindBufferAndVao() {$/;"	f	class:Shape
+glRect	draw.cpp	/^std::vector<float> glRect;$/;"	v
+height	context.cpp	/^int PNG::height() {$/;"	f	class:PNG
+inc	functionPointerTest.cpp	/^void inc(args arg) {$/;"	f
+init	draw.cpp	/^void init(int argc, char* argv[]) {$/;"	f
+intToString	draw.cpp	/^char* intToString(int num) {$/;"	f
+key	context.cpp	/^void Composer::key(Key key) {$/;"	f	class:Composer
+key_callback	draw.cpp	/^void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods) {$/;"	f
+keyboardL	draw.cpp	/^keyboardLayout keyboardL;$/;"	v
+main	functionPointerTest.cpp	/^int main() {$/;"	f
+main	main.cpp	/^int main(int argc, char** argv) {$/;"	f
+manualMapKeys	draw.cpp	/^void manualMapKeys() {$/;"	f
+mb	context.cpp	/^void Composer::mb(MouseButton mb) {$/;"	f	class:Composer
+mouseButton	context.cpp	/^void Context::mouseButton(MouseButton input) {$/;"	f	class:Context
+mouseHiddenAtX	draw.cpp	/^double mouseHiddenAtX;$/;"	v
+mouseHiddenAtY	draw.cpp	/^double mouseHiddenAtY;$/;"	v
+mouse_button_callback	draw.cpp	/^void mouse_button_callback(GLFWwindow* window, int button, int action, int mods) {$/;"	f
+num	functionPointerTest.cpp	/^int num = 0;$/;"	v
+pan	context.cpp	/^void View::pan() {$/;"	f	class:View
+pixels	context.cpp	/^unsigned char* PNG::pixels() {$/;"	f	class:PNG
+pointLengths	draw.cpp	/^std::vector<int> pointLengths;$/;"	v
+prepareTheData	context.cpp	/^void Line::prepareTheData() {$/;"	f	class:Line
+prepareTheData	context.cpp	/^void Rectangle::prepareTheData() {$/;"	f	class:Rectangle
+primitiveType	draw.cpp	/^std::vector<GLuint> primitiveType;$/;"	v
+printShaderLog	draw.cpp	/^void printShaderLog(char* errorMessage, GLuint shader) {$/;"	f
+readFile	draw.cpp	/^GLchar* readFile(char* fileName) {$/;"	f
+readPNG	context.cpp	/^unsigned char* PNG::readPNG(char* imageName) {$/;"	f	class:PNG
+render	context.cpp	/^void Composer::render() {$/;"	f	class:Composer
+render	context.cpp	/^void Shape::render() {$/;"	f	class:Shape
+renderFunc	context.cpp	/^typedef void (Shape::*renderFunc)();$/;"	t	file:
+saveBufferAsBytes	draw.cpp	/^void saveBufferAsBytes() {$/;"	f
+screenHeight	draw.cpp	/^int screenHeight = 700;$/;"	v
+screenWidth	draw.cpp	/^int screenWidth = 700;$/;"	v
+scrollSpeedMultiplier	draw.cpp	/^float scrollSpeedMultiplier = 0.1;$/;"	v
+scroll_callback	draw.cpp	/^void scroll_callback(GLFWwindow* window, double xoffset, double yoffset) {$/;"	f
+shaderUniforms	draw.cpp	/^struct shaderUniforms shaderUniforms;$/;"	v	typeref:struct:shaderUniforms
+stdLog	draw.cpp	/^FILE* stdLog;$/;"	v
+tempViewOffsetX	draw.cpp	/^double tempViewOffsetX = 0.0;$/;"	v
+tempViewOffsetY	draw.cpp	/^double tempViewOffsetY = 0.0;$/;"	v
+testCode	draw.cpp	/^void testCode() {$/;"	f
+testCursorPolling	draw.cpp	/^void testCursorPolling() {$/;"	f
+type	functionPointerTest.cpp	/^    enum {A, B} type;$/;"	m	struct:args	typeref:enum:args::__anon1	file:
+unbindBufferAndVao	context.cpp	/^void Shape::unbindBufferAndVao() {$/;"	f	class:Shape
+unitsPerPixelX	draw.cpp	/^double unitsPerPixelX = 1.0;$/;"	v
+unitsPerPixelY	draw.cpp	/^double unitsPerPixelY = 1.0;$/;"	v
+vaos	draw.cpp	/^std::vector<GLuint> vaos;$/;"	v
+vbos	draw.cpp	/^std::vector<GLuint> vbos;$/;"	v
+vertexShaderFileName	draw.cpp	/^const char* vertexShaderFileName = "vertexShader.glsl";$/;"	v
+viewOffsetRealX	draw.cpp	/^double viewOffsetRealX = 0.0;$/;"	v
+viewOffsetRealY	draw.cpp	/^double viewOffsetRealY = 0.0;$/;"	v
+width	context.cpp	/^int PNG::width() {$/;"	f	class:PNG
+window	draw.cpp	/^GLFWwindow* window;$/;"	v
+windowTitle	draw.cpp	/^char windowTitle[] = "plot";$/;"	v
+window_move_callback	draw.cpp	/^void window_move_callback(GLFWwindow* window, int x, int y) {$/;"	f
+window_resize_callback	draw.cpp	/^void window_resize_callback(GLFWwindow* window, int width, int height) {$/;"	f
+writePNG	context.cpp	/^void PNG::writePNG(char imageName[], unsigned char* data, int width, int height) {$/;"	f	class:PNG
+x	functionPointerTest.cpp	/^            int x;$/;"	m	struct:args::__anon2::__anon3	file:
+xmax	draw.cpp	/^float xmax, ymax, xmin, ymin;$/;"	v
+xmin	draw.cpp	/^float xmax, ymax, xmin, ymin;$/;"	v
+y	functionPointerTest.cpp	/^            int y;$/;"	m	struct:args::__anon2::__anon3	file:
+ymax	draw.cpp	/^float xmax, ymax, xmin, ymin;$/;"	v
+ymin	draw.cpp	/^float xmax, ymax, xmin, ymin;$/;"	v
+z	functionPointerTest.cpp	/^            double z;$/;"	m	struct:args::__anon2::__anon4	file:
+zoomIn	draw.cpp	/^void zoomIn() {$/;"	f
+zoomOut	draw.cpp	/^void zoomOut() {$/;"	f
+~Line	context.cpp	/^Line::~Line() {$/;"	f	class:Line
