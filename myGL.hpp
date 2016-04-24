@@ -4,13 +4,15 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
-#include <math.h>
 #include <cstdio>
-#include <cstring>
 #include <cstdlib>
+#include <cstring>
 #include <iostream>
-#include <vector>
+#include <sstream>
+#include <math.h>
 #include <queue>
+#include <stdexcept>
+#include <vector>
 
 #include <boost/filesystem.hpp>
 #include <png.h>
@@ -109,7 +111,12 @@ public:
 };
 
 class ShaderProgram {
+public:
+    ShaderProgram(std::string vertexShaderFileName, std::string fragmentShaderFileName);
+    GLuint program;
+    static std::string readFile(std::string fileName);
 };
+
 /**
  * The member variables of CursorMovement, MouseButton, and Key match what is provided in the respective GLFW callback functions.
  */

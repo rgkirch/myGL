@@ -1,0 +1,2 @@
+when you create a new shader program object it should find the location of all of the uniforms and save them
+    i guess this means that there is a kind of ShaderProgram that hass the basic stuff (minimal that i use) and a TexturedShaderProgram (that inheriets from) ShaderProgram that has the stuff of textures

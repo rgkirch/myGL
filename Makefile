@@ -7,6 +7,8 @@ STD=-std=c++11
 all: app.exe
 app.exe: main.cpp draw.o context.o
 	$(CC) -g -o app.exe main.cpp draw.o context.o $(STD) $(STUF)
+mainNoDraw: main.cpp context.o
+	$(CC) -g -o app.exe main.cpp context.o $(STD) $(STUF)
 draw.o: draw.cpp
 	$(CC) -g -c draw.cpp $(STD) $(STUF)
 context.o: context.cpp

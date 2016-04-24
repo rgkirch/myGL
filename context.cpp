@@ -4,6 +4,49 @@
 
 typedef void (Shape::*renderFunc)();
 
+ShaderProgram::ShaderProgram(std::string vertexShaderFileName, std::string fragmentShaderFileName) {
+    program = glCreateProgram();
+    if( ! program ) throw std::runtime_error("failed to create program.");
+    std::ifstream vertexShaderStream(vertexShaderFileName);
+    std::ifstream fragmentShaderStream(fragmentShaderFileName);
+    //GLchar* vertexShaderCode = readFile( vertexShaderFileName );
+    //GLchar* fragmentShaderCode = readFile( fragmentShaderFileName );
+    GLuint vertexShader = glCreateShader( GL_VERTEX_SHADER );
+    GLuint fragmentShader = glCreateShader( GL_FRAGMENT_SHADER );
+    ////glShaderSource( vertexShader, 1, vertexShaderStream.rdbuf()->, NULL );
+    //glShaderSource( vertexShader, 1, (const GLchar**)&vertexShaderCode, NULL );
+    //glShaderSource( fragmentShader, 1, (const GLchar**)&fragmentShaderCode, NULL );
+    glCompileShader(vertexShader);
+    glCompileShader(fragmentShader);
+    checkShaderStepSuccess(vertexShader, GL_COMPILE_STATUS);
+    checkShaderStepSuccess(fragmentShader, GL_COMPILE_STATUS);
+    glAttachShader(program, vertexShader);
+    glAttachShader(program, fragmentShader);
+    glDeleteShader(vertexShader);
+    glDeleteShader(fragmentShader);
+    glLinkProgram(program);
+    checkShaderStepSuccess(program, GL_LINK_STATUS);
+}
+
+std::string ShaderProgram::readFile(std::string fileName) {
+
+    std::ifstream stream(fileName);
+    //std::streamsize size = stream.rdbuf()->pubseekoff(0, stream.end);
+    //stream.rdbuf()->pubseekoff(0, stream.beg);
+    ////char* data = (char*)malloc(size * sizeof(char));
+    //std::stringstream data(stream.rdbuf());
+    ////char* data = new char[size];
+    ////if( ! data ) throw std::runtime_error("Could not allocate memory.");
+    ////stream.rdbuf()->sgetn(data, size);
+    //std::string string(std::move(data)); //<-- if I do this?
+    //free( data );
+    std::string data;
+    std::ostringstream string;
+    string << stream.rdbuf();
+    data = string.str();
+    return data;
+}
+
 PNG::PNG() : imageName(NULL), data(NULL) {
     memset(&image, 0x00, sizeof(image));
 }

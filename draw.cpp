@@ -142,7 +142,8 @@ void addPoint(int length, float* nums) {
 void draw() {
     currentContext = new Composer();
 
-    GLuint shaderProgram = createShader((char*)vertexShaderFileName, (char*)fragmentShaderFileName);
+    ShaderProgram* shaderProgram = new ShaderProgram((char*)vertexShaderFileName, (char*)fragmentShaderFileName);
+    //GLuint shaderProgram = createShader((char*)vertexShaderFileName, (char*)fragmentShaderFileName);
     glUseProgram(shaderProgram);
     shaderUniforms.viewOffsetX = glGetUniformLocation(shaderProgram, "viewOffsetX");
     shaderUniforms.viewOffsetY = glGetUniformLocation(shaderProgram, "viewOffsetY");
@@ -179,44 +180,6 @@ void draw() {
     fclose(stdLog);
 }
 
-// allocates memory for (shader) file contents
-GLchar* readFile(char* fileName) {
-    FILE* file = fopen(fileName, "rb");
-    if( ! file ) fprintf(stderr, "error: Could not open file %s\n", fileName);
-    long fileLength = 0;
-    fseek(file, 0, SEEK_END);
-    fileLength = ftell(file);
-    rewind(file);
-    GLchar* contents = (GLchar*)malloc(fileLength + 1);
-    if( ! contents ) fprintf(stderr, "error: Could not allocate memory.\n");
-    contents[fileLength] = '\0';
-    fread(contents, 1, fileLength, file);
-    fclose(file);
-    return contents;
-}
-
-GLuint createShader(char* vertexShaderFileName, char* fragmentShaderFileName) {
-    if( ! vertexShaderFileName ) fprintf(stderr, "error: NULL passed in for vertex shader file name.\n");
-    if( ! fragmentShaderFileName ) fprintf(stderr, "error: NULL passed in for fragment shader file name.\n");
-    char* sourceFileName[] = { vertexShaderFileName, fragmentShaderFileName };
-    GLint shaderEnums[] = { GL_VERTEX_SHADER, GL_FRAGMENT_SHADER };
-    GLuint program = glCreateProgram();
-    if( ! program ) fprintf(stderr, "error: failed to create program\n");
-    for(int i = 0; i < 2; ++i) {
-        GLchar* shaderCode = readFile( sourceFileName[i] );
-        GLuint shader = glCreateShader( shaderEnums[i] );
-        glShaderSource( shader, 1, (const GLchar**)&shaderCode, NULL );
-        glCompileShader(shader);
-        checkShaderStepSuccess(shader, GL_COMPILE_STATUS);
-        glAttachShader(program, shader);
-        free( shaderCode );
-        //delete [] shaderCode;
-        glDeleteShader(shader);
-    }
-    glLinkProgram(program);
-    checkShaderStepSuccess(program, GL_LINK_STATUS);
-    return program;
-}
 
 void checkShaderStepSuccess(GLint program, GLuint status) {
     GLint success = -3;
