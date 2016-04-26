@@ -5,7 +5,9 @@
 #include "myGL.hpp"
 
 int main(int argc, char** argv) {
-    std::string data = ShaderProgram::readFile("vertexShader.glsl");
-    std::cout << data;
+    MyGL* mygl = new MyGL();
+    mygl->context = new Composer();
+    //std::string data = ShaderProgram::readFile("vertexShader.glsl");
+    //std::cout << data;
     return 0;
 }

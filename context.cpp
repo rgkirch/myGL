@@ -4,18 +4,16 @@
 
 typedef void (Shape::*renderFunc)();
 
+/** Reads in a couple text files, compiles and links stuff and makes a shader program. Calls glUseProgram at the end and then needs to set up the uniforms.*/
 ShaderProgram::ShaderProgram(std::string vertexShaderFileName, std::string fragmentShaderFileName) {
     program = glCreateProgram();
     if( ! program ) throw std::runtime_error("failed to create program.");
-    std::ifstream vertexShaderStream(vertexShaderFileName);
-    std::ifstream fragmentShaderStream(fragmentShaderFileName);
-    //GLchar* vertexShaderCode = readFile( vertexShaderFileName );
-    //GLchar* fragmentShaderCode = readFile( fragmentShaderFileName );
+    std::string vertexShaderCode(readFile(vertexShaderFileName));
+    std::string fragmentShaderCode(readFile(fragmentShaderFileName));
     GLuint vertexShader = glCreateShader( GL_VERTEX_SHADER );
     GLuint fragmentShader = glCreateShader( GL_FRAGMENT_SHADER );
-    ////glShaderSource( vertexShader, 1, vertexShaderStream.rdbuf()->, NULL );
-    //glShaderSource( vertexShader, 1, (const GLchar**)&vertexShaderCode, NULL );
-    //glShaderSource( fragmentShader, 1, (const GLchar**)&fragmentShaderCode, NULL );
+    glShaderSource( vertexShader, 1, (GLchar**)vertexShaderCode.c_str(), NULL );
+    glShaderSource( fragmentShader, 1, (GLchar**)fragmentShaderCode.c_str(), NULL );
     glCompileShader(vertexShader);
     glCompileShader(fragmentShader);
     checkShaderStepSuccess(vertexShader, GL_COMPILE_STATUS);
@@ -26,11 +24,31 @@ ShaderProgram::ShaderProgram(std::string vertexShaderFileName, std::string fragm
     glDeleteShader(fragmentShader);
     glLinkProgram(program);
     checkShaderStepSuccess(program, GL_LINK_STATUS);
+    glUseProgram(program);
+    getUniforms();
+}
+
+void ShaderProgram::getUniforms() {
+    viewOffsetX = glGetUniformLocation(program, "viewOffsetX");
+    viewOffsetY = glGetUniformLocation(program, "viewOffsetY");
+    unitsPerPixelX = glGetUniformLocation(program, "unitsPerPixelX");
+    unitsPerPixelY = glGetUniformLocation(program, "unitsPerPixelY");
+    screenWidth = glGetUniformLocation(program, "screenWidth");
+    screenHeight = glGetUniformLocation(program, "screenHeight");
+}
+
+GLuint ShaderProgram::id() {
+    return program;
 }
 
 std::string ShaderProgram::readFile(std::string fileName) {
 
     std::ifstream stream(fileName);
+    std::string data;
+    std::ostringstream string;
+    string << stream.rdbuf();
+    data = string.str();
+    return data;
     //std::streamsize size = stream.rdbuf()->pubseekoff(0, stream.end);
     //stream.rdbuf()->pubseekoff(0, stream.beg);
     ////char* data = (char*)malloc(size * sizeof(char));
@@ -39,12 +57,48 @@ std::string ShaderProgram::readFile(std::string fileName) {
     ////if( ! data ) throw std::runtime_error("Could not allocate memory.");
     ////stream.rdbuf()->sgetn(data, size);
     //std::string string(std::move(data)); //<-- if I do this?
-    //free( data );
-    std::string data;
-    std::ostringstream string;
-    string << stream.rdbuf();
-    data = string.str();
-    return data;
+}
+
+void ShaderProgram::checkShaderStepSuccess(GLuint shader, GLuint status) {
+    GLint success = -3;
+    switch(status) {
+        case GL_COMPILE_STATUS:
+            glGetShaderiv( shader, status, &success );
+            if( success == -3 ) fprintf(stderr, "error: the success check may have a false positive\n");
+            if( ! success ) {
+                printShaderLog((char*)"error: gl shader program failed to compile.", shader);
+                fprintf(stderr, "Exiting.\n");
+                exit(1);
+            }
+            break;
+        case GL_LINK_STATUS:
+            glGetProgramiv( shader, status, &success );
+            printf("success value %d\n", success);
+            if( success == -3 ) fprintf(stderr, "error: the success check may have a false positive\n");
+            if( ! success ) {
+                printShaderLog((char*)"error: gl shader program failed to link.", shader);
+                //fprintf(stderr, "Exiting.\n");
+                //exit(1);
+            }
+            break;
+        default:
+            fprintf(stderr, "function called with unhandled case.\n");
+            break;
+    }
+}
+
+void ShaderProgram::printShaderLog(char* errorMessage, GLuint shader) {
+    fprintf(stderr, "%s\n", errorMessage);
+    GLint length = 0;
+    glGetShaderiv( shader, GL_INFO_LOG_LENGTH, &length );
+    printf("log length %d\n", length);
+    GLchar* logText = (GLchar*)malloc(sizeof(GLchar) * (length + 1));
+    logText[length] = '\0';
+    glGetShaderInfoLog(shader, length, &length, logText);
+    printf("printing log\n");
+    fprintf(stderr, "%s", logText);
+    //cout << logText << endl;
+    free(logText);
 }
 
 PNG::PNG() : imageName(NULL), data(NULL) {
@@ -105,6 +159,7 @@ void PNG::writePNG(char imageName[], unsigned char* data, int width, int height)
     png_image_free(&image);
 }
 
+/** A Window*/
 View::View() {
     panning = false;
     reversePan = true;
@@ -114,7 +169,8 @@ View::View() {
 
 void View::pan() {
     panning = true;
-    glfwGetCursorPos(window, &mouseHiddenAtX, &mouseHiddenAtY);
+    getCursorPos(&mouseHiddenAtX, &mouseHiddenAtY);
+    getCursorPos(&mouseHiddenAtX, &mouseHiddenAtY);
     mouseHiddenAtY = screenHeight - mouseHiddenAtY;
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 }
@@ -129,11 +185,9 @@ void View::endPan() {
     glfwSetCursorPos(window, mouseHiddenAtX, screenHeight - mouseHiddenAtY);
 }
 
-void View::cursorMovement(CursorMovement cm) {
-    if(panning) {
-        tempViewOffsetX = (reversePan ? mouseHiddenAtX - cm.x : cm.x - mouseHiddenAtX ) * unitsPerPixelX;
-        tempViewOffsetY = (reversePan ? (cm.y + mouseHiddenAtY - screenHeight) : (screenHeight - cm.y - mouseHiddenAtY)) * unitsPerPixelY;
-    }
+void View::translate(float x, float y) {
+    tempViewOffsetX = (reversePan ? mouseHiddenAtX - x : x - mouseHiddenAtX ) * unitsPerPixelX;
+    tempViewOffsetY = (reversePan ? (y + mouseHiddenAtY - screenHeight) : (screenHeight - y - mouseHiddenAtY)) * unitsPerPixelY;
 }
 
 // records if the mouse is currently pressed
@@ -340,3 +394,153 @@ int Rectangle::dataLength() {
     return lengthOfData;
 }
 
+Window::Window(int width, int height) : screenWidth(width), screenHeight(height) {
+	glfwWindowHint( GLFW_CONTEXT_VERSION_MAJOR, 3 );
+	glfwWindowHint( GLFW_CONTEXT_VERSION_MINOR, 3 );
+	glfwWindowHint( GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE );
+	glfwWindowHint( GLFW_RESIZABLE, GL_FALSE );
+    glfwWindowHint( GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE ); /** for mac compatability*/
+    window = glfwCreateWindow( screenWidth, screenHeight, "myGL", NULL, NULL)
+	if ( !window ) {
+		glfwTerminate();
+        throw std::runtime_error("GLFW failed to create the window.");
+	}
+	glfwMakeContextCurrent( window );
+	glViewport( 0, 0, screenWidth, screenHeight );
+    glfwSwapInterval(1);
+    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+
+    glfwSetCursorPosCallback(window, cursor_position_callback);
+    glfwSetMouseButtonCallback(window, mouse_button_callback);
+    glfwSetScrollCallback(window, scroll_callback);
+    glfwSetWindowSizeCallback(window,  window_resize_callback);
+    glfwSetWindowPosCallback(window, window_move_callback);
+    glfwSetCharCallback(window, character_callback);
+    glfwSetKeyCallback(window, key_callback);
+    glfwSetDropCallback(window, drop_callback);
+}
+
+void Window::cursor_position_callback(GLFWwindow* window, double xpos, double ypos) {
+    CursorMovement input {xpos, ypos};
+    if(currentContext) currentContext->cursorMovement(input);
+}
+void Window::mouse_button_callback(GLFWwindow* window, int button, int action, int mods) {
+    //printf("mouse button callback\n\tbutton %d\n\taction %d\n\tmods %d\n", button, action, mods);
+    MouseButton input {button, action, mods};
+    if(currentContext) currentContext->mouseButton(input);
+}
+void Window::scroll_callback(GLFWwindow* window, double xoffset, double yoffset) {
+    if(yoffset < 0) {
+        zoomOut();
+    } else if(yoffset > 0) {
+        zoomIn();
+    }
+    fprintf(stdLog, "scale %.2f %.2f\n", unitsPerPixelX, unitsPerPixelY);
+}
+
+void Window::window_resize_callback(GLFWwindow* window, int width, int height) {
+    screenWidth = width;
+    screenHeight = height;
+	glViewport( 0, 0, screenWidth, screenHeight );
+    fprintf(stdLog, "window resized to %d %d\n", screenWidth, screenHeight);
+}
+
+void Window::window_move_callback(GLFWwindow* window, int x, int y) {
+}
+
+
+// action (GLFW_PRESS, GLFW_RELEASE, GLFW_REPEAT)
+// key GLFW_UNKNOWN
+void Window::key_callback(GLFWwindow* window, int key, int scancode, int action, int mods) {
+    printf("%d %d %d\n", key, scancode, mods);
+    Key input {key, scancode, action, mods};
+    if(currentContext) currentContext->key(input);
+}
+
+void Window::drop_callback(GLFWwindow* window, int count, const char** paths)
+{
+    fprintf(stdLog, "drop callback\n");
+    for (int i = 0; i < count; ++i) {
+        printf("%s\n", paths[i]);
+    }
+}
+
+double Window::pixelToRealX(double px) {
+    return (px - (screenWidth / 2.0)) * unitsPerPixelX - viewOffsetRealX;
+}
+
+double Window::pixelToRealY(double py) {
+    return (py - (screenHeight / 2.0)) * unitsPerPixelY - viewOffsetRealY;
+}
+
+
+MyGL::MyGL() {
+	/** Initialize the library */
+	if ( !glfwInit() ) {
+        throw std::runtime_error("GLFW failed to init.");
+	}
+
+	/** Create a windowed mode window and its OpenGL context */
+	window = new Window(700, 700);
+
+	glewExperimental = GL_TRUE;
+	if( glewInit() != GLEW_OK ) {
+        fprintf(stderr, "GLEW failed to init.\n");
+        fprintf(stderr, "Exiting.\n");
+        exit(1);
+	}
+    
+    draw();
+    //printf( "VENDOR = %s\n", glGetString( GL_VENDOR ) ) ;
+    //printf( "RENDERER = %s\n", glGetString( GL_RENDERER ) ) ;
+    //printf( "VERSION = %s\n", glGetString( GL_VERSION ) ) ;
+
+    /*
+    unsigned char pixels[16*16*4];
+    memset(pixels, 0xff, sizeof(pixels));
+    GLFWimage image;
+    image.width = 16;
+    image.height = 16;
+    image.pixels = pixels;
+    GLFWcursor* cursor = glfwCreateCursor(&image, 0, 0);
+    //GLFWcursor* cursor = glfwCreateStandardCursor(GLFW_HRESIZE_CURSOR);
+    if(cursor == NULL) {
+        printf("Failed to create GLFW cursor.\n");
+    }
+    if(glfwJoystickPresent(GLFW_JOYSTICK_1)) {
+        printf("Gamepad %s Connected.", glfwGetJoystickName(GLFW_JOYSTICK_1));
+    }
+    */
+}
+
+void MyGL::draw() {
+    shaderPrograms.push_back(new ShaderProgram((char*)vertexShaderFileName, (char*)fragmentShaderFileName));
+    //GLuint shaderProgram = createShader((char*)vertexShaderFileName, (char*)fragmentShaderFileName);
+
+    glClearColor( 0.3f, 0.0f, 0.3f, 1.0f );
+    glPointSize(10);
+    glLineWidth(10);
+
+	while( !glfwWindowShouldClose( window ) ) {
+		//glfwPollEvents();
+        glfwWaitEvents();
+		glClear( GL_COLOR_BUFFER_BIT );
+        glUniform1f(shaderUniforms.viewOffsetX, viewOffsetRealX + tempViewOffsetX);
+        glUniform1f(shaderUniforms.viewOffsetY, viewOffsetRealY + tempViewOffsetY);
+        glUniform1f(shaderUniforms.unitsPerPixelX, unitsPerPixelX);
+        glUniform1f(shaderUniforms.unitsPerPixelY, unitsPerPixelY);
+        glUniform1f(shaderUniforms.screenWidth, screenWidth);
+        glUniform1f(shaderUniforms.screenHeight, screenHeight);
+        
+        if(currentContext) currentContext->render();
+
+        //testCode();
+
+		glfwSwapBuffers( window );
+        //testCursorPolling();
+	}
+
+	glfwDestroyWindow( window );
+	glfwTerminate();
+    fclose(stdLog);
+}
