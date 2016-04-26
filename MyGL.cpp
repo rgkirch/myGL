@@ -1,4 +1,4 @@
-#include "myGL.hpp"
+#include "MyGL.hpp"
 
 // need to be able to change reverse pan
 
