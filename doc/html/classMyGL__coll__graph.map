@@ -1,0 +1,5 @@
+<map id="MyGL" name="MyGL">
+<area shape="rect" id="node2" href="$classContext.html" title="Context" alt="" coords="5,95,73,121"/>
+<area shape="rect" id="node3" href="$classWindow.html" title="Window" alt="" coords="213,95,282,121"/>
+<area shape="rect" id="node4" href="$classView.html" title="View" alt="" coords="222,5,273,32"/>
+</map>
