@@ -8,6 +8,7 @@
 #include <cstdlib>
 #include <cstring>
 #include <iostream>
+#include <fstream>
 #include <sstream>
 #include <math.h>
 #include <queue>
@@ -52,14 +53,6 @@ struct arguments {
         };
     };
 };
-struct shaderUniforms {
-    GLint viewOffsetX;
-    GLint viewOffsetY;
-    GLint unitsPerPixelX;
-    GLint unitsPerPixelY;
-    GLint screenWidth;
-    GLint screenHeight;
-};
 
 // enumerations
 enum inputEvent {null, mouseLeftPress, mouseLeftHold, mouseLeftRelease, mouseRightPress, mouseRightHold, mouseRightRelease, mouseMiddlePress, mouseMiddleHold, mouseMiddleRelease, cursorMovement, cursorEnter, cursorLeave, windowMovement, windowResize, keySpacePress, keySpaceHold, keySpaceRelease, keySlashPress, keySlashHold, keySlashRelease, scrollLeft, scrollRight, mouseLeftDrag};
@@ -85,8 +78,6 @@ void checkShaderStepSuccess(GLint program, GLuint status);
 void printShaderLog(char* errorMessage, GLuint shader);
 
 void manualMapKeys();
-void zoomIn();
-void zoomOut();
 
 /**
  * The PNG class is for reading and writing '.png' files. There are two static functions called readPNG() and writePNG() that can be used without instantiating an instance of the class.
@@ -113,8 +104,22 @@ public:
 class ShaderProgram {
 public:
     ShaderProgram(std::string vertexShaderFileName, std::string fragmentShaderFileName);
-    GLuint program;
+    void checkShaderStepSuccess(GLuint shader, GLuint status);
+void printShaderLog(char* errorMessage, GLuint shader);
     static std::string readFile(std::string fileName);
+    void getUniforms();
+    GLuint id();
+    GLuint program;
+    GLint viewOffsetX;
+    GLint viewOffsetY;
+    GLint unitsPerPixelX;
+    GLint unitsPerPixelY;
+    GLint screenWidth;
+    GLint screenHeight;
+};
+
+class ShaderTextured : ShaderProgram {
+public:
 };
 
 /**
@@ -147,20 +152,26 @@ public:
     int mods;
 };
 
-/**
- * The context has a view. The view has member variables to allow for mapping the 'real' world coordinate space to screen coordinates. Screen coordinates are such that only points in the range of [-1, 1] are visible. Not sure about the inclusion actually.
- */
+/** A window has a view object.
+ *  The View is responsible for maintaining the variables that the vertexShader uses to translate the points from real space to apparent space. Real space refers to the reference by which all of the shape objects in the Composer context are saved. It stretches from -inf to +inf. Apparent space is the (-1, 1) clamped view recognised by opengl.*/
 class View {
 public:
     View();
-    void cursorMovement(CursorMovement);
+    void translate(float x, float y);
     void pan();
     void endPan();
     bool panning;
     bool reversePan;
     double mouseHiddenAtX;
     double mouseHiddenAtY;
+    double tempViewOffsetX = 0.0;
+    double tempViewOffsetY = 0.0;
+    double viewOffsetRealX = 0.0;
+    double viewOffsetRealY = 0.0;
+    double unitsPerPixelX = 1.0;
+    double unitsPerPixelY = 1.0;
 };
+
 
 /**
  * The Shape class allows a very nice vector<Shape*> in Context. The common stuff for rendering goes here.
@@ -186,6 +197,7 @@ public:
     GLuint vao;
     GLenum primitiveType;
     GLenum bufferUsage;
+    GLuint shader; /** it's a handle for a shader program (vertex and fragment, compiled and liked) don't let the name confuse you. Every shape knows what shader it should be rendered with. e.g. Lines probably won't be rendered by a shader with a texture. */
     std::vector<float> data;
 };
 
@@ -211,13 +223,10 @@ public:
 
 class Context {
 public:
-    virtual void cursorMovement(CursorMovement)=0;
-    virtual void key(Key)=0;
-    // public, visible to user
-    void mouseButton(MouseButton); /** updates 'mousePressed' before calling mb() */
-    // protected, hidden to user
+    virtual void cursorMovement(CursorMovement)=0; /** Every child class must implement this function. Every type of context must be able to handle a call to cursorMovement. The call comes from the callback.*/
+    virtual void key(Key)=0; /** Same as for cursorMovement. It's here to handle keyboard events.*/
     virtual void mb(MouseButton)=0;
-    // not sure if all contexts will have a render function, use dynamic cast in draw.cpp
+    void mouseButton(MouseButton); /** updates 'mousePressed' before calling mb() */
     virtual void render()=0;
     Context* currentContext;
     // lastKeyPressed is used to pick the new that is to be created
@@ -232,31 +241,52 @@ public:
     void mb(MouseButton) override;
     void key(Key) override;
     void render() override;
-    View* view;
     Shape* currentShape;
     std::vector<Shape*> shapes;
 };
 
-extern FILE* stdLog;
-extern Context* currentContext;
-extern struct shaderUniforms shaderUniforms;
-extern keyboardLayout keyboardL;
-extern GLFWwindow* window;
-extern int screenWidth, screenHeight;
-extern double tempViewOffsetX;
-extern double tempViewOffsetY;
-extern double viewOffsetRealX;
-extern double viewOffsetRealY;
-extern double unitsPerPixelX;
-extern double unitsPerPixelY;
+/** There may be multiple windows in total. They are all kept track of in the MyGL object.
+ *  The Window class has a function that matches each of the different available glfw callbacks. These functions are registered with glfw in the Window constructor. The callback register function accepts a pointer to a GLFWwindow so I think that these callbacks are window specific. If they weren't window specific then all of the callback functions could be up a level in mygl.
+ *  The window knows the width and heigth of the screen area in pixels so it is responsible for the pixelToReal(X/Y) functions. It is also responsible for the getCursorPos() function.
+ *  The window should be responsible for hiding and disabling the mouse cursor. This needs to happen during a pan of the view for example.*/
+class Window {
+public:
+    Window(int width, int height);
+    void cursor_position_callback(GLFWwindow* window, double xpos, double ypos);
+    void mouse_button_callback(GLFWwindow* window, int button, int action, int mods);
+    void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
+    void window_resize_callback(GLFWwindow* window, int width, int height);
+    void window_move_callback(GLFWwindow* window, int x, int y);
+    void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
+    void drop_callback(GLFWwindow* window, int count, const char** paths);
+    double pixelToRealX(double px);
+    double pixelToRealY(double py);
+    void getCursorPos(double* mouseHiddenAtX, double* mouseHiddenAtY);
+    GLFWwindow* window; /** The window class needs to know which GLFWwindow it is taking care of. 1 Window for 1 GLFWwindow*/
+    int screenWidth;
+    int screenHeight;
+    View* view;
+};
 
-// maybe should be in view?
-inline double pixelToRealX(double px) {
-    return (px - (screenWidth / 2.0)) * unitsPerPixelX - viewOffsetRealX;
-}
-
-inline double pixelToRealY(double py) {
-    return (py - (screenHeight / 2.0)) * unitsPerPixelY - viewOffsetRealY;
-}
+/** This is the topmost class for the program. Creating a new instance of this class means creating a new instance of the program.
+ *  The main program should be as simple as running
+ *  MyGL* mygl = new MyGL();
+ *  The main.cpp main can then interact with the program in different ways through mygl.
+ *  mygl->getCurrentContext();
+ *  mygl->switchCurrentContext(Context);
+ *  */
+class MyGL {
+public:
+    MyGL();
+    void draw();
+    Window* currentWindow;
+    Context* currentContext;
+    ShaderProgram* currentShaderProgram;
+    std::vector<Window*> windows;
+    std::vector<Context*> contexts;
+    std::vector<ShaderProgram*> shaderPrograms;
+    const char* vertexShaderFileName = "vertexShader.glsl";
+    const char* fragmentShaderFileName = "fragmentShader.glsl";
+};
 
 #endif

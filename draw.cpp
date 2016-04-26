@@ -1,39 +1,5 @@
-                                // draw.cpp
 #include "myGL.hpp"
 
-FILE* stdLog;
-Context* currentContext;
-struct shaderUniforms shaderUniforms;
-
-const char* vertexShaderFileName = "vertexShader.glsl";
-const char* fragmentShaderFileName = "fragmentShader.glsl";
-int screenWidth = 700;
-int screenHeight = 700;
-float xmax, ymax, xmin, ymin;
-double mouseHiddenAtX;
-double mouseHiddenAtY;
-
-GLFWwindow* window;
-char windowTitle[] = "plot";
-//vector<float*> lines;
-std::vector<int> pointLengths;
-std::vector<GLuint> vbos;
-std::vector<GLuint> vaos;
-std::vector<GLuint> primitiveType;
-std::vector<float> glRect;
-keyboardLayout keyboardL;
-
-//camera - coord of top left of screen
-double tempViewOffsetX = 0.0;
-double tempViewOffsetY = 0.0;
-double viewOffsetRealX = 0.0;
-double viewOffsetRealY = 0.0;
-double unitsPerPixelX = 1.0;
-double unitsPerPixelY = 1.0;
-double pixelToRealX(double x);
-double pixelToRealY(double y);
-
-float scrollSpeedMultiplier = 0.1;
 
 void testCode() {
     char name[] = "100.png";
@@ -81,6 +47,7 @@ char* intToString(int num) {
     return string;
 }
 
+/*
 void testCursorPolling() {
     static double lastTime = 0.0;
     double thisTime;
@@ -91,6 +58,7 @@ void testCursorPolling() {
         lastTime = thisTime;
     }
 }
+*/
 
 /*
 // sizeof(GL_FLOAT)?
@@ -139,89 +107,6 @@ void addPoint(int length, float* nums) {
 }
 */
 
-void draw() {
-    currentContext = new Composer();
-
-    ShaderProgram* shaderProgram = new ShaderProgram((char*)vertexShaderFileName, (char*)fragmentShaderFileName);
-    //GLuint shaderProgram = createShader((char*)vertexShaderFileName, (char*)fragmentShaderFileName);
-    glUseProgram(shaderProgram);
-    shaderUniforms.viewOffsetX = glGetUniformLocation(shaderProgram, "viewOffsetX");
-    shaderUniforms.viewOffsetY = glGetUniformLocation(shaderProgram, "viewOffsetY");
-    shaderUniforms.unitsPerPixelX = glGetUniformLocation(shaderProgram, "unitsPerPixelX");
-    shaderUniforms.unitsPerPixelY = glGetUniformLocation(shaderProgram, "unitsPerPixelY");
-    shaderUniforms.screenWidth = glGetUniformLocation(shaderProgram, "screenWidth");
-    shaderUniforms.screenHeight = glGetUniformLocation(shaderProgram, "screenHeight");
-
-    glClearColor( 0.3f, 0.0f, 0.3f, 1.0f );
-    glPointSize(10);
-    glLineWidth(10);
-
-	while( !glfwWindowShouldClose( window ) ) {
-		//glfwPollEvents();
-        glfwWaitEvents();
-		glClear( GL_COLOR_BUFFER_BIT );
-        glUniform1f(shaderUniforms.viewOffsetX, viewOffsetRealX + tempViewOffsetX);
-        glUniform1f(shaderUniforms.viewOffsetY, viewOffsetRealY + tempViewOffsetY);
-        glUniform1f(shaderUniforms.unitsPerPixelX, unitsPerPixelX);
-        glUniform1f(shaderUniforms.unitsPerPixelY, unitsPerPixelY);
-        glUniform1f(shaderUniforms.screenWidth, screenWidth);
-        glUniform1f(shaderUniforms.screenHeight, screenHeight);
-        
-        if(currentContext) currentContext->render();
-
-        //testCode();
-
-		glfwSwapBuffers( window );
-        //testCursorPolling();
-	}
-
-	glfwDestroyWindow( window );
-	glfwTerminate();
-    fclose(stdLog);
-}
-
-
-void checkShaderStepSuccess(GLint program, GLuint status) {
-    GLint success = -3;
-    switch(status) {
-        case GL_COMPILE_STATUS:
-            glGetShaderiv( program, status, &success );
-            if( success == -3 ) fprintf(stderr, "error: the success check may have a false positive\n");
-            if( ! success ) {
-                printShaderLog((char*)"error: gl shader program failed to compile.", program);
-                fprintf(stderr, "Exiting.\n");
-                exit(1);
-            }
-            break;
-        case GL_LINK_STATUS:
-            glGetProgramiv( program, status, &success );
-            printf("success value %d\n", success);
-            if( success == -3 ) fprintf(stderr, "error: the success check may have a false positive\n");
-            if( ! success ) {
-                printShaderLog((char*)"error: gl shader program failed to link.", program);
-                //fprintf(stderr, "Exiting.\n");
-                //exit(1);
-            }
-            break;
-        default:
-            fprintf(stderr, "function called with unhandled case.\n");
-            break;
-    }
-}
-
-void printShaderLog(char* errorMessage, GLuint shader) {
-    fprintf(stderr, "%s\n", errorMessage);
-    GLint length = 0;
-    glGetShaderiv( shader, GL_INFO_LOG_LENGTH, &length );
-    printf("log length %d\n", length);
-    GLchar* logText = (GLchar*)malloc(sizeof(GLchar) * (length + 1));
-    logText[length] = '\0';
-    glGetShaderInfoLog(shader, length, &length, logText);
-    printf("printing log\n");
-    fprintf(stderr, "%s", logText);
-    //cout << logText << endl;
-    free(logText);
-}
 
 void init(int argc, char* argv[]) {
     if(argc > 1) {
@@ -245,115 +130,10 @@ void init(int argc, char* argv[]) {
         }
     }
 
-	/* Initialize the library */
-	if ( !glfwInit() ) {
-        fprintf(stderr, "GLFW failed to init.\n");
-        fprintf(stderr, "Exiting.\n");
-        exit(1);
-	}
-
-	glfwWindowHint( GLFW_CONTEXT_VERSION_MAJOR, 3 );
-	glfwWindowHint( GLFW_CONTEXT_VERSION_MINOR, 3 );
-	glfwWindowHint( GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE );
-	glfwWindowHint( GLFW_RESIZABLE, GL_FALSE );
-    glfwWindowHint( GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE );
-
-	/* Create a windowed mode window and its OpenGL context */
-	window = glfwCreateWindow( screenWidth, screenHeight, windowTitle, NULL, NULL );
-	if ( !window ) {
-		glfwTerminate();
-        fprintf(stderr, "GLFW failed to create the window.\n");
-        fprintf(stderr, "Exiting.\n");
-        exit(1);
-	}
-	glfwMakeContextCurrent( window );
-    //glfwSetWindowSizeCallback(window, windowSize);
-
-	glewExperimental = GL_TRUE;
-	if( glewInit() != GLEW_OK ) {
-        fprintf(stderr, "GLEW failed to init.\n");
-        fprintf(stderr, "Exiting.\n");
-        exit(1);
-	}
-
-	glViewport( 0, 0, screenWidth, screenHeight );
-    glfwSwapInterval(1);
-    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
-
-    glfwSetCursorPosCallback(window, cursor_position_callback);
-    glfwSetMouseButtonCallback(window, mouse_button_callback);
-    glfwSetScrollCallback(window, scroll_callback);
-    glfwSetWindowSizeCallback(window,  window_resize_callback);
-    glfwSetWindowPosCallback(window, window_move_callback);
-    glfwSetCharCallback(window, character_callback);
-    glfwSetKeyCallback(window, key_callback);
-    glfwSetDropCallback(window, drop_callback);
-
-    //printf( "VENDOR = %s\n", glGetString( GL_VENDOR ) ) ;
-    //printf( "RENDERER = %s\n", glGetString( GL_RENDERER ) ) ;
-    //printf( "VERSION = %s\n", glGetString( GL_VERSION ) ) ;
-    unsigned char pixels[16*16*4];
-    memset(pixels, 0xff, sizeof(pixels));
-    GLFWimage image;
-    image.width = 16;
-    image.height = 16;
-    image.pixels = pixels;
-    GLFWcursor* cursor = glfwCreateCursor(&image, 0, 0);
-    //GLFWcursor* cursor = glfwCreateStandardCursor(GLFW_HRESIZE_CURSOR);
-    if(cursor == NULL) {
-        printf("Failed to create GLFW cursor.\n");
-    }
-    if(glfwJoystickPresent(GLFW_JOYSTICK_1)) {
-        printf("Gamepad %s Connected.", glfwGetJoystickName(GLFW_JOYSTICK_1));
-    }
-    stdLog = fopen("log.txt", "w");
-}
-
-void cursor_position_callback(GLFWwindow* window, double xpos, double ypos) {
-    CursorMovement input {xpos, ypos};
-    if(currentContext) currentContext->cursorMovement(input);
-}
-void mouse_button_callback(GLFWwindow* window, int button, int action, int mods) {
-    //printf("mouse button callback\n\tbutton %d\n\taction %d\n\tmods %d\n", button, action, mods);
-    MouseButton input {button, action, mods};
-    if(currentContext) currentContext->mouseButton(input);
-}
-void scroll_callback(GLFWwindow* window, double xoffset, double yoffset) {
-    if(yoffset < 0) {
-        zoomOut();
-    } else if(yoffset > 0) {
-        zoomIn();
-    }
-    fprintf(stdLog, "scale %.2f %.2f\n", unitsPerPixelX, unitsPerPixelY);
-}
-
-void window_resize_callback(GLFWwindow* window, int width, int height) {
-    screenWidth = width;
-    screenHeight = height;
-	glViewport( 0, 0, screenWidth, screenHeight );
-    fprintf(stdLog, "window resized to %d %d\n", screenWidth, screenHeight);
-}
-
-void window_move_callback(GLFWwindow* window, int x, int y) {
 }
 
 
-// action (GLFW_PRESS, GLFW_RELEASE, GLFW_REPEAT)
-// key GLFW_UNKNOWN
-void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods) {
-    printf("%d %d %d\n", key, scancode, mods);
-    Key input {key, scancode, action, mods};
-    if(currentContext) currentContext->key(input);
-}
-
-void drop_callback(GLFWwindow* window, int count, const char** paths)
-{
-    fprintf(stdLog, "drop callback\n");
-    for (int i = 0; i < count; ++i) {
-        printf("%s\n", paths[i]);
-    }
-}
-
+/*
 void saveBufferAsBytes() {
     printf("screenshot\n");
     //fprintf(stdLog, "screenshot saved\n");
@@ -363,6 +143,7 @@ void saveBufferAsBytes() {
     fwrite(data, screenWidth * screenHeight * 4, 1, file);
     fclose(file);
 }
+*/
 
 void character_callback(GLFWwindow* window, unsigned int codepoint) {
     //printf("character callback\n");
@@ -390,6 +171,7 @@ void character_callback(GLFWwindow* window, unsigned int codepoint) {
     */
 }
 
+/*
 void zoomOut() {
     fprintf(stdLog, "scroll up\n");
     unitsPerPixelX *= 1.0 + scrollSpeedMultiplier;
@@ -401,9 +183,6 @@ void zoomIn() {
     unitsPerPixelX *= 1.0 - scrollSpeedMultiplier;
     unitsPerPixelY *= 1.0 - scrollSpeedMultiplier;
 }
+*/
 
-void manualMapKeys() {
-    for(int i = 33; i <= 126; ++i) {
-    }
-}
     //When libpng encounters an error, it expects to longjmp back to your routine. There- fore, you will need to call setjmp and pass your png_jmpbuf(png_ptr). If you read the file from different routines, you will need to update the jmpbuf field every time you enter a new routine that will call a png_*() function.
