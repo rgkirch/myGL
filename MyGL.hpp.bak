@@ -29,8 +29,52 @@
 #ifndef MYGL_HPP
 #define MYGL_HPP
 
-class Window;
-class MyGL;
+// data declarations
+struct arguments {
+    enum {EMPTY, MOUSE_BUTTON, CURSOR_POSITION, KEY_CALLBACK} argumentType;
+    union {
+        struct {
+            int mButton;
+            int mAction;
+            int mMods;
+        };
+        struct {
+            double x;
+            double y;
+        };
+        struct {
+            int kKey;
+            int kScancode;
+            int kAction;
+            int kMods;
+        };
+    };
+};
+
+// enumerations
+enum inputEvent {null, mouseLeftPress, mouseLeftHold, mouseLeftRelease, mouseRightPress, mouseRightHold, mouseRightRelease, mouseMiddlePress, mouseMiddleHold, mouseMiddleRelease, cursorMovement, cursorEnter, cursorLeave, windowMovement, windowResize, keySpacePress, keySpaceHold, keySpaceRelease, keySlashPress, keySlashHold, keySlashRelease, scrollLeft, scrollRight, mouseLeftDrag};
+enum keyboardLayout {US, DVORAK};
+enum functionHandleEnums {A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X, Y, Z, scrollUp, scrollDown};
+enum contextEnums {DRAW};
+
+// function declarations
+void cursor_position_callback(GLFWwindow* window, double xpos, double ypos);
+void mouse_button_callback(GLFWwindow* window, int button, int action, int mods);
+void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
+void window_resize_callback(GLFWwindow* window, int width, int height);
+void window_move_callback(GLFWwindow* window, int x, int y);
+void character_callback(GLFWwindow* window, unsigned int codepoint);
+void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
+void drop_callback(GLFWwindow* window, int count, const char** paths);
+
+void saveBufferAsBytes();
+void init(int argc, char** argv);
+
+GLuint createShader(char* vertexShaderFileName, char* fragmentShaderFileName);
+void checkShaderStepSuccess(GLint program, GLuint status);
+void printShaderLog(char* errorMessage, GLuint shader);
+
+void manualMapKeys();
 
 /**
  * The PNG class is for reading and writing '.png' files. There are two static functions called readPNG() and writePNG() that can be used without instantiating an instance of the class.
@@ -58,8 +102,9 @@ class ShaderProgram {
 public:
     ShaderProgram(std::string vertexShaderFileName, std::string fragmentShaderFileName);
     void checkShaderStepSuccess(GLuint shader, GLuint status);
-    void printShaderLog(char* errorMessage, GLuint shader);
+void printShaderLog(char* errorMessage, GLuint shader);
     static std::string readFile(std::string fileName);
+    void getUniforms();
     GLuint id();
     GLuint program;
     GLint viewOffsetX;
@@ -108,18 +153,18 @@ public:
  *  The View is responsible for maintaining the variables that the vertexShader uses to translate the points from real space to apparent space. Real space refers to the reference by which all of the shape objects in the Composer context are saved. It stretches from -inf to +inf. Apparent space is the (-1, 1) clamped view recognised by opengl.*/
 class View {
 public:
-    View(Window* window, int width, int height);
+    View();
     void translate(float x, float y);
-    void scale(float num);
-    double pixelToRealX(double px);
-    double pixelToRealY(double py);
-    Window* parentWindow;
-    int width;
-    int height;
+    void pan();
+    void endPan();
     bool panning;
     bool reversePan;
-    double viewOffsetX = 0.0;
-    double viewOffsetY = 0.0;
+    double mouseHiddenAtX;
+    double mouseHiddenAtY;
+    double tempViewOffsetX = 0.0;
+    double tempViewOffsetY = 0.0;
+    double viewOffsetRealX = 0.0;
+    double viewOffsetRealY = 0.0;
     double unitsPerPixelX = 1.0;
     double unitsPerPixelY = 1.0;
 };
@@ -130,27 +175,69 @@ public:
  */
 class Shape {
 public:
-    typedef void (Shape::*renderFunc)(void);
-    Shape(float x, float y);
-    int dataLength();
+    Shape();
+    // finish will create the final buffers
+    virtual void cursorMovement(CursorMovement)=0;
+    virtual int dataLength()=0;
+    virtual void prepareTheData()=0; /** e.g. allows a rectangle to fill 'vector<float> data' from startXYendXY before the buffers are made */
     void finish(); /** prep the data, gen the buffers, and make 'renderPtr' point to 'finalRender' called before pushing the current shape onto context's vector<Shape*> */
-    void render(); /** Context's render renders all shapes in vector<Shape*> and Shape::render calls whatever renderPtr points to */
-private:
     void frameRender(); /** gens buffers and cleans them up afterwards, leaves nothing bound, used for shapes that are in progress */
     void finalRender(); /** bind, draw, and unbind; assumes that the correct buffers are already generated */
+    void genAndBindBufferAndVao(); /** gens, binds, and leaves them bound **/
+    void unbindBufferAndVao(); /** dissables vertex attrib arrays and unbinds vbo and vao */
+    void bindBufferAndVao(); /** binds vao and vbo and enables attrib arrays */
+    void render(); /** Context's render renders all shapes in vector<Shape*> and Shape::render calls whatever renderPtr points to */
+    typedef void (Shape::*renderFunc)(void);
     renderFunc renderPtr; /** points to either frameRender or finalRender */
+    bool finished;
     GLuint vbo;
     GLuint vao;
-    ShaderProgram* shader;
+    GLenum primitiveType;
+    GLenum bufferUsage;
+    GLuint shader; /** it's a handle for a shader program (vertex and fragment, compiled and liked) don't let the name confuse you. Every shape knows what shader it should be rendered with. e.g. Lines probably won't be rendered by a shader with a texture. */
     std::vector<float> data;
+};
+
+class Line : public Shape {
+public:
+    Line(float x, float y);
+    virtual void prepareTheData() override;
+    ~Line();
+    void cursorMovement(CursorMovement) override;
+    int dataLength() override;
+};
+
+class Rectangle : public Shape {
+public:
+    Rectangle(float x, float y);
+    Rectangle(float ax, float ay, float bx, float by);
+    void cursorMovement(CursorMovement) override;
+    void prepareTheData() override;
+    int dataLength() override;
     float startX, startY, endX, endY;
     int lengthOfData = 12;
 };
 
 class Context {
 public:
-    Context();
-    void render(); /** Calls the render function of all of the Shape objects.*/
+    virtual void cursorMovement(CursorMovement)=0; /** Every child class must implement this function. Every type of context must be able to handle a call to cursorMovement. The call comes from the callback.*/
+    virtual void key(Key)=0; /** Same as for cursorMovement. It's here to handle keyboard events.*/
+    virtual void mb(MouseButton)=0;
+    void mouseButton(MouseButton); /** updates 'mousePressed' before calling mb() */
+    virtual void render()=0;
+    Context* currentContext;
+    // lastKeyPressed is used to pick the new that is to be created
+    int lastScancode;
+    bool mousePressed;
+};
+
+class Composer : public Context {
+public:
+    Composer();
+    void cursorMovement(CursorMovement) override;
+    void mb(MouseButton) override;
+    void key(Key) override;
+    void render() override;
     Shape* currentShape;
     std::vector<Shape*> shapes;
 };
@@ -161,18 +248,21 @@ public:
  *  The window should be responsible for hiding and disabling the mouse cursor. This needs to happen during a pan of the view for example.*/
 class Window {
 public:
-    Window(MyGL* parent, int width, int height);
-    ~Window();
-    bool windowShouldClose() {return (bool) glfwWindowShouldClose(window);}
-    void swapBuffers() { glfwSwapBuffers( window ); }
+    Window(int width, int height);
+    void cursor_position_callback(GLFWwindow* window, double xpos, double ypos);
+    void mouse_button_callback(GLFWwindow* window, int button, int action, int mods);
+    void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
+    void window_resize_callback(GLFWwindow* window, int width, int height);
+    void window_move_callback(GLFWwindow* window, int x, int y);
+    void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
+    void drop_callback(GLFWwindow* window, int count, const char** paths);
+    double pixelToRealX(double px);
+    double pixelToRealY(double py);
+    void getCursorPos(double* mouseHiddenAtX, double* mouseHiddenAtY);
     GLFWwindow* window; /** The window class needs to know which GLFWwindow it is taking care of. 1 Window for 1 GLFWwindow*/
-    int width;
-    int height;
-    View* currentView;
-    std::vector<View*> views;
-    MyGL* parentMyGL;
-    //glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-    //glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+    int screenWidth;
+    int screenHeight;
+    View* view;
 };
 
 /** This is the topmost class for the program. Creating a new instance of this class means creating a new instance of the program.
@@ -186,14 +276,6 @@ class MyGL {
 public:
     MyGL();
     void draw();
-    static void cursor_position_callback(GLFWwindow* window, double xpos, double ypos);
-    static void mouse_button_callback(GLFWwindow* window, int button, int action, int mods);
-    static void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
-    static void window_resize_callback(GLFWwindow* window, int width, int height);
-    static void window_move_callback(GLFWwindow* window, int x, int y);
-    static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
-    static void drop_callback(GLFWwindow* window, int count, const char** paths);
-    Window* getWindow(GLFWwindow* window);
     Window* currentWindow;
     Context* currentContext;
     ShaderProgram* currentShaderProgram;
@@ -205,4 +287,3 @@ public:
 };
 
 #endif
-

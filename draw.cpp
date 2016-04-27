@@ -1,6 +1,3 @@
-#include "myGL.hpp"
-
-
 void testCode() {
     char name[] = "100.png";
     PNG* image = new PNG(name);

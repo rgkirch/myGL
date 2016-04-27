@@ -1,12 +1,11 @@
                                   // main.cpp
 // Richard Kirchofer
 #include <stdio.h>
-#include "draw.hpp"
-#include "myGL.hpp"
+#include "MyGL.hpp"
 
 int main(int argc, char** argv) {
     MyGL* mygl = new MyGL();
-    mygl->context = new Composer();
+    mygl->currentContext = new Context();
     //std::string data = ShaderProgram::readFile("vertexShader.glsl");
     //std::cout << data;
     return 0;

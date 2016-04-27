@@ -25,10 +25,7 @@ ShaderProgram::ShaderProgram(std::string vertexShaderFileName, std::string fragm
     glLinkProgram(program);
     checkShaderStepSuccess(program, GL_LINK_STATUS);
     glUseProgram(program);
-    getUniforms();
-}
 
-void ShaderProgram::getUniforms() {
     viewOffsetX = glGetUniformLocation(program, "viewOffsetX");
     viewOffsetY = glGetUniformLocation(program, "viewOffsetY");
     unitsPerPixelX = glGetUniformLocation(program, "unitsPerPixelX");
@@ -160,63 +157,18 @@ void PNG::writePNG(char imageName[], unsigned char* data, int width, int height)
 }
 
 /** A Window*/
-View::View() {
-    panning = false;
-    reversePan = true;
-    mouseHiddenAtX = 0.0;
-    mouseHiddenAtY = 0.0;
+View::View(Window* window, int width, int height) {
+    parentWindow = window;
 }
 
-void View::pan() {
-    panning = true;
-    getCursorPos(&mouseHiddenAtX, &mouseHiddenAtY);
-    getCursorPos(&mouseHiddenAtX, &mouseHiddenAtY);
-    mouseHiddenAtY = screenHeight - mouseHiddenAtY;
-    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-}
-
-void View::endPan() {
-    panning = false;
-    viewOffsetRealX += tempViewOffsetX;
-    viewOffsetRealY += tempViewOffsetY;
-    tempViewOffsetX = 0.0;
-    tempViewOffsetY = 0.0;
-    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
-    glfwSetCursorPos(window, mouseHiddenAtX, screenHeight - mouseHiddenAtY);
-}
+void View::scale(float num) {}
 
 void View::translate(float x, float y) {
-    tempViewOffsetX = (reversePan ? mouseHiddenAtX - x : x - mouseHiddenAtX ) * unitsPerPixelX;
-    tempViewOffsetY = (reversePan ? (y + mouseHiddenAtY - screenHeight) : (screenHeight - y - mouseHiddenAtY)) * unitsPerPixelY;
+    viewOffsetX = x * unitsPerPixelX;
+    viewOffsetY = y * unitsPerPixelY;
 }
 
-// records if the mouse is currently pressed
-void Context::mouseButton(MouseButton input) {
-    if(input.action == GLFW_PRESS) {
-        mousePressed = true;
-    } else if(input.action == GLFW_RELEASE) {
-        mousePressed = false;
-    }
-    mb(input);
-}
-
-Composer::Composer() {
-    view = new View();
-    currentShape = NULL;
-}
-
-void Composer::cursorMovement(CursorMovement input) {
-    if(currentShape && mousePressed) {
-        currentShape->cursorMovement(input);
-    }
-    if(view) view->cursorMovement(input);
-}
-
-void Composer::mb(MouseButton mb) {
-    if(!currentShape && mb.action == GLFW_PRESS) {
-        double x, y;
-        glfwGetCursorPos(window, &x, &y);
-        switch(lastScancode) {
+/*
             // l key
             case 33:
                 currentShape = new Line(pixelToRealX((float)x), pixelToRealY(screenHeight - (float)y));
@@ -225,15 +177,9 @@ void Composer::mb(MouseButton mb) {
             case 32:
                 currentShape = new Rectangle(pixelToRealX((float)x), pixelToRealY(screenHeight - (float)y));
                 break;
+                */
 
-        }
-    } else if(currentShape && mb.action == GLFW_RELEASE) {
-        currentShape->finish();
-        shapes.push_back(currentShape);
-        currentShape = NULL;
-    }
-}
-
+/*
 void Composer::key(Key key) {
     if(key.action == GLFW_PRESS && key.mods == 0) {
         switch(key.scancode) {
@@ -257,8 +203,11 @@ void Composer::key(Key key) {
         }
     }
 }
+*/
 
-void Composer::render() {
+Context::Context() {}
+
+void Context::render() {
     for(int i = 0; i < shapes.size(); ++i) {
         shapes[i]->render();
     }
@@ -268,113 +217,15 @@ void Composer::render() {
     }
 }
 
-Shape::Shape() {
-    renderPtr = &Shape::frameRender;
-    bufferUsage = GL_STREAM_DRAW;
-}
-
 void Shape::render() {
     (this->*renderPtr)();
 }
 
+int Shape::dataLength() {
+    return lengthOfData;
+}
+
 void Shape::frameRender() {
-    prepareTheData();
-    genAndBindBufferAndVao();
-    glDrawArrays(primitiveType, 0, dataLength() / 2);
-    unbindBufferAndVao();
-    glDeleteBuffers(1, &vbo);
-    glDeleteVertexArrays(1, &vao);
-}
-
-void Shape::bindBufferAndVao() {
-    glBindBuffer(GL_ARRAY_BUFFER, vbo);
-    glBindVertexArray(vao);
-    glEnableVertexAttribArray(0);
-    //glEnableVertexAttribArray(1);
-}
-
-void Shape::unbindBufferAndVao() {
-    glDisableVertexAttribArray(0);
-    //glDisableVertexAttribArray(1);
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-    glBindVertexArray(0);
-}
-
-// buffer the data one last time
-void Shape::finish() {
-    bufferUsage = GL_STATIC_DRAW;
-    prepareTheData();
-    genAndBindBufferAndVao();
-    renderPtr = &Shape::finalRender;
-}
-
-void Shape::finalRender() {
-    bindBufferAndVao();
-    glDrawArrays(primitiveType, 0, dataLength() / 2);
-    unbindBufferAndVao();
-}
-
-void Shape::genAndBindBufferAndVao() {
-    glGenBuffers(1, &vbo);
-    glBindBuffer(GL_ARRAY_BUFFER, vbo);
-    glBufferData(GL_ARRAY_BUFFER, dataLength() * sizeof(float), &data[0], bufferUsage);
-    glGenVertexArrays(1, &vao);
-    glBindVertexArray(vao);
-    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), NULL);
-    //glVertexAttribPointer(1, 1, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (GLvoid*)sizeof(float));
-    glEnableVertexAttribArray(0);
-    //glEnableVertexAttribArray(1);
-}
-
-Line::Line(float x, float y) {
-    data.push_back(x);
-    data.push_back(y);
-    finished = false;
-    primitiveType = GL_LINE_STRIP;
-}
-
-void Line::prepareTheData() {
-    //no-op
-}
-
-int Line::dataLength() {
-    return data.size();
-}
-
-Line::~Line() {
-    glDeleteBuffers(1, &vbo);
-    glDeleteVertexArrays(1, &vao);
-}
-
-void Line::cursorMovement(CursorMovement cm) {
-    data.push_back(pixelToRealX((float)cm.x));
-    data.push_back(pixelToRealY(screenHeight - (float)cm.y));
-}
-
-Rectangle::Rectangle(float x, float y) {
-    startX = x;
-    startY = y;
-    endX = x;
-    endY = y;
-    finished = false;
-    primitiveType = GL_TRIANGLES;
-}
-
-Rectangle::Rectangle(float ax, float ay, float bx, float by) {
-    startX = ax;
-    startY = ay;
-    endX = bx;
-    endY = by;
-    finished = true;
-    primitiveType = GL_TRIANGLES;
-}
-
-void Rectangle::cursorMovement(CursorMovement cm) {
-    endX = pixelToRealX((float)cm.x);
-    endY = pixelToRealY(screenHeight - (float)cm.y);
-}
-
-void Rectangle::prepareTheData() {
     data.reserve(lengthOfData);
     data[0] = startX;
     data[1] = startY;
@@ -388,89 +239,153 @@ void Rectangle::prepareTheData() {
     data[9] = endY;
     data[10] = endX;
     data[11] = startY;
+
+    glGenBuffers(1, &vbo);
+    glBindBuffer(GL_ARRAY_BUFFER, vbo);
+    glBufferData(GL_ARRAY_BUFFER, dataLength() * sizeof(float), &data[0], GL_STREAM_DRAW);
+    glGenVertexArrays(1, &vao);
+    glBindVertexArray(vao);
+    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), NULL);
+    //glVertexAttribPointer(1, 1, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (GLvoid*)sizeof(float));
+    glEnableVertexAttribArray(0);
+    //glEnableVertexAttribArray(1);
+
+    glDrawArrays(GL_TRIANGLES, 0, dataLength() / 2);
+
+    glDisableVertexAttribArray(0);
+    //glDisableVertexAttribArray(1);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindVertexArray(0);
+
+    glDeleteBuffers(1, &vbo);
+    glDeleteVertexArrays(1, &vao);
 }
 
-int Rectangle::dataLength() {
-    return lengthOfData;
+// buffer the data one last time
+void Shape::finish() {
+    data.reserve(lengthOfData);
+    data[0] = startX;
+    data[1] = startY;
+    data[2] = endX;
+    data[3] = startY;
+    data[4] = startX;
+    data[5] = endY;
+    data[6] = endX;
+    data[7] = endY;
+    data[8] = startX;
+    data[9] = endY;
+    data[10] = endX;
+    data[11] = startY;
+
+    glGenBuffers(1, &vbo);
+    glBindBuffer(GL_ARRAY_BUFFER, vbo);
+    glBufferData(GL_ARRAY_BUFFER, dataLength() * sizeof(float), &data[0], GL_STATIC_DRAW);
+    glGenVertexArrays(1, &vao);
+    glBindVertexArray(vao);
+    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), NULL);
+    glEnableVertexAttribArray(0);
+
+    renderPtr = &Shape::finalRender;
 }
 
-Window::Window(int width, int height) : screenWidth(width), screenHeight(height) {
+void Shape::finalRender() {
+    glBindBuffer(GL_ARRAY_BUFFER, vbo);
+    glBindVertexArray(vao);
+    glEnableVertexAttribArray(0);
+
+    glDrawArrays(GL_TRIANGLES, 0, dataLength() / 2);
+
+    glDisableVertexAttribArray(0);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindVertexArray(0);
+}
+
+Shape::Shape(float x, float y) {
+    renderPtr = &Shape::frameRender;
+    startX = x;
+    startY = y;
+    endX = x;
+    endY = y;
+}
+
+Window::Window(MyGL* parent, int width, int height) {
+    this->parentMyGL = parent;
+    this->width = width;
+    this->height = height;
 	glfwWindowHint( GLFW_CONTEXT_VERSION_MAJOR, 3 );
 	glfwWindowHint( GLFW_CONTEXT_VERSION_MINOR, 3 );
 	glfwWindowHint( GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE );
 	glfwWindowHint( GLFW_RESIZABLE, GL_FALSE );
     glfwWindowHint( GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE ); /** for mac compatability*/
-    window = glfwCreateWindow( screenWidth, screenHeight, "myGL", NULL, NULL)
+    window = glfwCreateWindow( width, height, "myGL", NULL, NULL);
 	if ( !window ) {
 		glfwTerminate();
         throw std::runtime_error("GLFW failed to create the window.");
 	}
 	glfwMakeContextCurrent( window );
-	glViewport( 0, 0, screenWidth, screenHeight );
+
+    currentView = new View(this, width, height);
+	glViewport( 0, 0, width, height );
+
     glfwSwapInterval(1);
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 
-    glfwSetCursorPosCallback(window, cursor_position_callback);
-    glfwSetMouseButtonCallback(window, mouse_button_callback);
-    glfwSetScrollCallback(window, scroll_callback);
-    glfwSetWindowSizeCallback(window,  window_resize_callback);
-    glfwSetWindowPosCallback(window, window_move_callback);
-    glfwSetCharCallback(window, character_callback);
-    glfwSetKeyCallback(window, key_callback);
-    glfwSetDropCallback(window, drop_callback);
+    glfwSetCursorPosCallback(window, parent->cursor_position_callback);
+    glfwSetMouseButtonCallback(window, parent->mouse_button_callback);
+    glfwSetScrollCallback(window, parent->scroll_callback);
+    glfwSetWindowSizeCallback(window,  parent->window_resize_callback);
+    glfwSetWindowPosCallback(window, parent->window_move_callback);
+    //glfwSetCharCallback(window, parent->character_callback);
+    glfwSetKeyCallback(window, parent->key_callback);
+    //glfwSetDropCallback(window, parent->drop_callback);
+
 }
 
-void Window::cursor_position_callback(GLFWwindow* window, double xpos, double ypos) {
-    CursorMovement input {xpos, ypos};
-    if(currentContext) currentContext->cursorMovement(input);
+Window::~Window() {
+    glfwDestroyWindow( window );
 }
-void Window::mouse_button_callback(GLFWwindow* window, int button, int action, int mods) {
+
+void MyGL::cursor_position_callback(GLFWwindow* window, double xpos, double ypos) {
+    CursorMovement input {xpos, ypos};
+}
+void MyGL::mouse_button_callback(GLFWwindow* window, int button, int action, int mods) {
     //printf("mouse button callback\n\tbutton %d\n\taction %d\n\tmods %d\n", button, action, mods);
     MouseButton input {button, action, mods};
-    if(currentContext) currentContext->mouseButton(input);
 }
-void Window::scroll_callback(GLFWwindow* window, double xoffset, double yoffset) {
+void MyGL::scroll_callback(GLFWwindow* window, double xoffset, double yoffset) {
     if(yoffset < 0) {
-        zoomOut();
     } else if(yoffset > 0) {
-        zoomIn();
     }
-    fprintf(stdLog, "scale %.2f %.2f\n", unitsPerPixelX, unitsPerPixelY);
 }
 
-void Window::window_resize_callback(GLFWwindow* window, int width, int height) {
-    screenWidth = width;
-    screenHeight = height;
-	glViewport( 0, 0, screenWidth, screenHeight );
-    fprintf(stdLog, "window resized to %d %d\n", screenWidth, screenHeight);
+void MyGL::window_resize_callback(GLFWwindow* window, int width, int height) {
+	glViewport( 0, 0, width, height );
 }
 
-void Window::window_move_callback(GLFWwindow* window, int x, int y) {
+void MyGL::window_move_callback(GLFWwindow* window, int x, int y) {
 }
 
 
 // action (GLFW_PRESS, GLFW_RELEASE, GLFW_REPEAT)
 // key GLFW_UNKNOWN
-void Window::key_callback(GLFWwindow* window, int key, int scancode, int action, int mods) {
+void MyGL::key_callback(GLFWwindow* window, int key, int scancode, int action, int mods) {
     printf("%d %d %d\n", key, scancode, mods);
     Key input {key, scancode, action, mods};
-    if(currentContext) currentContext->key(input);
 }
 
-void Window::drop_callback(GLFWwindow* window, int count, const char** paths)
+void MyGL::drop_callback(GLFWwindow* window, int count, const char** paths)
 {
-    fprintf(stdLog, "drop callback\n");
     for (int i = 0; i < count; ++i) {
         printf("%s\n", paths[i]);
     }
 }
 
-double Window::pixelToRealX(double px) {
-    return (px - (screenWidth / 2.0)) * unitsPerPixelX - viewOffsetRealX;
+double View::pixelToRealX(double px) {
+    return (px - (width / 2.0)) * unitsPerPixelX - viewOffsetX;
 }
 
-double Window::pixelToRealY(double py) {
-    return (py - (screenHeight / 2.0)) * unitsPerPixelY - viewOffsetRealY;
+double View::pixelToRealY(double py) {
+    return (py - (height / 2.0)) * unitsPerPixelY - viewOffsetY;
 }
 
 
@@ -481,7 +396,8 @@ MyGL::MyGL() {
 	}
 
 	/** Create a windowed mode window and its OpenGL context */
-	window = new Window(700, 700);
+	currentWindow = new Window(this, 700, 700);
+    windows.push_back(currentWindow);
 
 	glewExperimental = GL_TRUE;
 	if( glewInit() != GLEW_OK ) {
@@ -514,33 +430,33 @@ MyGL::MyGL() {
 }
 
 void MyGL::draw() {
-    shaderPrograms.push_back(new ShaderProgram((char*)vertexShaderFileName, (char*)fragmentShaderFileName));
+    currentShaderProgram = new ShaderProgram((char*)vertexShaderFileName, (char*)fragmentShaderFileName);
+    shaderPrograms.push_back(currentShaderProgram);
     //GLuint shaderProgram = createShader((char*)vertexShaderFileName, (char*)fragmentShaderFileName);
 
     glClearColor( 0.3f, 0.0f, 0.3f, 1.0f );
     glPointSize(10);
     glLineWidth(10);
 
-	while( !glfwWindowShouldClose( window ) ) {
+    // for multiple windows, should close with the last of them? need code change...
+	while( !currentWindow->windowShouldClose() ) {
 		//glfwPollEvents();
         glfwWaitEvents();
 		glClear( GL_COLOR_BUFFER_BIT );
-        glUniform1f(shaderUniforms.viewOffsetX, viewOffsetRealX + tempViewOffsetX);
-        glUniform1f(shaderUniforms.viewOffsetY, viewOffsetRealY + tempViewOffsetY);
-        glUniform1f(shaderUniforms.unitsPerPixelX, unitsPerPixelX);
-        glUniform1f(shaderUniforms.unitsPerPixelY, unitsPerPixelY);
-        glUniform1f(shaderUniforms.screenWidth, screenWidth);
-        glUniform1f(shaderUniforms.screenHeight, screenHeight);
+        glUniform1f(currentShaderProgram->viewOffsetX, currentWindow->currentView->viewOffsetX);
+        glUniform1f(currentShaderProgram->viewOffsetY, currentWindow->currentView->viewOffsetY);
+        glUniform1f(currentShaderProgram->unitsPerPixelX, currentWindow->currentView->unitsPerPixelX);
+        glUniform1f(currentShaderProgram->unitsPerPixelY, currentWindow->currentView->unitsPerPixelY);
+        glUniform1f(currentShaderProgram->screenWidth,  currentWindow->currentView->width);
+        glUniform1f(currentShaderProgram->screenHeight, currentWindow->currentView->height);
         
         if(currentContext) currentContext->render();
 
         //testCode();
 
-		glfwSwapBuffers( window );
+        currentWindow->swapBuffers();
         //testCursorPolling();
 	}
 
-	glfwDestroyWindow( window );
 	glfwTerminate();
-    fclose(stdLog);
 }
