@@ -149,7 +149,7 @@ private:
 class Context {
 public:
     Context();
-    void render(); /** Calls the render function of all of the Shape objects.*/
+    void render(ShaderProgram* shader, View* view); /** Calls the render function of all of the Shape objects.*/
     Shape* currentShape;
     std::vector<Shape*> shapes;
 };

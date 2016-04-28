@@ -216,7 +216,14 @@ void Composer::key(Key key) {
 
 Context::Context() {}
 
-void Context::render() {
+void Context::render(ShaderProgram* shader, View* view) {
+    glUniform1f(shader->viewOffsetX,    view->viewOffsetX);
+    glUniform1f(shader->viewOffsetY,    view->viewOffsetY);
+    glUniform1f(shader->unitsPerPixelX, view->unitsPerPixelX);
+    glUniform1f(shader->unitsPerPixelY, view->unitsPerPixelY);
+    glUniform1f(shader->screenWidth,    view->width);
+    glUniform1f(shader->screenHeight,   view->height);
+
     for(int i = 0; i < shapes.size(); ++i) {
         shapes[i]->render();
     }
@@ -414,6 +421,9 @@ MyGL::MyGL() {
         fprintf(stderr, "Exiting.\n");
         exit(1);
 	}
+
+    currentShaderProgram = new ShaderProgram(vertexShaderFileName, fragmentShaderFileName);
+    shaderPrograms.push_back(currentShaderProgram);
     
     draw();
     //printf( "VENDOR = %s\n", glGetString( GL_VENDOR ) ) ;
@@ -439,10 +449,6 @@ MyGL::MyGL() {
 }
 
 void MyGL::draw() {
-    currentShaderProgram = new ShaderProgram(vertexShaderFileName, fragmentShaderFileName);
-    shaderPrograms.push_back(currentShaderProgram);
-    //GLuint shaderProgram = createShader((char*)vertexShaderFileName, (char*)fragmentShaderFileName);
-
     glClearColor( 0.3f, 0.0f, 0.3f, 1.0f );
     glPointSize(10);
     glLineWidth(10);
@@ -452,14 +458,8 @@ void MyGL::draw() {
 		//glfwPollEvents();
         glfwWaitEvents();
 		glClear( GL_COLOR_BUFFER_BIT );
-        glUniform1f(currentShaderProgram->viewOffsetX, currentWindow->currentView->viewOffsetX);
-        glUniform1f(currentShaderProgram->viewOffsetY, currentWindow->currentView->viewOffsetY);
-        glUniform1f(currentShaderProgram->unitsPerPixelX, currentWindow->currentView->unitsPerPixelX);
-        glUniform1f(currentShaderProgram->unitsPerPixelY, currentWindow->currentView->unitsPerPixelY);
-        glUniform1f(currentShaderProgram->screenWidth,  currentWindow->currentView->width);
-        glUniform1f(currentShaderProgram->screenHeight, currentWindow->currentView->height);
         
-        if(currentContext) currentContext->render();
+        if(currentContext) currentContext->render(currentShaderProgram, currentWindow->currentView);
 
         //testCode();
 
