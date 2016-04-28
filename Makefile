@@ -10,4 +10,4 @@ app.exe: main.cpp MyGL.o
 MyGL.o: MyGL.cpp
 	$(CC) -g -c MyGL.cpp $(STD) $(STUF)
 clean:
-	rm app.exe draw.o MyGL.o
+	rm app.exe MyGL.o

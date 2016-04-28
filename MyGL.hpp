@@ -57,9 +57,9 @@ public:
 class ShaderProgram {
 public:
     ShaderProgram(std::string vertexShaderFileName, std::string fragmentShaderFileName);
+    static std::string readFile(std::string fileName);
     void checkShaderStepSuccess(GLuint shader, GLuint status);
     void printShaderLog(char* errorMessage, GLuint shader);
-    static std::string readFile(std::string fileName);
     GLuint id();
     GLuint program;
     GLint viewOffsetX;
@@ -75,7 +75,7 @@ public:
 };
 
 /**
- * The member variables of CursorMovement, MouseButton, and Key match what is provided in the respective GLFW callback functions.
+  The member variables of CursorMovement, MouseButton, and Key match what is provided in the respective GLFW callback functions.
  */
 class Input {
 };
@@ -114,10 +114,9 @@ public:
     double pixelToRealX(double px);
     double pixelToRealY(double py);
     Window* parentWindow;
+    // change width and height to start and end coord, width and height doesn't give position
     int width;
     int height;
-    bool panning;
-    bool reversePan;
     double viewOffsetX = 0.0;
     double viewOffsetY = 0.0;
     double unitsPerPixelX = 1.0;
@@ -200,8 +199,8 @@ public:
     std::vector<Window*> windows;
     std::vector<Context*> contexts;
     std::vector<ShaderProgram*> shaderPrograms;
-    const char* vertexShaderFileName = "vertexShader.glsl";
-    const char* fragmentShaderFileName = "fragmentShader.glsl";
+    std::string vertexShaderFileName {"vertexShader.glsl"};
+    std::string fragmentShaderFileName {"fragmentShader.glsl"};
 };
 
 #endif

@@ -8,12 +8,16 @@ typedef void (Shape::*renderFunc)();
 ShaderProgram::ShaderProgram(std::string vertexShaderFileName, std::string fragmentShaderFileName) {
     program = glCreateProgram();
     if( ! program ) throw std::runtime_error("failed to create program.");
-    std::string vertexShaderCode(readFile(vertexShaderFileName));
-    std::string fragmentShaderCode(readFile(fragmentShaderFileName));
+    std::string vertexShaderCode = readFile(vertexShaderFileName);
+    std::string fragmentShaderCode = readFile(fragmentShaderFileName);
     GLuint vertexShader = glCreateShader( GL_VERTEX_SHADER );
     GLuint fragmentShader = glCreateShader( GL_FRAGMENT_SHADER );
-    glShaderSource( vertexShader, 1, (GLchar**)vertexShaderCode.c_str(), NULL );
-    glShaderSource( fragmentShader, 1, (GLchar**)fragmentShaderCode.c_str(), NULL );
+    GLchar* vcode = new char[vertexShaderCode.length()+1];
+    GLchar* fcode = new char[fragmentShaderCode.length()+1];
+    std::strcpy(vcode, vertexShaderCode.c_str());
+    std::strcpy(fcode, fragmentShaderCode.c_str());
+    glShaderSource( vertexShader, 1, std::move((const GLchar**)&vcode), NULL );
+    glShaderSource( fragmentShader, 1, std::move((const GLchar**)&fcode), NULL );
     glCompileShader(vertexShader);
     glCompileShader(fragmentShader);
     checkShaderStepSuccess(vertexShader, GL_COMPILE_STATUS);
@@ -26,6 +30,8 @@ ShaderProgram::ShaderProgram(std::string vertexShaderFileName, std::string fragm
     checkShaderStepSuccess(program, GL_LINK_STATUS);
     glUseProgram(program);
 
+    delete[] vcode;
+    delete[] fcode;
     viewOffsetX = glGetUniformLocation(program, "viewOffsetX");
     viewOffsetY = glGetUniformLocation(program, "viewOffsetY");
     unitsPerPixelX = glGetUniformLocation(program, "unitsPerPixelX");
@@ -102,7 +108,8 @@ PNG::PNG() : imageName(NULL), data(NULL) {
     memset(&image, 0x00, sizeof(image));
 }
 
-PNG::PNG(char imageName[]) : imageName(NULL), data(NULL) {
+PNG::PNG(char imageName[]) : data(NULL) {
+    this->imageName = imageName;
     memset(&image, 0x00, sizeof(image));
     image.version = PNG_IMAGE_VERSION;
     image.opaque = NULL;
@@ -159,6 +166,8 @@ void PNG::writePNG(char imageName[], unsigned char* data, int width, int height)
 /** A Window*/
 View::View(Window* window, int width, int height) {
     parentWindow = window;
+    this->width = width;
+    this->height = height;
 }
 
 void View::scale(float num) {}
@@ -430,7 +439,7 @@ MyGL::MyGL() {
 }
 
 void MyGL::draw() {
-    currentShaderProgram = new ShaderProgram((char*)vertexShaderFileName, (char*)fragmentShaderFileName);
+    currentShaderProgram = new ShaderProgram(vertexShaderFileName, fragmentShaderFileName);
     shaderPrograms.push_back(currentShaderProgram);
     //GLuint shaderProgram = createShader((char*)vertexShaderFileName, (char*)fragmentShaderFileName);
 
