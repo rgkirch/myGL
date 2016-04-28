@@ -12,8 +12,8 @@ ShaderProgram::ShaderProgram(std::string vertexShaderFileName, std::string fragm
     std::string fragmentShaderCode = readFile(fragmentShaderFileName);
     GLuint vertexShader = glCreateShader( GL_VERTEX_SHADER );
     GLuint fragmentShader = glCreateShader( GL_FRAGMENT_SHADER );
-    GLchar* vcode = new char[vertexShaderCode.length()+1];
-    GLchar* fcode = new char[fragmentShaderCode.length()+1];
+    GLchar *vcode = new char[vertexShaderCode.length()+1];
+    GLchar *fcode = new char[fragmentShaderCode.length()+1];
     std::strcpy(vcode, vertexShaderCode.c_str());
     std::strcpy(fcode, fragmentShaderCode.c_str());
     glShaderSource( vertexShader, 1, std::move((const GLchar**)&vcode), NULL );
@@ -54,9 +54,9 @@ std::string ShaderProgram::readFile(std::string fileName) {
     return data;
     //std::streamsize size = stream.rdbuf()->pubseekoff(0, stream.end);
     //stream.rdbuf()->pubseekoff(0, stream.beg);
-    ////char* data = (char*)malloc(size * sizeof(char));
+    ////char *data = (char*)malloc(size * sizeof(char));
     //std::stringstream data(stream.rdbuf());
-    ////char* data = new char[size];
+    ////char *data = new char[size];
     ////if( ! data ) throw std::runtime_error("Could not allocate memory.");
     ////stream.rdbuf()->sgetn(data, size);
     //std::string string(std::move(data)); //<-- if I do this?
@@ -90,12 +90,12 @@ void ShaderProgram::checkShaderStepSuccess(GLuint shader, GLuint status) {
     }
 }
 
-void ShaderProgram::printShaderLog(char* errorMessage, GLuint shader) {
+void ShaderProgram::printShaderLog(char *errorMessage, GLuint shader) {
     fprintf(stderr, "%s\n", errorMessage);
     GLint length = 0;
     glGetShaderiv( shader, GL_INFO_LOG_LENGTH, &length );
     printf("log length %d\n", length);
-    GLchar* logText = (GLchar*)malloc(sizeof(GLchar) * (length + 1));
+    GLchar *logText = (GLchar*)malloc(sizeof(GLchar) * (length + 1));
     logText[length] = '\0';
     glGetShaderInfoLog(shader, length, &length, logText);
     printf("printing log\n");
@@ -132,8 +132,8 @@ unsigned char* PNG::pixels() {
     return data;
 }
 
-unsigned char* PNG::readPNG(char* imageName) {
-    unsigned char* data = NULL;
+unsigned char* PNG::readPNG(char *imageName) {
+    unsigned char *data = NULL;
     png_image image;
     memset(&image, 0x00, sizeof(image));
     image.version = PNG_IMAGE_VERSION;
@@ -147,8 +147,8 @@ unsigned char* PNG::readPNG(char* imageName) {
     return data;
 }
 
-void PNG::writePNG(char imageName[], unsigned char* data, int width, int height) {
-    //GLvoid* data = (GLvoid*)malloc(screenWidth * screenHeight * 4);
+void PNG::writePNG(char imageName[], unsigned char *data, int width, int height) {
+    //GLvoid *data = (GLvoid*)malloc(screenWidth * screenHeight * 4);
     //glReadPixels(0, 0, screenWidth, screenHeight, GL_RGBA, GL_UNSIGNED_BYTE, data);
     png_image image;
     memset(&image, 0x00, sizeof(image));
@@ -164,7 +164,7 @@ void PNG::writePNG(char imageName[], unsigned char* data, int width, int height)
 }
 
 /** A Window*/
-View::View(Window* window, int width, int height) {
+View::View(Window *window, int width, int height) {
     parentWindow = window;
     this->width = width;
     this->height = height;
@@ -216,7 +216,7 @@ void Composer::key(Key key) {
 
 Context::Context() {}
 
-void Context::render(ShaderProgram* shader, View* view) {
+void Context::render(ShaderProgram *shader, View *view) {
     glUniform1f(shader->viewOffsetX,    view->viewOffsetX);
     glUniform1f(shader->viewOffsetY,    view->viewOffsetY);
     glUniform1f(shader->unitsPerPixelX, view->unitsPerPixelX);
@@ -324,7 +324,7 @@ Shape::Shape(float x, float y) {
     endY = y;
 }
 
-Window::Window(MyGL* parent, int width, int height) {
+Window::Window(MyGL *parent, int width, int height) {
     this->parentMyGL = parent;
     this->width = width;
     this->height = height;
@@ -361,35 +361,35 @@ Window::~Window() {
     glfwDestroyWindow( window );
 }
 
-void MyGL::cursor_position_callback(GLFWwindow* window, double xpos, double ypos) {
+void MyGL::cursor_position_callback(GLFWwindow *window, double xpos, double ypos) {
     CursorMovement input {xpos, ypos};
 }
-void MyGL::mouse_button_callback(GLFWwindow* window, int button, int action, int mods) {
+void MyGL::mouse_button_callback(GLFWwindow *window, int button, int action, int mods) {
     //printf("mouse button callback\n\tbutton %d\n\taction %d\n\tmods %d\n", button, action, mods);
     MouseButton input {button, action, mods};
 }
-void MyGL::scroll_callback(GLFWwindow* window, double xoffset, double yoffset) {
+void MyGL::scroll_callback(GLFWwindow *window, double xoffset, double yoffset) {
     if(yoffset < 0) {
     } else if(yoffset > 0) {
     }
 }
 
-void MyGL::window_resize_callback(GLFWwindow* window, int width, int height) {
+void MyGL::window_resize_callback(GLFWwindow *window, int width, int height) {
 	glViewport( 0, 0, width, height );
 }
 
-void MyGL::window_move_callback(GLFWwindow* window, int x, int y) {
+void MyGL::window_move_callback(GLFWwindow *window, int x, int y) {
 }
 
 
 // action (GLFW_PRESS, GLFW_RELEASE, GLFW_REPEAT)
 // key GLFW_UNKNOWN
-void MyGL::key_callback(GLFWwindow* window, int key, int scancode, int action, int mods) {
+void MyGL::key_callback(GLFWwindow *window, int key, int scancode, int action, int mods) {
     printf("%d %d %d\n", key, scancode, mods);
     Key input {key, scancode, action, mods};
 }
 
-void MyGL::drop_callback(GLFWwindow* window, int count, const char** paths)
+void MyGL::drop_callback(GLFWwindow *window, int count, const char **paths)
 {
     for (int i = 0; i < count; ++i) {
         printf("%s\n", paths[i]);
@@ -437,8 +437,8 @@ MyGL::MyGL() {
     image.width = 16;
     image.height = 16;
     image.pixels = pixels;
-    GLFWcursor* cursor = glfwCreateCursor(&image, 0, 0);
-    //GLFWcursor* cursor = glfwCreateStandardCursor(GLFW_HRESIZE_CURSOR);
+    GLFWcursor *cursor = glfwCreateCursor(&image, 0, 0);
+    //GLFWcursor *cursor = glfwCreateStandardCursor(GLFW_HRESIZE_CURSOR);
     if(cursor == NULL) {
         printf("Failed to create GLFW cursor.\n");
     }
