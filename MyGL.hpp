@@ -190,7 +190,6 @@ public:
     MyGL();
     ~MyGL();
     void mainLoop(); /** Calls on all the windows to update themselvs.*/
-    void newWindow();
     void removeWindow(std::unique_ptr<Window> window);
     static void cursor_position_callback(GLFWwindow *window, double xpos, double ypos);
     static void mouse_button_callback(GLFWwindow *window, int button, int action, int mods);
@@ -199,6 +198,7 @@ public:
     static void window_move_callback(GLFWwindow *window, int x, int y);
     static void key_callback(GLFWwindow *window, int key, int scancode, int action, int mods);
     static void drop_callback(GLFWwindow *window, int count, const char** paths);
+    void genLotsWindows();
     void getWindow(GLFWwindow* window);
     Context *currentContext;
     ShaderProgram *currentShaderProgram;

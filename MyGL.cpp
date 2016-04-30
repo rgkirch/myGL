@@ -1,7 +1,5 @@
 #include "MyGL.hpp"
 
-int windowPosition = 0;
-
 typedef void (Shape::*renderFunc)();
 
 /** Reads in a couple text files, compiles and links stuff and makes a shader program. Calls glUseProgram at the end and then needs to set up the uniforms.*/
@@ -340,8 +338,6 @@ Window::Window(MyGL *parent, int width, int height) {
         throw std::runtime_error("GLFW failed to create the window.");
 	}
 
-    glfwSetWindowPos(window, windowPosition % 1920, (windowPosition / 1920) % 1080);
-
 	glfwMakeContextCurrent( window );
 
     //currentView = new View(this, width, height);
@@ -386,7 +382,6 @@ void MyGL::cursor_position_callback(GLFWwindow *window, double xpos, double ypos
     //printf("window %p\n", window);
     CursorMovement input {xpos, ypos};
     MyGL *mygl = static_cast<MyGL*>(glfwGetWindowUserPointer(window));
-    mygl->newWindow();
 }
 void MyGL::mouse_button_callback(GLFWwindow *window, int button, int action, int mods) {
     //printf("mouse button callback\n\tbutton %d\n\taction %d\n\tmods %d\n", button, action, mods);
@@ -436,9 +431,7 @@ MyGL::MyGL() {
 	}
 
 	/** Create a windowed mode window and its OpenGL context */
-    //windows.push_back(std::unique_ptr<Window>(new Window(this, 700, 700)));
-    newWindow();
-
+    windows.push_back(std::unique_ptr<Window>(new Window(this, 700, 700)));
 	glewExperimental = GL_TRUE;
 	if( glewInit() != GLEW_OK ) {
         fprintf(stderr, "GLEW failed to init.\n");
@@ -490,11 +483,6 @@ void MyGL::mainLoop() {
     glfwTerminate();
 }
 
-void MyGL::newWindow() {
-    printf("new window\n");
-    windows.push_back(std::unique_ptr<Window>(new Window(this, 50, 50)));
-}
-
 void MyGL::getWindow(GLFWwindow* window) {
     for(const auto& win : windows) {
         if(win->handles(window)) {
@@ -507,4 +495,14 @@ void MyGL::getWindow(GLFWwindow* window) {
 
 void MyGL::removeWindow(std::unique_ptr<Window> window) {
     windows.remove(window);
+}
+
+void MyGL::genLotsWindows() {
+    int windowPosition = 0;
+    for(int i = 0; i < 20; ++i) {
+        Window *temp = new Window(this, 50, 50);
+        glfwSetWindowPos(temp->window, windowPosition % 1920, (windowPosition / 1920) * 50 % 1080);
+        windows.push_back(std::unique_ptr<Window>(std::move(temp)));
+        windowPosition += 50;
+    }
 }
