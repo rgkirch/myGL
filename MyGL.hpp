@@ -35,6 +35,16 @@
 class Window;
 class MyGL;
 
+namespace glfwInputCallback {
+    void cursor_position_callback(GLFWwindow *window, double xpos, double ypos);
+    void mouse_button_callback(GLFWwindow *window, int button, int action, int mods);
+    void scroll_callback(GLFWwindow *window, double xoffset, double yoffset);
+    void window_resize_callback(GLFWwindow *window, int width, int height);
+    void window_move_callback(GLFWwindow *window, int x, int y);
+    void key_callback(GLFWwindow *window, int key, int scancode, int action, int mods);
+    void drop_callback(GLFWwindow *window, int count, const char** paths);
+}
+
 /**
  * The PNG class is for reading and writing '.png' files. There are two static functions called readPNG() and writePNG() that can be used without instantiating an instance of the class.
  * This class was made to solve the problem that
@@ -191,13 +201,6 @@ public:
     ~MyGL();
     void mainLoop(); /** Calls on all the windows to update themselvs.*/
     void removeWindow(std::unique_ptr<Window> window);
-    static void cursor_position_callback(GLFWwindow *window, double xpos, double ypos);
-    static void mouse_button_callback(GLFWwindow *window, int button, int action, int mods);
-    static void scroll_callback(GLFWwindow *window, double xoffset, double yoffset);
-    static void window_resize_callback(GLFWwindow *window, int width, int height);
-    static void window_move_callback(GLFWwindow *window, int x, int y);
-    static void key_callback(GLFWwindow *window, int key, int scancode, int action, int mods);
-    static void drop_callback(GLFWwindow *window, int count, const char** paths);
     void genLotsWindows();
     void getWindow(GLFWwindow* window);
     Context *currentContext;

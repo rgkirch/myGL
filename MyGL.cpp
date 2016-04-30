@@ -347,14 +347,14 @@ Window::Window(MyGL *parent, int width, int height) {
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
     glfwSetWindowUserPointer(window, parent);
 
-    glfwSetCursorPosCallback(window, parent->cursor_position_callback);
-    glfwSetMouseButtonCallback(window, parent->mouse_button_callback);
-    glfwSetScrollCallback(window, parent->scroll_callback);
-    glfwSetWindowSizeCallback(window,  parent->window_resize_callback);
-    glfwSetWindowPosCallback(window, parent->window_move_callback);
-    //glfwSetCharCallback(window, parent->character_callback);
-    glfwSetKeyCallback(window, parent->key_callback);
-    //glfwSetDropCallback(window, parent->drop_callback);
+    glfwSetCursorPosCallback(window,   glfwInputCallback::cursor_position_callback);
+    glfwSetMouseButtonCallback(window, glfwInputCallback::mouse_button_callback);
+    glfwSetScrollCallback(window,      glfwInputCallback::scroll_callback);
+    glfwSetWindowSizeCallback(window,  glfwInputCallback::window_resize_callback);
+    glfwSetWindowPosCallback(window,   glfwInputCallback::window_move_callback);
+    //glfwSetCharCallback(window,      glfwInputCallback::character_callback);
+    glfwSetKeyCallback(window,         glfwInputCallback::key_callback);
+    //glfwSetDropCallback(window,      glfwInputCallback::drop_callback);
 
 }
 
@@ -378,37 +378,37 @@ bool Window::handles(GLFWwindow *window) {
     return this->window == window;
 }
 
-void MyGL::cursor_position_callback(GLFWwindow *window, double xpos, double ypos) {
+void glfwInputCallback::cursor_position_callback(GLFWwindow *window, double xpos, double ypos) {
     //printf("window %p\n", window);
     CursorMovement input {xpos, ypos};
     MyGL *mygl = static_cast<MyGL*>(glfwGetWindowUserPointer(window));
 }
-void MyGL::mouse_button_callback(GLFWwindow *window, int button, int action, int mods) {
+void glfwInputCallback::mouse_button_callback(GLFWwindow *window, int button, int action, int mods) {
     //printf("mouse button callback\n\tbutton %d\n\taction %d\n\tmods %d\n", button, action, mods);
     MouseButton input {button, action, mods};
 }
-void MyGL::scroll_callback(GLFWwindow *window, double xoffset, double yoffset) {
+void glfwInputCallback::scroll_callback(GLFWwindow *window, double xoffset, double yoffset) {
     if(yoffset < 0) {
     } else if(yoffset > 0) {
     }
 }
 
-void MyGL::window_resize_callback(GLFWwindow *window, int width, int height) {
+void glfwInputCallback::window_resize_callback(GLFWwindow *window, int width, int height) {
 	glViewport( 0, 0, width, height );
 }
 
-void MyGL::window_move_callback(GLFWwindow *window, int x, int y) {
+void glfwInputCallback::window_move_callback(GLFWwindow *window, int x, int y) {
 }
 
 
 // action (GLFW_PRESS, GLFW_RELEASE, GLFW_REPEAT)
 // key GLFW_UNKNOWN
-void MyGL::key_callback(GLFWwindow *window, int key, int scancode, int action, int mods) {
+void glfwInputCallback::key_callback(GLFWwindow *window, int key, int scancode, int action, int mods) {
     printf("%d %d %d\n", key, scancode, mods);
     Key input {key, scancode, action, mods};
 }
 
-void MyGL::drop_callback(GLFWwindow *window, int count, const char **paths)
+void glfwInputCallback::drop_callback(GLFWwindow *window, int count, const char **paths)
 {
     for (int i = 0; i < count; ++i) {
         printf("%s\n", paths[i]);
