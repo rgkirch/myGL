@@ -1,0 +1,1 @@
+g++ -g -std=c++11 thread.cpp -I/usr/include -lboost_system -lboost_thread

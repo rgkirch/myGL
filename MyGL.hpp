@@ -12,10 +12,12 @@
 #include <sstream>
 #include <math.h>
 #include <queue>
+#include <list>
 #include <stdexcept>
 #include <vector>
 
 #include <boost/filesystem.hpp>
+#include <boost/thread.hpp>
 #include <png.h>
 
 //#include <fstream>
@@ -28,6 +30,7 @@
 
 #ifndef MYGL_HPP
 #define MYGL_HPP
+
 
 class Window;
 class MyGL;
@@ -160,10 +163,11 @@ public:
  *  The window should be responsible for hiding and disabling the mouse cursor. This needs to happen during a pan of the view for example.*/
 class Window {
 public:
+    Window();
     Window(MyGL *parent, int width, int height);
     ~Window();
-    bool windowShouldClose() {return (bool) glfwWindowShouldClose(window);}
-    void swapBuffers() { glfwSwapBuffers( window ); }
+    bool handles(GLFWwindow *window);
+    void update();
     GLFWwindow *window; /** The window class needs to know which GLFWwindow it is taking care of. 1 Window for 1 GLFWwindow*/
     int width;
     int height;
@@ -184,7 +188,10 @@ public:
 class MyGL {
 public:
     MyGL();
-    void draw();
+    ~MyGL();
+    void mainLoop(); /** Calls on all the windows to update themselvs.*/
+    void newWindow();
+    void removeWindow(std::unique_ptr<Window> window);
     static void cursor_position_callback(GLFWwindow *window, double xpos, double ypos);
     static void mouse_button_callback(GLFWwindow *window, int button, int action, int mods);
     static void scroll_callback(GLFWwindow *window, double xoffset, double yoffset);
@@ -192,16 +199,14 @@ public:
     static void window_move_callback(GLFWwindow *window, int x, int y);
     static void key_callback(GLFWwindow *window, int key, int scancode, int action, int mods);
     static void drop_callback(GLFWwindow *window, int count, const char** paths);
-    Window* getWindow(GLFWwindow* window);
-    Window *currentWindow;
+    void getWindow(GLFWwindow* window);
     Context *currentContext;
     ShaderProgram *currentShaderProgram;
-    std::vector<Window*> windows;
-    std::vector<Context*> contexts;
-    std::vector<ShaderProgram*> shaderPrograms;
+    std::list<std::unique_ptr<Window>> windows;
+    std::vector<std::unique_ptr<Context>> contexts;
+    std::vector<std::unique_ptr<ShaderProgram>> shaderPrograms;
     std::string vertexShaderFileName {"vertexShader.glsl"};
     std::string fragmentShaderFileName {"fragmentShader.glsl"};
 };
 
 #endif
-

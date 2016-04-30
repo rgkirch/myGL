@@ -1,6 +1,6 @@
 #include "MyGL.hpp"
 
-// need to be able to change reverse pan
+int windowPosition = 0;
 
 typedef void (Shape::*renderFunc)();
 
@@ -225,7 +225,8 @@ void Context::render(ShaderProgram *shader, View *view) {
     glUniform1f(shader->screenHeight,   view->height);
 
     for(int i = 0; i < shapes.size(); ++i) {
-        shapes[i]->render();
+        printf("shape vector size %d\n", (int)shapes.size());
+        if(shapes[i]) shapes[i]->render();
     }
     if(currentShape) {
         //(currentShape->*Shape::renderPtr)();
@@ -338,13 +339,17 @@ Window::Window(MyGL *parent, int width, int height) {
 		glfwTerminate();
         throw std::runtime_error("GLFW failed to create the window.");
 	}
+
+    glfwSetWindowPos(window, windowPosition % 1920, (windowPosition / 1920) % 1080);
+
 	glfwMakeContextCurrent( window );
 
-    currentView = new View(this, width, height);
+    //currentView = new View(this, width, height);
 	glViewport( 0, 0, width, height );
 
     glfwSwapInterval(1);
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+    glfwSetWindowUserPointer(window, parent);
 
     glfwSetCursorPosCallback(window, parent->cursor_position_callback);
     glfwSetMouseButtonCallback(window, parent->mouse_button_callback);
@@ -357,12 +362,31 @@ Window::Window(MyGL *parent, int width, int height) {
 
 }
 
+/** That window is not null and not invalid is an invariant. window gets a value in the constructor and is not modified until destruction.*/
+void Window::update() {
+    glfwMakeContextCurrent( window );
+    glClearColor( 0.3f, 0.0f, 0.3f, 1.0f );
+    glPointSize(10);
+    glLineWidth(10);
+    //glfwPollEvents();
+    glClear( GL_COLOR_BUFFER_BIT );
+    glfwSwapBuffers( window );
+}
+
 Window::~Window() {
+    printf("window destroyed\n");
     glfwDestroyWindow( window );
 }
 
+bool Window::handles(GLFWwindow *window) {
+    return this->window == window;
+}
+
 void MyGL::cursor_position_callback(GLFWwindow *window, double xpos, double ypos) {
+    //printf("window %p\n", window);
     CursorMovement input {xpos, ypos};
+    MyGL *mygl = static_cast<MyGL*>(glfwGetWindowUserPointer(window));
+    mygl->newWindow();
 }
 void MyGL::mouse_button_callback(GLFWwindow *window, int button, int action, int mods) {
     //printf("mouse button callback\n\tbutton %d\n\taction %d\n\tmods %d\n", button, action, mods);
@@ -412,8 +436,8 @@ MyGL::MyGL() {
 	}
 
 	/** Create a windowed mode window and its OpenGL context */
-	currentWindow = new Window(this, 700, 700);
-    windows.push_back(currentWindow);
+    //windows.push_back(std::unique_ptr<Window>(new Window(this, 700, 700)));
+    newWindow();
 
 	glewExperimental = GL_TRUE;
 	if( glewInit() != GLEW_OK ) {
@@ -422,10 +446,10 @@ MyGL::MyGL() {
         exit(1);
 	}
 
-    currentShaderProgram = new ShaderProgram(vertexShaderFileName, fragmentShaderFileName);
-    shaderPrograms.push_back(currentShaderProgram);
+
+    //shaderPrograms.push_back(std::unique_ptr<ShaderProgram>(new ShaderProgram(vertexShaderFileName, fragmentShaderFileName)));
     
-    draw();
+    mainLoop();
     //printf( "VENDOR = %s\n", glGetString( GL_VENDOR ) ) ;
     //printf( "RENDERER = %s\n", glGetString( GL_RENDERER ) ) ;
     //printf( "VERSION = %s\n", glGetString( GL_VERSION ) ) ;
@@ -448,24 +472,39 @@ MyGL::MyGL() {
     */
 }
 
-void MyGL::draw() {
-    glClearColor( 0.3f, 0.0f, 0.3f, 1.0f );
-    glPointSize(10);
-    glLineWidth(10);
+MyGL::~MyGL() {
+    printf("destruct mygl\n");
+}
 
-    // for multiple windows, should close with the last of them? need code change...
-	while( !currentWindow->windowShouldClose() ) {
-		//glfwPollEvents();
+void MyGL::mainLoop() {
+    while(windows.size() > 0) {
         glfwWaitEvents();
-		glClear( GL_COLOR_BUFFER_BIT );
-        
-        if(currentContext) currentContext->render(currentShaderProgram, currentWindow->currentView);
+        for(std::list<std::unique_ptr<Window>>::iterator it = windows.begin(); it != windows.end(); ++it) {
+            if(glfwWindowShouldClose(it->get()->window)) {
+                it = windows.erase(it);
+            } else {
+                it->get()->update();
+            }
+        }
+    }
+    glfwTerminate();
+}
 
-        //testCode();
+void MyGL::newWindow() {
+    printf("new window\n");
+    windows.push_back(std::unique_ptr<Window>(new Window(this, 50, 50)));
+}
 
-        currentWindow->swapBuffers();
-        //testCursorPolling();
-	}
+void MyGL::getWindow(GLFWwindow* window) {
+    for(const auto& win : windows) {
+        if(win->handles(window)) {
+            // i don't like this. either change the return type to be unique_ptr (which won't work because cant copy uniptr or do code here where have ref>
+            // possible pass in a function to this function and when find the window, call that windows function...
+        }
+    }
+    throw std::runtime_error("Could not find Window that handles GLFWwindow.");
+}
 
-	glfwTerminate();
+void MyGL::removeWindow(std::unique_ptr<Window> window) {
+    windows.remove(window);
 }
