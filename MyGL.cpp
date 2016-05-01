@@ -436,8 +436,8 @@ MyGL::MyGL() {
         throw std::runtime_error("GLFW failed to init.");
 	}
 
-	/** Create a windowed mode window and its OpenGL context */
-    windows.push_back(std::unique_ptr<Window>(new Window(this, 700, 700)));
+    makeWindowForContext();
+
 	glewExperimental = GL_TRUE;
 	if( glewInit() != GLEW_OK ) {
         fprintf(stderr, "GLEW failed to init.\n");
@@ -447,10 +447,20 @@ MyGL::MyGL() {
 
     //shaderPrograms.push_back(std::unique_ptr<ShaderProgram>(new ShaderProgram(vertexShaderFileName, fragmentShaderFileName)));
     
-    for(std::list<std::unique_ptr<Window>>::iterator it = windows.begin(); it != windows.end(); ++it) {
-        it->get()->t = new boost::thread(*(it->get()));
+    //mainLoop();
+    while(! glfwWindowShouldClose(windowForContext)) {
+        glfwWaitEvents();
+        glfwMakeContextCurrent( windowForContext );
+        glClearColor( 0.3f, 0.0f, 0.3f, 1.0f );
+        //glfwPollEvents();
+        glClear( GL_COLOR_BUFFER_BIT );
+        glfwSwapBuffers( windowForContext );
     }
-    mainLoop();
+
+    glfwTerminate();
+	/** Create a windowed mode window and its OpenGL context */
+    //windows.push_back(std::unique_ptr<Window>(new Window(this, 700, 700)));
+
     //printf( "VENDOR = %s\n", glGetString( GL_VENDOR ) ) ;
     //printf( "RENDERER = %s\n", glGetString( GL_RENDERER ) ) ;
     //printf( "VERSION = %s\n", glGetString( GL_VERSION ) ) ;
@@ -478,13 +488,14 @@ MyGL::~MyGL() {
 }
 
 void MyGL::mainLoop() {
-    for(std::list<std::unique_ptr<Window>>::iterator it = windows.begin(); it != windows.end(); ++it) {
-        /** If the thread has finished then we assume the window do have destructed. We just erase the unique_ptr from the list.*/
-        if(it->get()->t && it->get()->t->timed_join(boost::posix_time::millisec(100))) {
-            it = windows.erase(it);
+    while(windows.size() > 0) {
+        for(std::list<std::unique_ptr<Window>>::iterator it = windows.begin(); it != windows.end(); ++it) {
+            /** If the thread has finished then we assume the window do have destructed. We just erase the unique_ptr from the list.*/
+            if(it->get()->t && it->get()->t->timed_join(boost::posix_time::millisec(100))) {
+                it = windows.erase(it);
+            }
         }
     }
-    glfwTerminate();
 }
 
 void MyGL::genLotsWindows() {
@@ -496,4 +507,33 @@ void MyGL::genLotsWindows() {
         //windowPosition += 50;
         //delete temp;
     }
+}
+
+void MyGL::makeWindowForContext() {
+    int width = 1;
+    int height = 1;
+	glfwWindowHint( GLFW_CONTEXT_VERSION_MAJOR, 3 );
+	glfwWindowHint( GLFW_CONTEXT_VERSION_MINOR, 3 );
+	glfwWindowHint( GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE );
+	glfwWindowHint( GLFW_RESIZABLE, GL_FALSE );
+    glfwWindowHint( GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE ); /** for mac compatability*/
+    glfwWindowHint( GLFW_FOCUSED, GL_FALSE );
+    glfwWindowHint( GLFW_DECORATED, GL_FALSE );
+    glfwWindowHint( GLFW_VISIBLE, GL_FALSE );
+    windowForContext = glfwCreateWindow( width, height, "myGL", NULL, NULL);
+	if ( !windowForContext ) {
+		glfwTerminate();
+        throw std::runtime_error("GLFW failed to create the window.");
+	}
+
+	glfwMakeContextCurrent( windowForContext );
+
+    //currentView = new View(this, width, height);
+	glViewport( 0, 0, width, height );
+
+    glfwSwapInterval(1);
+    glfwSetInputMode(windowForContext, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+    glClearColor( 0.3f, 0.0f, 0.3f, 1.0f );
+    glClear( GL_COLOR_BUFFER_BIT );
+    glfwSwapBuffers( windowForContext );
 }

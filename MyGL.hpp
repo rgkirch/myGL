@@ -204,6 +204,8 @@ public:
     ~MyGL();
     void mainLoop(); /** Calls on all the windows to update themselvs.*/
     void genLotsWindows();
+    void makeWindowForContext();
+    GLFWwindow* windowForContext;
     Context *currentContext;
     ShaderProgram *currentShaderProgram;
     std::list<std::unique_ptr<Window>> windows;
