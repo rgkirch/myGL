@@ -12,9 +12,11 @@
 #include <iostream>
 #include <list>
 #include <math.h>
+#include <mutex>
 #include <queue>
 #include <sstream>
 #include <stdexcept>
+#include <thread>
 #include <vector>
 
 #include <boost/filesystem.hpp>
@@ -32,6 +34,7 @@
 #ifndef MYGL_HPP
 #define MYGL_HPP
 
+extern std::mutex contextMutex;
 
 class Window;
 class MyGL;
@@ -178,7 +181,6 @@ public:
     Window(MyGL *parent, int width, int height);
     ~Window();
     bool handles(GLFWwindow *window);
-    void operator()();
     void update();
     GLFWwindow *window; /** The window class needs to know which GLFWwindow it is taking care of. 1 Window for 1 GLFWwindow*/
     int width;
@@ -204,11 +206,11 @@ public:
     ~MyGL();
     void mainLoop(); /** Calls on all the windows to update themselvs.*/
     void genLotsWindows();
-    void makeWindowForContext();
+    GLFWwindow* makeWindowForContext();
     GLFWwindow* windowForContext;
     Context *currentContext;
     ShaderProgram *currentShaderProgram;
-    std::list<std::unique_ptr<Window>> windows;
+    std::list<Window*> windows;
     //std::list<std::unique_ptr<Window>> windows;
     std::vector<std::unique_ptr<Context>> contexts;
     std::vector<std::unique_ptr<ShaderProgram>> shaderPrograms;

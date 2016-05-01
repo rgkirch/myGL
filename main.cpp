@@ -5,7 +5,11 @@
 #include "MyGL.hpp"
 
 int main(int argc, char** argv) {
-    std::unique_ptr<MyGL>mygl(new MyGL());
+    //std::unique_ptr<MyGL>mygl(new MyGL());
+    MyGL* mygl = new MyGL();
+    mygl->mainLoop();
+
+    printf("main done\n");
     //delete mygl;
     //mygl->currentContext = new Context();
     //std::string data = ShaderProgram::readFile("vertexShader.glsl");

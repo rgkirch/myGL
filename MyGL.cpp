@@ -1,6 +1,12 @@
 #include "MyGL.hpp"
 
+std::mutex contextMutex;
+
 typedef void (Shape::*renderFunc)();
+
+static void error_callback(int error, const char* description) {
+    fprintf(stderr, "Error %d: %s\n", error, description);
+}
 
 /** Reads in a couple text files, compiles and links stuff and makes a shader program. Calls glUseProgram at the end and then needs to set up the uniforms.*/
 ShaderProgram::ShaderProgram(std::string vertexShaderFileName, std::string fragmentShaderFileName) {
@@ -339,10 +345,11 @@ Window::Window(MyGL *parent, int width, int height) {
     window = glfwCreateWindow( width, height, "myGL", NULL, NULL);
 	if ( !window ) {
 		glfwTerminate();
-        throw std::runtime_error("GLFW failed to create the window.");
+        throw std::runtime_error("GLFW failed to create the window in Window constructor.");
 	}
     printf("window created\n");
 
+    std::lock_guard<std::mutex> lock(contextMutex);
 	glfwMakeContextCurrent( window );
 
     //currentView = new View(this, width, height);
@@ -361,13 +368,16 @@ Window::Window(MyGL *parent, int width, int height) {
     glfwSetKeyCallback(window,         glfwInputCallback::key_callback);
     //glfwSetDropCallback(window,      glfwInputCallback::drop_callback);
 
+	glfwMakeContextCurrent( NULL ); /* I don't think that all the above calls need the context.*/
+
     //std::function<void(Window&)> fun = &Window::update;
-    //t = new boost::thread(fun, *this);
+    //t = new boost::thread(fun, std::move(*this));
 }
 
 void Window::update() {
     while(! glfwWindowShouldClose(window)) {
         glfwWaitEvents();
+        std::lock_guard<std::mutex> lock(contextMutex);
         glfwMakeContextCurrent( window );
         glClearColor( 0.3f, 0.0f, 0.3f, 1.0f );
         glPointSize(10);
@@ -375,13 +385,16 @@ void Window::update() {
         //glfwPollEvents();
         glClear( GL_COLOR_BUFFER_BIT );
         glfwSwapBuffers( window );
+        glfwMakeContextCurrent( NULL );
     }
     glfwDestroyWindow(window);
 }
 
 Window::~Window() {
     printf("window destroyed\n");
-    if(window) glfwDestroyWindow( window );
+    if(window) {
+        glfwDestroyWindow( window );
+    }
 }
 
 bool Window::handles(GLFWwindow *window) {
@@ -435,12 +448,17 @@ double View::pixelToRealY(double py) {
 
 
 MyGL::MyGL() {
+    this->windowForContext = NULL;
 	/** Initialize the library */
 	if ( !glfwInit() ) {
         throw std::runtime_error("GLFW failed to init.");
 	}
 
-    makeWindowForContext();
+    glfwSetErrorCallback(error_callback);
+
+    windowForContext = makeWindowForContext();
+    contextMutex.lock();
+    glfwMakeContextCurrent( windowForContext );
 
 	glewExperimental = GL_TRUE;
 	if( glewInit() != GLEW_OK ) {
@@ -448,20 +466,26 @@ MyGL::MyGL() {
         fprintf(stderr, "Exiting.\n");
         exit(1);
 	}
+    glfwMakeContextCurrent( NULL );
+    contextMutex.unlock();
 
     //shaderPrograms.push_back(std::unique_ptr<ShaderProgram>(new ShaderProgram(vertexShaderFileName, fragmentShaderFileName)));
+
     Window* win = new Window(this, 700, 700);
-    windows.push_back(std::unique_ptr<Window>(win));
-    win->update();
+
+    //windows.push_back(win);
+    //win->update();
     
     //mainLoop();
     while(! glfwWindowShouldClose(windowForContext)) {
         glfwWaitEvents();
+        std::lock_guard<std::mutex> lock(contextMutex);
         glfwMakeContextCurrent( windowForContext );
         glClearColor( 0.3f, 0.0f, 0.3f, 1.0f );
         //glfwPollEvents();
         glClear( GL_COLOR_BUFFER_BIT );
         glfwSwapBuffers( windowForContext );
+        glfwMakeContextCurrent( NULL );
     }
 
     glfwTerminate();
@@ -494,10 +518,11 @@ MyGL::~MyGL() {
 
 void MyGL::mainLoop() {
     while(windows.size() > 0) {
-        for(std::list<std::unique_ptr<Window>>::iterator it = windows.begin(); it != windows.end(); ++it) {
+        //for(std::list<Window*>::iterator it = windows.begin(); it != windows.end(); ++it) {
+        for(auto it : windows) {
             /** If the thread has finished then we assume the window do have destructed. We just erase the unique_ptr from the list.*/
-            if(it->get()->t && it->get()->t->timed_join(boost::posix_time::millisec(100))) {
-                it = windows.erase(it);
+            if(it->t && it->t->timed_join(boost::posix_time::millisec(100))) {
+                //it = windows.erase(it);
             }
         }
     }
@@ -514,9 +539,10 @@ void MyGL::genLotsWindows() {
     }
 }
 
-void MyGL::makeWindowForContext() {
+GLFWwindow* MyGL::makeWindowForContext() {
     int width = 1;
     int height = 1;
+
 	glfwWindowHint( GLFW_CONTEXT_VERSION_MAJOR, 3 );
 	glfwWindowHint( GLFW_CONTEXT_VERSION_MINOR, 3 );
 	glfwWindowHint( GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE );
@@ -525,20 +551,26 @@ void MyGL::makeWindowForContext() {
     glfwWindowHint( GLFW_FOCUSED, GL_FALSE );
     glfwWindowHint( GLFW_DECORATED, GL_FALSE );
     glfwWindowHint( GLFW_VISIBLE, GL_FALSE );
-    windowForContext = glfwCreateWindow( width, height, "myGL", NULL, NULL);
-	if ( !windowForContext ) {
+
+    GLFWwindow* win = glfwCreateWindow( width, height, "myGL", NULL, NULL);
+
+	if ( !win ) {
 		glfwTerminate();
-        throw std::runtime_error("GLFW failed to create the window.");
+        throw std::runtime_error("GLFW failed to create the window for hidden context.");
 	}
 
-	glfwMakeContextCurrent( windowForContext );
+    std::lock_guard<std::mutex> lock(contextMutex);
+	glfwMakeContextCurrent( win );
 
     //currentView = new View(this, width, height);
 	glViewport( 0, 0, width, height );
 
     glfwSwapInterval(1);
-    glfwSetInputMode(windowForContext, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+    glfwSetInputMode(win, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
     glClearColor( 0.3f, 0.0f, 0.3f, 1.0f );
     glClear( GL_COLOR_BUFFER_BIT );
-    glfwSwapBuffers( windowForContext );
+    glfwSwapBuffers( win );
+
+	glfwMakeContextCurrent( NULL );
+    return win;
 }
