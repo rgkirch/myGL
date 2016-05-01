@@ -327,6 +327,7 @@ Window::Window(MyGL *parent, int width, int height) {
     this->parentMyGL = parent;
     this->width = width;
     this->height = height;
+    this->t = NULL;
 	glfwWindowHint( GLFW_CONTEXT_VERSION_MAJOR, 3 );
 	glfwWindowHint( GLFW_CONTEXT_VERSION_MINOR, 3 );
 	glfwWindowHint( GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE );
@@ -337,6 +338,7 @@ Window::Window(MyGL *parent, int width, int height) {
 		glfwTerminate();
         throw std::runtime_error("GLFW failed to create the window.");
 	}
+    printf("window created\n");
 
 	glfwMakeContextCurrent( window );
 
@@ -356,22 +358,26 @@ Window::Window(MyGL *parent, int width, int height) {
     glfwSetKeyCallback(window,         glfwInputCallback::key_callback);
     //glfwSetDropCallback(window,      glfwInputCallback::drop_callback);
 
+    //std::function<void(Window&)> fun = &Window::update;
+    //t = new boost::thread(fun, *this);
 }
 
-/** That window is not null and not invalid is an invariant. window gets a value in the constructor and is not modified until destruction.*/
-void Window::update() {
-    glfwMakeContextCurrent( window );
-    glClearColor( 0.3f, 0.0f, 0.3f, 1.0f );
-    glPointSize(10);
-    glLineWidth(10);
-    //glfwPollEvents();
-    glClear( GL_COLOR_BUFFER_BIT );
-    glfwSwapBuffers( window );
+void Window::operator()() {
+    while(! glfwWindowShouldClose(window)) {
+        glfwWaitEvents();
+        glfwMakeContextCurrent( window );
+        glClearColor( 0.3f, 0.0f, 0.3f, 1.0f );
+        glPointSize(10);
+        glLineWidth(10);
+        //glfwPollEvents();
+        glClear( GL_COLOR_BUFFER_BIT );
+        glfwSwapBuffers( window );
+    }
 }
 
 Window::~Window() {
     printf("window destroyed\n");
-    glfwDestroyWindow( window );
+    if(window) glfwDestroyWindow( window );
 }
 
 bool Window::handles(GLFWwindow *window) {
@@ -439,9 +445,11 @@ MyGL::MyGL() {
         exit(1);
 	}
 
-
     //shaderPrograms.push_back(std::unique_ptr<ShaderProgram>(new ShaderProgram(vertexShaderFileName, fragmentShaderFileName)));
     
+    for(std::list<std::unique_ptr<Window>>::iterator it = windows.begin(); it != windows.end(); ++it) {
+        it->get()->t = new boost::thread(*(it->get()));
+    }
     mainLoop();
     //printf( "VENDOR = %s\n", glGetString( GL_VENDOR ) ) ;
     //printf( "RENDERER = %s\n", glGetString( GL_RENDERER ) ) ;
@@ -470,39 +478,22 @@ MyGL::~MyGL() {
 }
 
 void MyGL::mainLoop() {
-    while(windows.size() > 0) {
-        glfwWaitEvents();
-        for(std::list<std::unique_ptr<Window>>::iterator it = windows.begin(); it != windows.end(); ++it) {
-            if(glfwWindowShouldClose(it->get()->window)) {
-                it = windows.erase(it);
-            } else {
-                it->get()->update();
-            }
+    for(std::list<std::unique_ptr<Window>>::iterator it = windows.begin(); it != windows.end(); ++it) {
+        /** If the thread has finished then we assume the window do have destructed. We just erase the unique_ptr from the list.*/
+        if(it->get()->t && it->get()->t->timed_join(boost::posix_time::millisec(100))) {
+            it = windows.erase(it);
         }
     }
     glfwTerminate();
 }
 
-void MyGL::getWindow(GLFWwindow* window) {
-    for(const auto& win : windows) {
-        if(win->handles(window)) {
-            // i don't like this. either change the return type to be unique_ptr (which won't work because cant copy uniptr or do code here where have ref>
-            // possible pass in a function to this function and when find the window, call that windows function...
-        }
-    }
-    throw std::runtime_error("Could not find Window that handles GLFWwindow.");
-}
-
-void MyGL::removeWindow(std::unique_ptr<Window> window) {
-    windows.remove(window);
-}
-
 void MyGL::genLotsWindows() {
     int windowPosition = 0;
     for(int i = 0; i < 20; ++i) {
-        Window *temp = new Window(this, 50, 50);
-        glfwSetWindowPos(temp->window, windowPosition % 1920, (windowPosition / 1920) * 50 % 1080);
-        windows.push_back(std::unique_ptr<Window>(std::move(temp)));
-        windowPosition += 50;
+        //Window *temp = new Window(this, 50, 50);
+        //glfwSetWindowPos(temp->window, windowPosition % 1920, (windowPosition / 1920) * 50 % 1080);
+        //windows.push_back(std::unique_ptr<Window>(temp));
+        //windowPosition += 50;
+        //delete temp;
     }
 }

@@ -7,12 +7,13 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
-#include <iostream>
 #include <fstream>
-#include <sstream>
+#include <functional>
+#include <iostream>
+#include <list>
 #include <math.h>
 #include <queue>
-#include <list>
+#include <sstream>
 #include <stdexcept>
 #include <vector>
 
@@ -173,14 +174,16 @@ public:
  *  The window should be responsible for hiding and disabling the mouse cursor. This needs to happen during a pan of the view for example.*/
 class Window {
 public:
-    Window();
+    typedef void (Window::*threadFunc)(void);
     Window(MyGL *parent, int width, int height);
     ~Window();
     bool handles(GLFWwindow *window);
+    void operator()();
     void update();
     GLFWwindow *window; /** The window class needs to know which GLFWwindow it is taking care of. 1 Window for 1 GLFWwindow*/
     int width;
     int height;
+    boost::thread *t;
     View *currentView;
     std::vector<View*> views;
     MyGL *parentMyGL;
@@ -200,12 +203,11 @@ public:
     MyGL();
     ~MyGL();
     void mainLoop(); /** Calls on all the windows to update themselvs.*/
-    void removeWindow(std::unique_ptr<Window> window);
     void genLotsWindows();
-    void getWindow(GLFWwindow* window);
     Context *currentContext;
     ShaderProgram *currentShaderProgram;
     std::list<std::unique_ptr<Window>> windows;
+    //std::list<std::unique_ptr<Window>> windows;
     std::vector<std::unique_ptr<Context>> contexts;
     std::vector<std::unique_ptr<ShaderProgram>> shaderPrograms;
     std::string vertexShaderFileName {"vertexShader.glsl"};
