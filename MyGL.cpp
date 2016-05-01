@@ -333,6 +333,9 @@ Window::Window(MyGL *parent, int width, int height) {
 	glfwWindowHint( GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE );
 	glfwWindowHint( GLFW_RESIZABLE, GL_FALSE );
     glfwWindowHint( GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE ); /** for mac compatability*/
+    glfwWindowHint( GLFW_FOCUSED, GL_TRUE );
+    glfwWindowHint( GLFW_DECORATED, GL_TRUE );
+    glfwWindowHint( GLFW_VISIBLE, GL_TRUE );
     window = glfwCreateWindow( width, height, "myGL", NULL, NULL);
 	if ( !window ) {
 		glfwTerminate();
@@ -362,7 +365,7 @@ Window::Window(MyGL *parent, int width, int height) {
     //t = new boost::thread(fun, *this);
 }
 
-void Window::operator()() {
+void Window::update() {
     while(! glfwWindowShouldClose(window)) {
         glfwWaitEvents();
         glfwMakeContextCurrent( window );
@@ -373,6 +376,7 @@ void Window::operator()() {
         glClear( GL_COLOR_BUFFER_BIT );
         glfwSwapBuffers( window );
     }
+    glfwDestroyWindow(window);
 }
 
 Window::~Window() {
@@ -446,6 +450,9 @@ MyGL::MyGL() {
 	}
 
     //shaderPrograms.push_back(std::unique_ptr<ShaderProgram>(new ShaderProgram(vertexShaderFileName, fragmentShaderFileName)));
+    Window* win = new Window(this, 700, 700);
+    windows.push_back(std::unique_ptr<Window>(win));
+    win->update();
     
     //mainLoop();
     while(! glfwWindowShouldClose(windowForContext)) {
@@ -458,8 +465,6 @@ MyGL::MyGL() {
     }
 
     glfwTerminate();
-	/** Create a windowed mode window and its OpenGL context */
-    //windows.push_back(std::unique_ptr<Window>(new Window(this, 700, 700)));
 
     //printf( "VENDOR = %s\n", glGetString( GL_VENDOR ) ) ;
     //printf( "RENDERER = %s\n", glGetString( GL_RENDERER ) ) ;
