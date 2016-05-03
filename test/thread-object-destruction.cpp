@@ -22,7 +22,7 @@ public:
                 std::lock_guard<std::mutex> guard(cout);
                 std::cout << "loop" << std::endl;
             }
-            std::this_thread::sleep_for(std::chrono::milliseconds(500));
+            std::this_thread::sleep_for(std::chrono::milliseconds(10));
         }
     }
 };
@@ -35,14 +35,15 @@ void pushBack(C& container) {
 int main() {
     std::list<std::unique_ptr<std::thread>> objectThreads;
     std::unique_lock<std::mutex> guard(cout, std::defer_lock);
-    pushBack(objectThreads);
-    pushBack(objectThreads);
-    for(auto it = objectThreads.begin(), end = objectThreads.end(); it != end;) {
-        guard.lock();
-        std::cout << "joining " << (*it)->get_id() << std::endl;
-        guard.unlock();
-        (*it)->join();
-        it = objectThreads.erase(it);
+    for(int i = 0; i < 2; ++i) {
+        pushBack(objectThreads);
     }
+    for(auto& it : objectThreads) {
+        guard.lock();
+        std::cout << "joining " << it->get_id() << std::endl;
+        guard.unlock();
+        it->join();
+    }
+    objectThreads.clear();
     return 0;
 }
