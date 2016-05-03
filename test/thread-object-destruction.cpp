@@ -27,12 +27,17 @@ public:
     }
 };
 
+template <typename C>
+void pushBack(C& container) {
+    container.push_back(std::unique_ptr<std::thread>(new std::thread([]{std::unique_ptr<Object> p(new Object()); p->loop();})));
+}
+
 int main() {
-    std::list<std::thread*> objectThreads;
+    std::list<std::unique_ptr<std::thread>> objectThreads;
     std::unique_lock<std::mutex> guard(cout, std::defer_lock);
-    objectThreads.push_back(new std::thread([]{std::unique_ptr<Object> p(new Object()); p->loop();}));
-    objectThreads.push_back(new std::thread([]{std::unique_ptr<Object> p(new Object()); p->loop();}));
-    for(std::list<std::thread*>::iterator it = objectThreads.begin(), end = objectThreads.end(); it != end;) {
+    pushBack(objectThreads);
+    pushBack(objectThreads);
+    for(auto it = objectThreads.begin(), end = objectThreads.end(); it != end;) {
         guard.lock();
         std::cout << "joining " << (*it)->get_id() << std::endl;
         guard.unlock();
