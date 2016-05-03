@@ -1,7 +1,7 @@
 # Richard Kirchofer
 CC=g++
 INCLUDE=-I/usr/include -I/usr/local/include -L/usr/local/lib -L/usr/lib
-LINK=-lglfw -lGLEW -lGL -lpng -lboost_system -lboost_filesystem -lboost_thread -lboost_chrono -lboost_date_time
+LINK=-lglfw -lGLEW -lGL -lpng -lboost_system -lboost_filesystem -lboost_thread -lboost_chrono -lboost_date_time -pthread
 
 STD=-std=c++11
 

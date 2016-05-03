@@ -181,11 +181,11 @@ public:
     Window(MyGL *parent, int width, int height);
     ~Window();
     bool handles(GLFWwindow *window);
-    void update();
+    void loop();
     GLFWwindow *window; /** The window class needs to know which GLFWwindow it is taking care of. 1 Window for 1 GLFWwindow*/
     int width;
     int height;
-    boost::thread *t;
+    std::thread *t;
     View *currentView;
     std::vector<View*> views;
     MyGL *parentMyGL;

@@ -370,11 +370,11 @@ Window::Window(MyGL *parent, int width, int height) {
 
 	glfwMakeContextCurrent( NULL ); /* I don't think that all the above calls need the context.*/
 
-    //std::function<void(Window&)> fun = &Window::update;
-    //t = new boost::thread(fun, std::move(*this));
+    std::thread(&Window::loop, this).detach();
 }
 
-void Window::update() {
+void Window::loop() {
+    printf("thread running\n");
     while(! glfwWindowShouldClose(window)) {
         glfwWaitEvents();
         std::lock_guard<std::mutex> lock(contextMutex);
@@ -387,6 +387,7 @@ void Window::update() {
         glfwSwapBuffers( window );
         glfwMakeContextCurrent( NULL );
     }
+    printf("try to destroy window\n");
     glfwDestroyWindow(window);
 }
 
@@ -474,7 +475,7 @@ MyGL::MyGL() {
     Window* win = new Window(this, 700, 700);
 
     //windows.push_back(win);
-    //win->update();
+    //win->loop();
     
     //mainLoop();
     while(! glfwWindowShouldClose(windowForContext)) {
@@ -482,7 +483,6 @@ MyGL::MyGL() {
         std::lock_guard<std::mutex> lock(contextMutex);
         glfwMakeContextCurrent( windowForContext );
         glClearColor( 0.3f, 0.0f, 0.3f, 1.0f );
-        //glfwPollEvents();
         glClear( GL_COLOR_BUFFER_BIT );
         glfwSwapBuffers( windowForContext );
         glfwMakeContextCurrent( NULL );
@@ -521,9 +521,9 @@ void MyGL::mainLoop() {
         //for(std::list<Window*>::iterator it = windows.begin(); it != windows.end(); ++it) {
         for(auto it : windows) {
             /** If the thread has finished then we assume the window do have destructed. We just erase the unique_ptr from the list.*/
-            if(it->t && it->t->timed_join(boost::posix_time::millisec(100))) {
+            //if(it->t && it->t->timed_join(boost::posix_time::millisec(100))) {
                 //it = windows.erase(it);
-            }
+            //}
         }
     }
 }
