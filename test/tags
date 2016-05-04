@@ -1,0 +1,21 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
+!_TAG_PROGRAM_NAME	Exuberant Ctags	//
+!_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
+!_TAG_PROGRAM_VERSION	5.9~svn20110310	//
+AtomicOut	thread-object-sync.cpp	/^AtomicOut::AtomicOut() {$/;"	f	class:AtomicOut
+AtomicOut	thread-object-sync.cpp	/^class AtomicOut {$/;"	c	file:
+Child	thread-object-sync.cpp	/^Child::Child() {$/;"	f	class:Child
+Child	thread-object-sync.cpp	/^class Child {$/;"	c	file:
+Parent	thread-object-sync.cpp	/^Parent::Parent(int num) {$/;"	f	class:Parent
+Parent	thread-object-sync.cpp	/^class Parent {$/;"	c	file:
+children	thread-object-sync.cpp	/^    std::list<std::unique_ptr<std::thread>> children;$/;"	m	class:Parent	file:
+cout	thread-object-sync.cpp	/^std::mutex cout;$/;"	v
+guard	thread-object-sync.cpp	/^    std::unique_lock<std::mutex> guard;$/;"	m	class:Parent	file:
+loop	thread-object-sync.cpp	/^void Child::loop() {$/;"	f	class:Child
+main	thread-object-sync.cpp	/^int main() {$/;"	f
+operator <<	thread-object-sync.cpp	/^AtomicOut& AtomicOut::operator<<(const T& thing) {$/;"	f	class:AtomicOut
+spawn	thread-object-sync.cpp	/^void Parent::spawn() {$/;"	f	class:Parent
+~Child	thread-object-sync.cpp	/^Child::~Child() {$/;"	f	class:Child
+~Parent	thread-object-sync.cpp	/^Parent::~Parent() {$/;"	f	class:Parent
