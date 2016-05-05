@@ -11,7 +11,7 @@
 #include <list>
 #include <queue>
 
-class Child;
+struct Child;
 
 struct Parent {
     void spawn();
