@@ -1,4 +1,6 @@
 #include <iostream>
+#include <limits>
+#include <string>
 #include <unordered_map>
 #include <condition_variable>
 #include <memory>
@@ -22,71 +24,61 @@ struct Parent {
     std::queue<std::thread::id> joinable;
 };
 
-class Child {
-public:
+struct Child {
     Child(Parent *parent);
     ~Child();
     void loop();
     Parent *parent;
 };
 
-int main() {
-    printf("main started\n");
-    int num = 1;
-    printf("construct parent\n");
+int main(int argc, char* argv[]) {
+    int num = 4;
+    if(argc > 1) {
+        num = std::stoi(argv[1], nullptr);
+    }
     std::unique_ptr<Parent> p(new Parent());
     for(int i = 0; i < num; ++i) {
-        printf("spawn child\n");
         p->spawn();
     }
-    printf("call parent loop from main\n");
     p->loop();
-    printf("main finished\n");
     return 0;
 }
 
 Child::Child(Parent *parent) {
-    printf("child constructor\n");
     this->parent = parent;
 }
 
 Child::~Child() {
-    printf("child destructor\n");
     std::unique_lock<std::mutex> lk(parent->joinableMutex);
     parent->joinable.push(std::this_thread::get_id());
-    parent->joinableCV.notify_one();
+    parent->joinableCV.notify_all();
 }
 
 void Child::loop() {
-    std::this_thread::sleep_for(std::chrono::milliseconds(500));
-    printf("child work\n");
+    printf("child sleep\t%lu \n", std::hash<std::thread::id>()(std::this_thread::get_id())%100);
+    std::this_thread::sleep_for(std::chrono::seconds(rand()/RAND_MAX));
+    printf("child wake\t%lu \n", std::hash<std::thread::id>()(std::this_thread::get_id())%100);
 }
 
 void Parent::spawn() {
-    std::thread::id id;
     std::unique_ptr<std::thread> tptr(new std::thread(
         [&] {
-            id = std::this_thread::get_id();
             std::unique_ptr<Child> p(new Child(this));
             p->loop();
         }
     ));
-    children.insert(std::make_pair(std::move(id), std::move(tptr)));
+    children.insert(std::make_pair(tptr->get_id(), std::move(tptr)));
     numChildren++;
 }
 
 void Parent::loop() {
-    printf("start parent loop\n");
-    printf("lock \n");
-    std::unique_lock<std::mutex> lk(joinableMutex);
     while(numChildren > 0) {
+        std::unique_lock<std::mutex> lk(joinableMutex);
         joinableCV.wait(lk, [&] {return !this->joinable.empty();});
         while(!joinable.empty()) {
-            printf("join child\n");
+            printf("join child\t%lu\n", std::hash<std::thread::id>()(children[joinable.front()]->get_id())%100);
             children[joinable.front()]->join();
-            printf("erase child\n");
             children.erase(joinable.front());
-            printf("pop front of joinable\n");
             joinable.pop();
             --numChildren;
         }
