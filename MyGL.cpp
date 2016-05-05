@@ -4,6 +4,10 @@ std::mutex contextMutex;
 
 typedef void (Shape::*renderFunc)();
 
+void monitor_callback(GLFWmonitor *monitor, int x) {
+    glfwTerminate();
+}
+
 static void error_callback(int error, const char* description) {
     fprintf(stderr, "Error %d: %s\n", error, description);
 }
@@ -458,7 +462,7 @@ MyGL::MyGL() {
     glfwSetErrorCallback(error_callback);
 
     windowForContext = makeWindowForContext();
-    contextMutex.lock();
+    std::unique_lock<std::mutex> contextLock(contextMutex);
     glfwMakeContextCurrent( windowForContext );
 
 	glewExperimental = GL_TRUE;
@@ -468,25 +472,12 @@ MyGL::MyGL() {
         exit(1);
 	}
     glfwMakeContextCurrent( NULL );
-    contextMutex.unlock();
+    contextLock.unlock();
+
+    glfwSetMonitorCallback(monitor_callback);
 
     //shaderPrograms.push_back(std::unique_ptr<ShaderProgram>(new ShaderProgram(vertexShaderFileName, fragmentShaderFileName)));
-
-    Window* win = new Window(this, 700, 700);
-
-    //windows.push_back(win);
-    //win->loop();
-    
-    //mainLoop();
-    while(! glfwWindowShouldClose(windowForContext)) {
-        glfwWaitEvents();
-        std::lock_guard<std::mutex> lock(contextMutex);
-        glfwMakeContextCurrent( windowForContext );
-        glClearColor( 0.3f, 0.0f, 0.3f, 1.0f );
-        glClear( GL_COLOR_BUFFER_BIT );
-        glfwSwapBuffers( windowForContext );
-        glfwMakeContextCurrent( NULL );
-    }
+    snakeGame();
 
     glfwTerminate();
 
@@ -573,4 +564,26 @@ GLFWwindow* MyGL::makeWindowForContext() {
 
 	glfwMakeContextCurrent( NULL );
     return win;
+}
+
+void MyGL::snakeGame() {
+    int numberOfMonitors = 0;
+    GLFWmonitor** monitors = glfwGetMonitors(&numberOfMonitors);
+    int widthMM = 0;
+    int heightMM = 0;
+    for(int i = 0; i < numberOfMonitors; ++i) {
+        glfwGetMonitorPhysicalSize(monitors[i], &widthMM, &heightMM);
+        std::cout << "monitor " << i << " is " << widthMM << "mm wide and " << heightMM << "mm tall" << std::endl;
+    }
+    /*
+    while(! glfwWindowShouldClose(windowForContext)) {
+        glfwWaitEvents();
+        std::lock_guard<std::mutex> lock(contextMutex);
+        glfwMakeContextCurrent( windowForContext );
+        glClearColor( 0.3f, 0.0f, 0.3f, 1.0f );
+        glClear( GL_COLOR_BUFFER_BIT );
+        glfwSwapBuffers( windowForContext );
+        glfwMakeContextCurrent( NULL );
+    }
+    */
 }

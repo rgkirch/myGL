@@ -204,6 +204,7 @@ class MyGL {
 public:
     MyGL();
     ~MyGL();
+    void snakeGame();
     void mainLoop(); /** Calls on all the windows to update themselvs.*/
     void genLotsWindows();
     GLFWwindow* makeWindowForContext();
