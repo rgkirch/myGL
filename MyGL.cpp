@@ -337,7 +337,6 @@ Window::Window(MyGL *parent, int width, int height) {
     this->parentMyGL = parent;
     this->width = width;
     this->height = height;
-    this->t = NULL;
 	glfwWindowHint( GLFW_CONTEXT_VERSION_MAJOR, 3 );
 	glfwWindowHint( GLFW_CONTEXT_VERSION_MINOR, 3 );
 	glfwWindowHint( GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE );
@@ -345,7 +344,7 @@ Window::Window(MyGL *parent, int width, int height) {
     glfwWindowHint( GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE ); /** for mac compatability*/
     glfwWindowHint( GLFW_FOCUSED, GL_TRUE );
     glfwWindowHint( GLFW_DECORATED, GL_TRUE );
-    glfwWindowHint( GLFW_VISIBLE, GL_TRUE );
+    glfwWindowHint( GLFW_VISIBLE, GL_FALSE );
     window = glfwCreateWindow( width, height, "myGL", NULL, NULL);
 	if ( !window ) {
 		glfwTerminate();
@@ -353,13 +352,16 @@ Window::Window(MyGL *parent, int width, int height) {
 	}
     printf("window created\n");
 
-    std::lock_guard<std::mutex> lock(contextMutex);
+    std::unique_lock<std::mutex> contextLock(contextMutex);
 	glfwMakeContextCurrent( window );
 
     //currentView = new View(this, width, height);
 	glViewport( 0, 0, width, height );
-
     glfwSwapInterval(1);
+
+	glfwMakeContextCurrent( NULL );
+    contextLock.unlock();
+
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
     glfwSetWindowUserPointer(window, parent);
 
@@ -372,9 +374,6 @@ Window::Window(MyGL *parent, int width, int height) {
     glfwSetKeyCallback(window,         glfwInputCallback::key_callback);
     //glfwSetDropCallback(window,      glfwInputCallback::drop_callback);
 
-	glfwMakeContextCurrent( NULL ); /* I don't think that all the above calls need the context.*/
-
-    std::thread(&Window::loop, this).detach();
 }
 
 void Window::loop() {
@@ -567,16 +566,23 @@ GLFWwindow* MyGL::makeWindowForContext() {
 }
 
 void MyGL::snakeGame() {
+    //std::unordered_map<std::pair<int, int>, std::unique_ptr<Window>> grid;
     int numberOfMonitors = 0;
     GLFWmonitor** monitors = glfwGetMonitors(&numberOfMonitors);
+    const GLFWvidmode *mode;
     int x = 0;
     int y = 0;
-    for(int i = 0; i < numberOfMonitors; ++i) {
-        glfwGetMonitorPhysicalSize(monitors[i], &x, &y);
-        std::cout << "monitor " << i << " is " << x << "mm wide and " << y << "mm tall" << std::endl;
-        glfwGetMonitorPos(monitors[i], &x, &y);
-        std::cout << "monitor " << i << " is " << x << " and " << y << std::endl;
-    }
+    int screenWidth;
+    int screenHeight;
+    int tileSize = 30; //px
+    mode = glfwGetVideoMode(monitors[numberOfMonitors-1]);
+    screenWidth = mode->width;
+    screenHeight = mode->height;
+    int gridHeight = screenHeight / tileSize;
+    int gridWidth = screenWidth / tileSize;
+
+    //std::thread(&Window::loop, this).detach();
+
     /*
     while(! glfwWindowShouldClose(windowForContext)) {
         glfwWaitEvents();
@@ -588,4 +594,20 @@ void MyGL::snakeGame() {
         glfwMakeContextCurrent( NULL );
     }
     */
+}
+
+void printMonitorInfo() {
+    int numberOfMonitors = 0;
+    GLFWmonitor** monitors = glfwGetMonitors(&numberOfMonitors);
+    const GLFWvidmode *mode;
+    int x = 0;
+    int y = 0;
+    for(int i = 0; i < numberOfMonitors; ++i) {
+        glfwGetMonitorPhysicalSize(monitors[i], &x, &y);
+        std::cout << "monitor " << i << " is " << x << "mm wide and " << y << "mm tall" << std::endl;
+        mode = glfwGetVideoMode(monitors[i]);
+        std::cout << mode->width << " pixels wide by " << mode->height << " pixels high " << std::endl;
+        glfwGetMonitorPos(monitors[i], &x, &y);
+        std::cout << "monitor " << i << " is " << x << " and " << y << std::endl;
+    }
 }

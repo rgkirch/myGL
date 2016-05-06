@@ -5,6 +5,7 @@
 #include <GLFW/glfw3.h>
 
 #include <cstdio>
+#include <unordered_map>
 #include <cstdlib>
 #include <cstring>
 #include <fstream>
@@ -185,7 +186,7 @@ public:
     GLFWwindow *window; /** The window class needs to know which GLFWwindow it is taking care of. 1 Window for 1 GLFWwindow*/
     int width;
     int height;
-    std::thread *t;
+    std::unique_ptr<std::thread> t;
     View *currentView;
     std::vector<View*> views;
     MyGL *parentMyGL;
