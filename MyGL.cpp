@@ -1,6 +1,7 @@
 #include "MyGL.hpp"
 
 std::mutex contextMutex;
+std::mutex glfwMutex;
 
 typedef void (Shape::*renderFunc)();
 
@@ -171,7 +172,6 @@ void PNG::writePNG(char imageName[], unsigned char *data, int width, int height)
     png_image_free(&image);
 }
 
-/** A Window*/
 View::View(Window *window, int width, int height) {
     parentWindow = window;
     this->width = width;
@@ -569,11 +569,13 @@ GLFWwindow* MyGL::makeWindowForContext() {
 void MyGL::snakeGame() {
     int numberOfMonitors = 0;
     GLFWmonitor** monitors = glfwGetMonitors(&numberOfMonitors);
-    int widthMM = 0;
-    int heightMM = 0;
+    int x = 0;
+    int y = 0;
     for(int i = 0; i < numberOfMonitors; ++i) {
-        glfwGetMonitorPhysicalSize(monitors[i], &widthMM, &heightMM);
-        std::cout << "monitor " << i << " is " << widthMM << "mm wide and " << heightMM << "mm tall" << std::endl;
+        glfwGetMonitorPhysicalSize(monitors[i], &x, &y);
+        std::cout << "monitor " << i << " is " << x << "mm wide and " << y << "mm tall" << std::endl;
+        glfwGetMonitorPos(monitors[i], &x, &y);
+        std::cout << "monitor " << i << " is " << x << " and " << y << std::endl;
     }
     /*
     while(! glfwWindowShouldClose(windowForContext)) {

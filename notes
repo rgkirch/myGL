@@ -1,2 +1,8 @@
 when you create a new shader program object it should find the location of all of the uniforms and save them
     i guess this means that there is a kind of ShaderProgram that hass the basic stuff (minimal that i use) and a TexturedShaderProgram (that inheriets from) ShaderProgram that has the stuff of textures
+
+thread safety
+    all calls to glfw need to be protected with a semaphore
+    some functions may be called from any thread such as glfwMakeContextCurrent
+    some functions may only be called my the main thread such as the creation and destruction of windows, contexts, and cursors
+    event processing may only be done by the main thread
