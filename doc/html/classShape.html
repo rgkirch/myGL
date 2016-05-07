@@ -85,175 +85,37 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
   <div class="summary">
 <a href="#pub-types">Public Types</a> &#124;
 <a href="#pub-methods">Public Member Functions</a> &#124;
-<a href="#pub-attribs">Public Attributes</a> &#124;
 <a href="classShape-members.html">List of all members</a>  </div>
   <div class="headertitle">
-<div class="title">Shape Class Reference<span class="mlabels"><span class="mlabel">abstract</span></span></div>  </div>
+<div class="title">Shape Class Reference</div>  </div>
 </div><!--header-->
 <div class="contents">
 
-<p><code>#include &lt;<a class="el" href="myGL_8hpp_source.html">myGL.hpp</a>&gt;</code></p>
-<div class="dynheader">
-Inheritance diagram for Shape:</div>
-<div class="dyncontent">
-<div class="center"><img src="classShape__inherit__graph.png" border="0" usemap="#Shape_inherit__map" alt="Inheritance graph"/></div>
-<map name="Shape_inherit__map" id="Shape_inherit__map">
-<area shape="rect" id="node2" href="classLine.html" title="Line" alt="" coords="5,80,52,107"/><area shape="rect" id="node3" href="classRectangle.html" title="Rectangle" alt="" coords="76,80,157,107"/></map>
-<center><span class="legend">[<a href="graph_legend.html">legend</a>]</span></center></div>
+<p><code>#include &lt;<a class="el" href="MyGL_8hpp_source.html">MyGL.hpp</a>&gt;</code></p>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-types"></a>
 Public Types</h2></td></tr>
-<tr class="memitem:ab0227d9b119beea793bce34ba3e0b5b8"><td class="memItemLeft" align="right" valign="top">typedef void(Shape::*&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classShape.html#ab0227d9b119beea793bce34ba3e0b5b8">renderFunc</a>) (void)</td></tr>
+<tr class="memitem:ab0227d9b119beea793bce34ba3e0b5b8"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ab0227d9b119beea793bce34ba3e0b5b8"></a>
+typedef void(Shape::*&#160;</td><td class="memItemRight" valign="bottom"><b>renderFunc</b>) (void)</td></tr>
 <tr class="separator:ab0227d9b119beea793bce34ba3e0b5b8"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:a0961d7281bca29285d6612b75bb157d9"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a0961d7281bca29285d6612b75bb157d9"></a>
-virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>cursorMovement</b> (<a class="el" href="classCursorMovement.html">CursorMovement</a>)=0</td></tr>
-<tr class="separator:a0961d7281bca29285d6612b75bb157d9"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a32cbd03b3856b47df4130bfe8146845b"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a32cbd03b3856b47df4130bfe8146845b"></a>
-virtual int&#160;</td><td class="memItemRight" valign="bottom"><b>dataLength</b> ()=0</td></tr>
-<tr class="separator:a32cbd03b3856b47df4130bfe8146845b"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a0a6013295cf3ca8f46616071fd758343"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a0a6013295cf3ca8f46616071fd758343"></a>
-virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>prepareTheData</b> ()=0</td></tr>
-<tr class="separator:a0a6013295cf3ca8f46616071fd758343"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a3651abfa2b1d449f35c83b3dc64f64f2"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classShape.html#a3651abfa2b1d449f35c83b3dc64f64f2">finish</a> ()</td></tr>
+<tr class="memitem:a1b3bc50a2d114a27f144a834e7f0af64"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a1b3bc50a2d114a27f144a834e7f0af64"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>Shape</b> (float x, float y)</td></tr>
+<tr class="separator:a1b3bc50a2d114a27f144a834e7f0af64"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0098f3d6067b650de0b5e34f44a9257f"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a0098f3d6067b650de0b5e34f44a9257f"></a>
+int&#160;</td><td class="memItemRight" valign="bottom"><b>dataLength</b> ()</td></tr>
+<tr class="separator:a0098f3d6067b650de0b5e34f44a9257f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3651abfa2b1d449f35c83b3dc64f64f2"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a3651abfa2b1d449f35c83b3dc64f64f2"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>finish</b> ()</td></tr>
 <tr class="separator:a3651abfa2b1d449f35c83b3dc64f64f2"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a54656be292bf729d6ea90b06f5c7960e"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classShape.html#a54656be292bf729d6ea90b06f5c7960e">frameRender</a> ()</td></tr>
-<tr class="separator:a54656be292bf729d6ea90b06f5c7960e"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a00ca157cc139d7ba9259ba3e2967c908"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classShape.html#a00ca157cc139d7ba9259ba3e2967c908">finalRender</a> ()</td></tr>
-<tr class="separator:a00ca157cc139d7ba9259ba3e2967c908"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a4802e77733cb6d47f7eb69fcb4fdf089"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classShape.html#a4802e77733cb6d47f7eb69fcb4fdf089">genAndBindBufferAndVao</a> ()</td></tr>
-<tr class="separator:a4802e77733cb6d47f7eb69fcb4fdf089"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a3a78a69fcfd3a2bc9f80ad5a00fdf669"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classShape.html#a3a78a69fcfd3a2bc9f80ad5a00fdf669">unbindBufferAndVao</a> ()</td></tr>
-<tr class="separator:a3a78a69fcfd3a2bc9f80ad5a00fdf669"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aff33547fafee1a528cdee387c0fb54aa"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classShape.html#aff33547fafee1a528cdee387c0fb54aa">bindBufferAndVao</a> ()</td></tr>
-<tr class="separator:aff33547fafee1a528cdee387c0fb54aa"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ad62ee6dbad795d967e2f572f6e4e27fb"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classShape.html#ad62ee6dbad795d967e2f572f6e4e27fb">render</a> ()</td></tr>
 <tr class="separator:ad62ee6dbad795d967e2f572f6e4e27fb"><td class="memSeparator" colspan="2">&#160;</td></tr>
-</table><table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-attribs"></a>
-Public Attributes</h2></td></tr>
-<tr class="memitem:a016f40915d3586c308b3e8fdfb9d9bc5"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a016f40915d3586c308b3e8fdfb9d9bc5"></a>
-<a class="el" href="classShape.html#ab0227d9b119beea793bce34ba3e0b5b8">renderFunc</a>&#160;</td><td class="memItemRight" valign="bottom"><b>renderPtr</b></td></tr>
-<tr class="separator:a016f40915d3586c308b3e8fdfb9d9bc5"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad766ebc1fafeb7f6c76d37ccfed88be4"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classShape.html#ad766ebc1fafeb7f6c76d37ccfed88be4">finished</a></td></tr>
-<tr class="separator:ad766ebc1fafeb7f6c76d37ccfed88be4"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a9772bed5d7baa4d326238e0abdc9d902"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a9772bed5d7baa4d326238e0abdc9d902"></a>
-GLuint&#160;</td><td class="memItemRight" valign="bottom"><b>vbo</b></td></tr>
-<tr class="separator:a9772bed5d7baa4d326238e0abdc9d902"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ab0690d5f4e6d3de615e90002bc3913c7"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ab0690d5f4e6d3de615e90002bc3913c7"></a>
-GLuint&#160;</td><td class="memItemRight" valign="bottom"><b>vao</b></td></tr>
-<tr class="separator:ab0690d5f4e6d3de615e90002bc3913c7"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad05ed5f7c01b7d0ee1b8e5a5400aa2b7"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ad05ed5f7c01b7d0ee1b8e5a5400aa2b7"></a>
-GLenum&#160;</td><td class="memItemRight" valign="bottom"><b>primitiveType</b></td></tr>
-<tr class="separator:ad05ed5f7c01b7d0ee1b8e5a5400aa2b7"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a9203986d2f0e566c7cf66be7478eca59"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a9203986d2f0e566c7cf66be7478eca59"></a>
-GLenum&#160;</td><td class="memItemRight" valign="bottom"><b>bufferUsage</b></td></tr>
-<tr class="separator:a9203986d2f0e566c7cf66be7478eca59"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ae5913f51b7905a468357f5e675a6f4fd"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ae5913f51b7905a468357f5e675a6f4fd"></a>
-GLuint&#160;</td><td class="memItemRight" valign="bottom"><b>shader</b></td></tr>
-<tr class="separator:ae5913f51b7905a468357f5e675a6f4fd"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a540c062d8d9719147efb7723ce0ceeea"><td class="memItemLeft" align="right" valign="top">std::vector&lt; float &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classShape.html#a540c062d8d9719147efb7723ce0ceeea">data</a></td></tr>
-<tr class="separator:a540c062d8d9719147efb7723ce0ceeea"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>The <a class="el" href="classShape.html">Shape</a> class allows a very nice vector&lt;Shape*&gt; in <a class="el" href="classContext.html">Context</a>. The common stuff for rendering goes here. </p>
-</div><h2 class="groupheader">Member Typedef Documentation</h2>
-<a class="anchor" id="ab0227d9b119beea793bce34ba3e0b5b8"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">typedef void(Shape::* Shape::renderFunc) (void)</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-<p><a class="el" href="classContext.html">Context</a>'s render renders all shapes in vector&lt;Shape*&gt; and <a class="el" href="classShape.html#ad62ee6dbad795d967e2f572f6e4e27fb">Shape::render</a> calls whatever renderPtr points to </p>
-
-</div>
-</div>
-<h2 class="groupheader">Member Function Documentation</h2>
-<a class="anchor" id="aff33547fafee1a528cdee387c0fb54aa"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">void Shape::bindBufferAndVao </td>
-          <td>(</td>
-          <td class="paramname"></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-<p>dissables vertex attrib arrays and unbinds vbo and vao </p>
-
-</div>
-</div>
-<a class="anchor" id="a00ca157cc139d7ba9259ba3e2967c908"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">void Shape::finalRender </td>
-          <td>(</td>
-          <td class="paramname"></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-<p>gens buffers and cleans them up afterwards, leaves nothing bound, used for shapes that are in progress </p>
-
-</div>
-</div>
-<a class="anchor" id="a3651abfa2b1d449f35c83b3dc64f64f2"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">void Shape::finish </td>
-          <td>(</td>
-          <td class="paramname"></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-<p>e.g. allows a rectangle to fill 'vector&lt;float&gt; data' from startXYendXY before the buffers are made </p>
-
-</div>
-</div>
-<a class="anchor" id="a54656be292bf729d6ea90b06f5c7960e"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">void Shape::frameRender </td>
-          <td>(</td>
-          <td class="paramname"></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-<p>prep the data, gen the buffers, and make 'renderPtr' point to 'finalRender' called before pushing the current shape onto context's vector&lt;Shape*&gt; </p>
-
-</div>
-</div>
-<a class="anchor" id="a4802e77733cb6d47f7eb69fcb4fdf089"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">void Shape::genAndBindBufferAndVao </td>
-          <td>(</td>
-          <td class="paramname"></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-<p>bind, draw, and unbind; assumes that the correct buffers are already generated </p>
-
-</div>
-</div>
+</div><h2 class="groupheader">Member Function Documentation</h2>
 <a class="anchor" id="ad62ee6dbad795d967e2f572f6e4e27fb"></a>
 <div class="memitem">
 <div class="memproto">
@@ -266,56 +128,13 @@ GLuint&#160;</td><td class="memItemRight" valign="bottom"><b>shader</b></td></tr
         </tr>
       </table>
 </div><div class="memdoc">
-<p>binds vao and vbo and enables attrib arrays </p>
-
-</div>
-</div>
-<a class="anchor" id="a3a78a69fcfd3a2bc9f80ad5a00fdf669"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">void Shape::unbindBufferAndVao </td>
-          <td>(</td>
-          <td class="paramname"></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-<p>gens, binds, and leaves them bound </p>
-
-</div>
-</div>
-<h2 class="groupheader">Member Data Documentation</h2>
-<a class="anchor" id="a540c062d8d9719147efb7723ce0ceeea"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">std::vector&lt;float&gt; Shape::data</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-<p>it's a handle for a shader program (vertex and fragment, compiled and liked) don't let the name confuse you. Every shape knows what shader it should be rendered with. e.g. Lines probably won't be rendered by a shader with a texture. </p>
-
-</div>
-</div>
-<a class="anchor" id="ad766ebc1fafeb7f6c76d37ccfed88be4"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">bool Shape::finished</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-<p>points to either frameRender or finalRender </p>
+<p>prep the data, gen the buffers, and make 'renderPtr' point to 'finalRender' called before pushing the current shape onto context's vector&lt;Shape*&gt; </p>
 
 </div>
 </div>
 <hr/>The documentation for this class was generated from the following files:<ul>
-<li><a class="el" href="myGL_8hpp_source.html">myGL.hpp</a></li>
-<li>context.cpp</li>
+<li><a class="el" href="MyGL_8hpp_source.html">MyGL.hpp</a></li>
+<li>MyGL.cpp</li>
 </ul>
 </div><!-- contents -->
 <!-- start footer part -->

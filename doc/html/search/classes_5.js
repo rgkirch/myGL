@@ -1,5 +1,4 @@
 var searchData=
 [
-  ['mousebutton',['MouseButton',['../classMouseButton.html',1,'']]],
-  ['mygl',['MyGL',['../classMyGL.html',1,'']]]
+  ['png',['PNG',['../classPNG.html',1,'']]]
 ];

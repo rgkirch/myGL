@@ -1,4 +1,6 @@
 <map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
-<area shape="rect" id="node1" href="$classContext.html" title="Context" alt="" coords="5,5,73,32"/>
-<area shape="rect" id="node2" href="$classComposer.html" title="Composer" alt="" coords="121,5,204,32"/>
+<area shape="rect" id="node1" href="$classInput.html" title="Input" alt="" coords="5,56,56,83"/>
+<area shape="rect" id="node2" href="$classCursorMovement.html" title="CursorMovement" alt="" coords="104,5,227,32"/>
+<area shape="rect" id="node3" href="$classKey.html" title="Key" alt="" coords="143,56,188,83"/>
+<area shape="rect" id="node4" href="$classMouseButton.html" title="MouseButton" alt="" coords="116,107,215,133"/>
 </map>

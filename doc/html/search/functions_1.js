@@ -1,6 +1,6 @@
 var searchData=
 [
-  ['finalrender',['finalRender',['../classShape.html#a00ca157cc139d7ba9259ba3e2967c908',1,'Shape']]],
-  ['finish',['finish',['../classShape.html#a3651abfa2b1d449f35c83b3dc64f64f2',1,'Shape']]],
-  ['framerender',['frameRender',['../classShape.html#a54656be292bf729d6ea90b06f5c7960e',1,'Shape']]]
+  ['mainloop',['mainLoop',['../classMyGL.html#a4c37ec888e514cc8d06b7bc0ea7e73bd',1,'MyGL']]],
+  ['makewindowforcontext',['makeWindowForContext',['../classMyGL.html#a9f2cc53d2c05eceb1d433bb0b19d9db8',1,'MyGL']]],
+  ['mygl',['MyGL',['../classMyGL.html#abb621dca31a152540b416deadf23037c',1,'MyGL']]]
 ];

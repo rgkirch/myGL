@@ -91,11 +91,17 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="title">ShaderProgram Class Reference</div>  </div>
 </div><!--header-->
 <div class="contents">
+<div class="dynheader">
+Inheritance diagram for ShaderProgram:</div>
+<div class="dyncontent">
+<div class="center"><img src="classShaderProgram__inherit__graph.png" border="0" usemap="#ShaderProgram_inherit__map" alt="Inheritance graph"/></div>
+<map name="ShaderProgram_inherit__map" id="ShaderProgram_inherit__map">
+<area shape="rect" id="node2" href="classShaderTextured.html" title="ShaderTextured" alt="" coords="5,80,120,107"/></map>
+<center><span class="legend">[<a href="graph_legend.html">legend</a>]</span></center></div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:a1ebd997652d664bb4cfad4327dfc0ebf"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a1ebd997652d664bb4cfad4327dfc0ebf"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>ShaderProgram</b> (std::string vertexShaderFileName, std::string fragmentShaderFileName)</td></tr>
+<tr class="memitem:a1ebd997652d664bb4cfad4327dfc0ebf"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classShaderProgram.html#a1ebd997652d664bb4cfad4327dfc0ebf">ShaderProgram</a> (std::string vertexShaderFileName, std::string fragmentShaderFileName)</td></tr>
 <tr class="separator:a1ebd997652d664bb4cfad4327dfc0ebf"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a266426e0200266b6776e8a5a8b1506b0"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a266426e0200266b6776e8a5a8b1506b0"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>checkShaderStepSuccess</b> (GLuint shader, GLuint status)</td></tr>
@@ -103,9 +109,6 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>checkShaderStepSucces
 <tr class="memitem:ab9aaa0cdb43bd9de8a370e2869354a8a"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ab9aaa0cdb43bd9de8a370e2869354a8a"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>printShaderLog</b> (char *errorMessage, GLuint shader)</td></tr>
 <tr class="separator:ab9aaa0cdb43bd9de8a370e2869354a8a"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac1a9ea8318b9ad795b93f2d5e1d4aae2"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ac1a9ea8318b9ad795b93f2d5e1d4aae2"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>getUniforms</b> ()</td></tr>
-<tr class="separator:ac1a9ea8318b9ad795b93f2d5e1d4aae2"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a190a33eec6ed3138a6d94a7305a9e831"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a190a33eec6ed3138a6d94a7305a9e831"></a>
 GLuint&#160;</td><td class="memItemRight" valign="bottom"><b>id</b> ()</td></tr>
 <tr class="separator:a190a33eec6ed3138a6d94a7305a9e831"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -140,9 +143,37 @@ GLint&#160;</td><td class="memItemRight" valign="bottom"><b>screenWidth</b></td>
 GLint&#160;</td><td class="memItemRight" valign="bottom"><b>screenHeight</b></td></tr>
 <tr class="separator:adf3cf91290d9ccdc9a07a88dffaf8bcb"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
+<h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
+<a class="anchor" id="a1ebd997652d664bb4cfad4327dfc0ebf"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">ShaderProgram::ShaderProgram </td>
+          <td>(</td>
+          <td class="paramtype">std::string&#160;</td>
+          <td class="paramname"><em>vertexShaderFileName</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">std::string&#160;</td>
+          <td class="paramname"><em>fragmentShaderFileName</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Reads in a couple text files, compiles and links stuff and makes a shader program. Calls glUseProgram at the end and then needs to set up the uniforms. </p>
+
+</div>
+</div>
 <hr/>The documentation for this class was generated from the following files:<ul>
-<li><a class="el" href="myGL_8hpp_source.html">myGL.hpp</a></li>
-<li>context.cpp</li>
+<li><a class="el" href="MyGL_8hpp_source.html">MyGL.hpp</a></li>
+<li>MyGL.cpp</li>
 </ul>
 </div><!-- contents -->
 <!-- start footer part -->

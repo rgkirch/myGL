@@ -83,6 +83,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 </div><!-- top -->
 <div class="header">
   <div class="summary">
+<a href="#pub-types">Public Types</a> &#124;
 <a href="#pub-methods">Public Member Functions</a> &#124;
 <a href="#pub-attribs">Public Attributes</a> &#124;
 <a href="classWindow-members.html">List of all members</a>  </div>
@@ -90,69 +91,84 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="title">Window Class Reference</div>  </div>
 </div><!--header-->
 <div class="contents">
+
+<p><code>#include &lt;<a class="el" href="MyGL_8hpp_source.html">MyGL.hpp</a>&gt;</code></p>
 <div class="dynheader">
 Collaboration diagram for Window:</div>
 <div class="dyncontent">
 <div class="center"><img src="classWindow__coll__graph.png" border="0" usemap="#Window_coll__map" alt="Collaboration graph"/></div>
 <map name="Window_coll__map" id="Window_coll__map">
-<area shape="rect" id="node2" href="classView.html" title="View" alt="" coords="15,5,65,32"/></map>
+<area shape="rect" id="node2" href="classView.html" title="View" alt="" coords="119,363,169,389"/><area shape="rect" id="node3" href="classMyGL.html" title="MyGL" alt="" coords="115,184,173,211"/><area shape="rect" id="node4" href="classShaderProgram.html" title="ShaderProgram" alt="" coords="5,95,117,121"/><area shape="rect" id="node5" href="classContext.html" title="Context" alt="" coords="193,95,261,121"/><area shape="rect" id="node6" href="classShape.html" title="Shape" alt="" coords="197,5,256,32"/></map>
 <center><span class="legend">[<a href="graph_legend.html">legend</a>]</span></center></div>
 <table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-types"></a>
+Public Types</h2></td></tr>
+<tr class="memitem:a1f4045bbf092073ad31043127af5e27d"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a1f4045bbf092073ad31043127af5e27d"></a>
+typedef void(Window::*&#160;</td><td class="memItemRight" valign="bottom"><b>threadFunc</b>) (void)</td></tr>
+<tr class="separator:a1f4045bbf092073ad31043127af5e27d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:a486004a00e3c0b27dcf2834a10c4f365"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classWindow.html#a486004a00e3c0b27dcf2834a10c4f365">Window</a> (int width, int height)</td></tr>
-<tr class="separator:a486004a00e3c0b27dcf2834a10c4f365"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a2e3c05738585d2cf2f31296cb62aee65"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a2e3c05738585d2cf2f31296cb62aee65"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>cursor_position_callback</b> (GLFWwindow *window, double xpos, double ypos)</td></tr>
-<tr class="separator:a2e3c05738585d2cf2f31296cb62aee65"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad8c5512dd0fa97c97dc0439b86db10c4"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ad8c5512dd0fa97c97dc0439b86db10c4"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>mouse_button_callback</b> (GLFWwindow *window, int button, int action, int mods)</td></tr>
-<tr class="separator:ad8c5512dd0fa97c97dc0439b86db10c4"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a019c0a350d97b8088ac1cd03de610738"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a019c0a350d97b8088ac1cd03de610738"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>scroll_callback</b> (GLFWwindow *window, double xoffset, double yoffset)</td></tr>
-<tr class="separator:a019c0a350d97b8088ac1cd03de610738"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a8844f728ca893a593de1ead282cf90bb"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a8844f728ca893a593de1ead282cf90bb"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>window_resize_callback</b> (GLFWwindow *window, int width, int height)</td></tr>
-<tr class="separator:a8844f728ca893a593de1ead282cf90bb"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a2bbacf729c09798d13b71e1fb06750be"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a2bbacf729c09798d13b71e1fb06750be"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>window_move_callback</b> (GLFWwindow *window, int x, int y)</td></tr>
-<tr class="separator:a2bbacf729c09798d13b71e1fb06750be"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a183e54620c91966a3ff4d96a036a9b03"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a183e54620c91966a3ff4d96a036a9b03"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>key_callback</b> (GLFWwindow *window, int key, int scancode, int action, int mods)</td></tr>
-<tr class="separator:a183e54620c91966a3ff4d96a036a9b03"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a5dc69750a9bec10b2ae89896c5257a49"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a5dc69750a9bec10b2ae89896c5257a49"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>drop_callback</b> (GLFWwindow *window, int count, const char **paths)</td></tr>
-<tr class="separator:a5dc69750a9bec10b2ae89896c5257a49"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a176bd800aba0a1a165de1558ace03ac4"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a176bd800aba0a1a165de1558ace03ac4"></a>
-double&#160;</td><td class="memItemRight" valign="bottom"><b>pixelToRealX</b> (double px)</td></tr>
-<tr class="separator:a176bd800aba0a1a165de1558ace03ac4"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a7eb2f7ae97fcb16c98b6d8f42a52982a"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a7eb2f7ae97fcb16c98b6d8f42a52982a"></a>
-double&#160;</td><td class="memItemRight" valign="bottom"><b>pixelToRealY</b> (double py)</td></tr>
-<tr class="separator:a7eb2f7ae97fcb16c98b6d8f42a52982a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5996bf7ae672cc3e084d323e4163e4e3"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classWindow.html#a5996bf7ae672cc3e084d323e4163e4e3">Window</a> (<a class="el" href="classMyGL.html">MyGL</a> *parent, int <a class="el" href="classWindow.html#af5b1c436782cc9752d386493fbc5dc8c">width</a>, int height, const <a class="el" href="structWindowHints.html">WindowHints</a> &amp;wh)</td></tr>
+<tr class="separator:a5996bf7ae672cc3e084d323e4163e4e3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aad13ee91d93d4033a6e6a8c9cb4ac71f"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aad13ee91d93d4033a6e6a8c9cb4ac71f"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>handles</b> (GLFWwindow *window)</td></tr>
+<tr class="separator:aad13ee91d93d4033a6e6a8c9cb4ac71f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4f45493b0f1be74fcee972da50fb8d67"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a4f45493b0f1be74fcee972da50fb8d67"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>loop</b> ()</td></tr>
+<tr class="separator:a4f45493b0f1be74fcee972da50fb8d67"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4626829d3cb9d01285f739d2bbc69b74"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a4626829d3cb9d01285f739d2bbc69b74"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>hide</b> ()</td></tr>
+<tr class="separator:a4626829d3cb9d01285f739d2bbc69b74"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8f986e19a11c4c97ed8e6ad3d0e648b7"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a8f986e19a11c4c97ed8e6ad3d0e648b7"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>show</b> ()</td></tr>
+<tr class="separator:a8f986e19a11c4c97ed8e6ad3d0e648b7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a35055c04498121d39741bfcd5082705b"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a35055c04498121d39741bfcd5082705b"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>close</b> ()</td></tr>
+<tr class="separator:a35055c04498121d39741bfcd5082705b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2132a9fc012c4bbabb0167b027578308"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a2132a9fc012c4bbabb0167b027578308"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>moveAbsolute</b> (int x, int y)</td></tr>
+<tr class="separator:a2132a9fc012c4bbabb0167b027578308"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-attribs"></a>
 Public Attributes</h2></td></tr>
 <tr class="memitem:a9957db4afdad3d57e5c5b6626b44b6d0"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a9957db4afdad3d57e5c5b6626b44b6d0"></a>
 GLFWwindow *&#160;</td><td class="memItemRight" valign="bottom"><b>window</b></td></tr>
 <tr class="separator:a9957db4afdad3d57e5c5b6626b44b6d0"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a5132e87de401c305bfd2f93a365ca07b"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a5132e87de401c305bfd2f93a365ca07b"></a>
-int&#160;</td><td class="memItemRight" valign="bottom"><b>screenWidth</b></td></tr>
-<tr class="separator:a5132e87de401c305bfd2f93a365ca07b"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a35e841fdc5d2f0eb1417b5c7ff3fce47"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a35e841fdc5d2f0eb1417b5c7ff3fce47"></a>
-int&#160;</td><td class="memItemRight" valign="bottom"><b>screenHeight</b></td></tr>
-<tr class="separator:a35e841fdc5d2f0eb1417b5c7ff3fce47"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a0766419bf37f5a9b7d9054dc204710a7"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a0766419bf37f5a9b7d9054dc204710a7"></a>
-<a class="el" href="classView.html">View</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>view</b></td></tr>
-<tr class="separator:a0766419bf37f5a9b7d9054dc204710a7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af5b1c436782cc9752d386493fbc5dc8c"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classWindow.html#af5b1c436782cc9752d386493fbc5dc8c">width</a></td></tr>
+<tr class="separator:af5b1c436782cc9752d386493fbc5dc8c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af0ac1732ca6b79a6f6b78aa344140514"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="af0ac1732ca6b79a6f6b78aa344140514"></a>
+int&#160;</td><td class="memItemRight" valign="bottom"><b>height</b></td></tr>
+<tr class="separator:af0ac1732ca6b79a6f6b78aa344140514"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a76199e6c3402c180d76133da74287f38"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a76199e6c3402c180d76133da74287f38"></a>
+std::unique_ptr&lt; std::thread &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>t</b></td></tr>
+<tr class="separator:a76199e6c3402c180d76133da74287f38"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:adb20638db6607fcf6aeb1d06ab6b73f5"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="adb20638db6607fcf6aeb1d06ab6b73f5"></a>
+<a class="el" href="classView.html">View</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>currentView</b></td></tr>
+<tr class="separator:adb20638db6607fcf6aeb1d06ab6b73f5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a25bf6f8672c20d053f6f4db8d059fedc"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a25bf6f8672c20d053f6f4db8d059fedc"></a>
+std::vector&lt; <a class="el" href="classView.html">View</a> * &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>views</b></td></tr>
+<tr class="separator:a25bf6f8672c20d053f6f4db8d059fedc"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a27b66f6aca412b9275fd09d0b203ea78"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a27b66f6aca412b9275fd09d0b203ea78"></a>
+<a class="el" href="classMyGL.html">MyGL</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>parentMyGL</b></td></tr>
+<tr class="separator:a27b66f6aca412b9275fd09d0b203ea78"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
-<h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
-<a class="anchor" id="a486004a00e3c0b27dcf2834a10c4f365"></a>
+<a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
+<div class="textblock"><p>There may be multiple windows in total. They are all kept track of in the <a class="el" href="classMyGL.html">MyGL</a> object. The <a class="el" href="classWindow.html">Window</a> class has a function that matches each of the different available glfw callbacks. These functions are registered with glfw in the <a class="el" href="classWindow.html">Window</a> constructor. The callback register function accepts a pointer to a GLFWwindow so I think that these callbacks are window specific. If they weren't window specific then all of the callback functions could be up a level in mygl. The window knows the width and heigth of the screen area in pixels so it is responsible for the pixelToReal(X/Y) functions. It is also responsible for the getCursorPos() function. The window should be responsible for hiding and disabling the mouse cursor. This needs to happen during a pan of the view for example. </p>
+</div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
+<a class="anchor" id="a5996bf7ae672cc3e084d323e4163e4e3"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
           <td class="memname">Window::Window </td>
           <td>(</td>
+          <td class="paramtype"><a class="el" href="classMyGL.html">MyGL</a> *&#160;</td>
+          <td class="paramname"><em>parent</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
           <td class="paramtype">int&#160;</td>
           <td class="paramname"><em>width</em>, </td>
         </tr>
@@ -160,7 +176,13 @@ int&#160;</td><td class="memItemRight" valign="bottom"><b>screenHeight</b></td><
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">int&#160;</td>
-          <td class="paramname"><em>height</em>&#160;</td>
+          <td class="paramname"><em>height</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="el" href="structWindowHints.html">WindowHints</a> &amp;&#160;</td>
+          <td class="paramname"><em>wh</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -173,9 +195,23 @@ int&#160;</td><td class="memItemRight" valign="bottom"><b>screenHeight</b></td><
 
 </div>
 </div>
+<h2 class="groupheader">Member Data Documentation</h2>
+<a class="anchor" id="af5b1c436782cc9752d386493fbc5dc8c"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int Window::width</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>The window class needs to know which GLFWwindow it is taking care of. 1 <a class="el" href="classWindow.html">Window</a> for 1 GLFWwindow </p>
+
+</div>
+</div>
 <hr/>The documentation for this class was generated from the following files:<ul>
-<li><a class="el" href="myGL_8hpp_source.html">myGL.hpp</a></li>
-<li>context.cpp</li>
+<li><a class="el" href="MyGL_8hpp_source.html">MyGL.hpp</a></li>
+<li>MyGL.cpp</li>
 </ul>
 </div><!-- contents -->
 <!-- start footer part -->

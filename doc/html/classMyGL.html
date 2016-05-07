@@ -90,29 +90,57 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="title">MyGL Class Reference</div>  </div>
 </div><!--header-->
 <div class="contents">
+
+<p><code>#include &lt;<a class="el" href="MyGL_8hpp_source.html">MyGL.hpp</a>&gt;</code></p>
 <div class="dynheader">
 Collaboration diagram for MyGL:</div>
 <div class="dyncontent">
 <div class="center"><img src="classMyGL__coll__graph.png" border="0" usemap="#MyGL_coll__map" alt="Collaboration graph"/></div>
 <map name="MyGL_coll__map" id="MyGL_coll__map">
-<area shape="rect" id="node2" href="classContext.html" title="Context" alt="" coords="5,95,73,121"/><area shape="rect" id="node3" href="classWindow.html" title="Window" alt="" coords="213,95,282,121"/><area shape="rect" id="node4" href="classView.html" title="View" alt="" coords="222,5,273,32"/></map>
+<area shape="rect" id="node2" href="classShaderProgram.html" title="ShaderProgram" alt="" coords="5,95,117,121"/><area shape="rect" id="node3" href="classContext.html" title="Context" alt="" coords="193,95,261,121"/><area shape="rect" id="node4" href="classShape.html" title="Shape" alt="" coords="197,5,256,32"/></map>
 <center><span class="legend">[<a href="graph_legend.html">legend</a>]</span></center></div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
 <tr class="memitem:abb621dca31a152540b416deadf23037c"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classMyGL.html#abb621dca31a152540b416deadf23037c">MyGL</a> ()</td></tr>
 <tr class="separator:abb621dca31a152540b416deadf23037c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4c37ec888e514cc8d06b7bc0ea7e73bd"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classMyGL.html#a4c37ec888e514cc8d06b7bc0ea7e73bd">mainLoop</a> ()</td></tr>
+<tr class="separator:a4c37ec888e514cc8d06b7bc0ea7e73bd"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af7fa10909864af7f8417cf12553ba456"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classMyGL.html#af7fa10909864af7f8417cf12553ba456">genLotsWindows</a> ()</td></tr>
+<tr class="separator:af7fa10909864af7f8417cf12553ba456"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9f2cc53d2c05eceb1d433bb0b19d9db8"><td class="memItemLeft" align="right" valign="top">GLFWwindow *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classMyGL.html#a9f2cc53d2c05eceb1d433bb0b19d9db8">makeWindowForContext</a> ()</td></tr>
+<tr class="separator:a9f2cc53d2c05eceb1d433bb0b19d9db8"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-attribs"></a>
 Public Attributes</h2></td></tr>
-<tr class="memitem:aa5d5d7fdd360119248e953be668d3ad6"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aa5d5d7fdd360119248e953be668d3ad6"></a>
-<a class="el" href="classWindow.html">Window</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>window</b></td></tr>
-<tr class="separator:aa5d5d7fdd360119248e953be668d3ad6"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad88b4aca52adeb07365980faa9096995"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ad88b4aca52adeb07365980faa9096995"></a>
-<a class="el" href="classContext.html">Context</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>context</b></td></tr>
-<tr class="separator:ad88b4aca52adeb07365980faa9096995"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad9da207aec683d4e52190aa6ca4c8103"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ad9da207aec683d4e52190aa6ca4c8103"></a>
+GLFWwindow *&#160;</td><td class="memItemRight" valign="bottom"><b>windowForContext</b></td></tr>
+<tr class="separator:ad9da207aec683d4e52190aa6ca4c8103"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a64f2144f0057b9b37b14ebc9a94d4f75"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a64f2144f0057b9b37b14ebc9a94d4f75"></a>
+<a class="el" href="classContext.html">Context</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>currentContext</b></td></tr>
+<tr class="separator:a64f2144f0057b9b37b14ebc9a94d4f75"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae0a53010a55ec6920697018b90df6ee2"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ae0a53010a55ec6920697018b90df6ee2"></a>
+<a class="el" href="classShaderProgram.html">ShaderProgram</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>currentShaderProgram</b></td></tr>
+<tr class="separator:ae0a53010a55ec6920697018b90df6ee2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab7bc049b7ce8d79fe244a1dbd2e63bf0"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ab7bc049b7ce8d79fe244a1dbd2e63bf0"></a>
+std::list&lt; <a class="el" href="classWindow.html">Window</a> * &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>windows</b></td></tr>
+<tr class="separator:ab7bc049b7ce8d79fe244a1dbd2e63bf0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a349d4b9d76a0427c048ab86c75346c8f"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a349d4b9d76a0427c048ab86c75346c8f"></a>
+std::vector&lt; std::unique_ptr&lt; <a class="el" href="classContext.html">Context</a> &gt; &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>contexts</b></td></tr>
+<tr class="separator:a349d4b9d76a0427c048ab86c75346c8f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad538dbfd1535c800bb09cab39e85226b"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ad538dbfd1535c800bb09cab39e85226b"></a>
+std::vector&lt; std::unique_ptr&lt; <a class="el" href="classShaderProgram.html">ShaderProgram</a> &gt; &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>shaderPrograms</b></td></tr>
+<tr class="separator:ad538dbfd1535c800bb09cab39e85226b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae9b56982144e61ad3cdbd1941ece779c"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ae9b56982144e61ad3cdbd1941ece779c"></a>
+std::string&#160;</td><td class="memItemRight" valign="bottom"><b>vertexShaderFileName</b> {&quot;vertexShader.glsl&quot;}</td></tr>
+<tr class="separator:ae9b56982144e61ad3cdbd1941ece779c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8366fc1559f38d409baefeb5df9a1d59"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a8366fc1559f38d409baefeb5df9a1d59"></a>
+std::string&#160;</td><td class="memItemRight" valign="bottom"><b>fragmentShaderFileName</b> {&quot;fragmentShader.glsl&quot;}</td></tr>
+<tr class="separator:a8366fc1559f38d409baefeb5df9a1d59"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
-<h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
+<a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
+<div class="textblock"><p>This is the topmost class for the program. Creating a new instance of this class means creating a new instance of the program. The main program should be as simple as running MyGL* mygl = new <a class="el" href="classMyGL.html#abb621dca31a152540b416deadf23037c">MyGL()</a>; The main.cpp main can then interact with the program in different ways through mygl. mygl-&gt;getCurrentContext(); mygl-&gt;switchCurrentContext(Context); </p>
+</div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
 <a class="anchor" id="abb621dca31a152540b416deadf23037c"></a>
 <div class="memitem">
 <div class="memproto">
@@ -125,14 +153,62 @@ Public Attributes</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-<p>Initialize the library</p>
-<p>Create a windowed mode window and its OpenGL context </p>
+<p>Initialize the library </p>
+
+</div>
+</div>
+<h2 class="groupheader">Member Function Documentation</h2>
+<a class="anchor" id="af7fa10909864af7f8417cf12553ba456"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void MyGL::genLotsWindows </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Calls on all the windows to update themselvs. </p>
+
+</div>
+</div>
+<a class="anchor" id="a4c37ec888e514cc8d06b7bc0ea7e73bd"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void MyGL::mainLoop </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>If the thread has finished then we assume the window do have destructed. We just erase the unique_ptr from the list. </p>
+
+</div>
+</div>
+<a class="anchor" id="a9f2cc53d2c05eceb1d433bb0b19d9db8"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">GLFWwindow * MyGL::makeWindowForContext </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>for mac compatability </p>
 
 </div>
 </div>
 <hr/>The documentation for this class was generated from the following files:<ul>
-<li><a class="el" href="myGL_8hpp_source.html">myGL.hpp</a></li>
-<li>context.cpp</li>
+<li><a class="el" href="MyGL_8hpp_source.html">MyGL.hpp</a></li>
+<li>MyGL.cpp</li>
 </ul>
 </div><!-- contents -->
 <!-- start footer part -->

@@ -1,5 +1,5 @@
 var searchData=
 [
-  ['shaderprogram',['ShaderProgram',['../classShaderProgram.html',1,'']]],
-  ['shape',['Shape',['../classShape.html',1,'']]]
+  ['window',['Window',['../classWindow.html',1,'']]],
+  ['windowhints',['WindowHints',['../structWindowHints.html',1,'']]]
 ];

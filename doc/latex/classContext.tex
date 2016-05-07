@@ -2,70 +2,37 @@
 \label{classContext}\index{Context@{Context}}
 
 
-Inheritance diagram for Context\+:
-\nopagebreak
-\begin{figure}[H]
-\begin{center}
-\leavevmode
-\includegraphics[width=142pt]{classContext__inherit__graph}
-\end{center}
-\end{figure}
-
-
 Collaboration diagram for Context\+:
 \nopagebreak
 \begin{figure}[H]
 \begin{center}
 \leavevmode
-\includegraphics[width=217pt]{classContext__coll__graph}
+\includegraphics[width=167pt]{classContext__coll__graph}
 \end{center}
 \end{figure}
 \subsection*{Public Member Functions}
 \begin{DoxyCompactItemize}
 \item 
-\hypertarget{classContext_aa940262b2ab80eea625f768f0b6fac7a}{}virtual void {\bfseries cursor\+Movement} (\hyperlink{classCursorMovement}{Cursor\+Movement})=0\label{classContext_aa940262b2ab80eea625f768f0b6fac7a}
-
-\item 
-\hypertarget{classContext_a70da8923b6a5a138d8603c609bc31fa6}{}virtual void {\bfseries key} (\hyperlink{classKey}{Key})=0\label{classContext_a70da8923b6a5a138d8603c609bc31fa6}
-
-\item 
-\hypertarget{classContext_a3999d157f67e3ba18cd704a5d4f0178a}{}void {\bfseries mouse\+Button} (\hyperlink{classMouseButton}{Mouse\+Button})\label{classContext_a3999d157f67e3ba18cd704a5d4f0178a}
-
-\item 
-virtual void \hyperlink{classContext_ab47a1f761c1408d246ef99159b197d3a}{mb} (\hyperlink{classMouseButton}{Mouse\+Button})=0
-\item 
-\hypertarget{classContext_a8fb1191127d9d8b5d7c356fc62189d9a}{}virtual void {\bfseries render} ()=0\label{classContext_a8fb1191127d9d8b5d7c356fc62189d9a}
+\hypertarget{classContext_a30f4ecb566d47094a9292e33d7c19331}{}void {\bfseries render} (\hyperlink{classShaderProgram}{Shader\+Program} $\ast$shader, \hyperlink{classView}{View} $\ast$view)\label{classContext_a30f4ecb566d47094a9292e33d7c19331}
 
 \end{DoxyCompactItemize}
 \subsection*{Public Attributes}
 \begin{DoxyCompactItemize}
 \item 
-\hypertarget{classContext_a16b34e7c1aae337963724ec597e4750d}{}\hyperlink{classContext}{Context} $\ast$ {\bfseries current\+Context}\label{classContext_a16b34e7c1aae337963724ec597e4750d}
-
+\hyperlink{classShape}{Shape} $\ast$ \hyperlink{classContext_a8c5402128ba3105635ac7d14353d934a}{current\+Shape}
 \item 
-\hypertarget{classContext_af2a331132fbccf0a841f1f9ba47d4203}{}int {\bfseries last\+Scancode}\label{classContext_af2a331132fbccf0a841f1f9ba47d4203}
-
-\item 
-\hypertarget{classContext_ac3e36ee8fc5f660558345e72149a56ab}{}bool {\bfseries mouse\+Pressed}\label{classContext_ac3e36ee8fc5f660558345e72149a56ab}
+\hypertarget{classContext_a7b52a567fdb294c04d208ad46646bd1c}{}std\+::vector$<$ \hyperlink{classShape}{Shape} $\ast$ $>$ {\bfseries shapes}\label{classContext_a7b52a567fdb294c04d208ad46646bd1c}
 
 \end{DoxyCompactItemize}
 
 
-\subsection{Member Function Documentation}
-\hypertarget{classContext_ab47a1f761c1408d246ef99159b197d3a}{}\index{Context@{Context}!mb@{mb}}
-\index{mb@{mb}!Context@{Context}}
-\subsubsection[{mb}]{\setlength{\rightskip}{0pt plus 5cm}virtual void Context\+::mb (
-\begin{DoxyParamCaption}
-\item[{{\bf Mouse\+Button}}]{}
-\end{DoxyParamCaption}
-)\hspace{0.3cm}{\ttfamily [pure virtual]}}\label{classContext_ab47a1f761c1408d246ef99159b197d3a}
-updates \textquotesingle{}mouse\+Pressed\textquotesingle{} before calling \hyperlink{classContext_ab47a1f761c1408d246ef99159b197d3a}{mb()} 
-
-Implemented in \hyperlink{classComposer_aeccddfa85500c2e3a517058611ccca6a}{Composer}.
-
-
+\subsection{Member Data Documentation}
+\hypertarget{classContext_a8c5402128ba3105635ac7d14353d934a}{}\index{Context@{Context}!current\+Shape@{current\+Shape}}
+\index{current\+Shape@{current\+Shape}!Context@{Context}}
+\subsubsection[{current\+Shape}]{\setlength{\rightskip}{0pt plus 5cm}{\bf Shape}$\ast$ Context\+::current\+Shape}\label{classContext_a8c5402128ba3105635ac7d14353d934a}
+Calls the render function of all of the \hyperlink{classShape}{Shape} objects. 
 
 The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
 \item 
-my\+G\+L.\+hpp\item 
-context.\+cpp\end{DoxyCompactItemize}
+My\+G\+L.\+hpp\item 
+My\+G\+L.\+cpp\end{DoxyCompactItemize}

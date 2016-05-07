@@ -1,0 +1,7 @@
+<map id="View" name="View">
+<area shape="rect" id="node2" href="$classWindow.html" title="Window" alt="" coords="82,273,151,300"/>
+<area shape="rect" id="node3" href="$classMyGL.html" title="MyGL" alt="" coords="207,184,264,211"/>
+<area shape="rect" id="node4" href="$classShaderProgram.html" title="ShaderProgram" alt="" coords="97,95,209,121"/>
+<area shape="rect" id="node5" href="$classContext.html" title="Context" alt="" coords="284,95,352,121"/>
+<area shape="rect" id="node6" href="$classShape.html" title="Shape" alt="" coords="289,5,347,32"/>
+</map>

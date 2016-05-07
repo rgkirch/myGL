@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['finished',['finished',['../classShape.html#ad766ebc1fafeb7f6c76d37ccfed88be4',1,'Shape']]]
+  ['width',['width',['../classWindow.html#af5b1c436782cc9752d386493fbc5dc8c',1,'Window']]]
 ];

@@ -91,46 +91,50 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 </div><!--header-->
 <div class="contents">
 
-<p><code>#include &lt;<a class="el" href="myGL_8hpp_source.html">myGL.hpp</a>&gt;</code></p>
+<p><code>#include &lt;<a class="el" href="MyGL_8hpp_source.html">MyGL.hpp</a>&gt;</code></p>
+<div class="dynheader">
+Collaboration diagram for View:</div>
+<div class="dyncontent">
+<div class="center"><img src="classView__coll__graph.png" border="0" usemap="#View_coll__map" alt="Collaboration graph"/></div>
+<map name="View_coll__map" id="View_coll__map">
+<area shape="rect" id="node2" href="classWindow.html" title="Window" alt="" coords="82,273,151,300"/><area shape="rect" id="node3" href="classMyGL.html" title="MyGL" alt="" coords="207,184,264,211"/><area shape="rect" id="node4" href="classShaderProgram.html" title="ShaderProgram" alt="" coords="97,95,209,121"/><area shape="rect" id="node5" href="classContext.html" title="Context" alt="" coords="284,95,352,121"/><area shape="rect" id="node6" href="classShape.html" title="Shape" alt="" coords="289,5,347,32"/></map>
+<center><span class="legend">[<a href="graph_legend.html">legend</a>]</span></center></div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:aaef0a135309a5f4d347b6f5457ed5167"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aaef0a135309a5f4d347b6f5457ed5167"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>cursorMovement</b> (<a class="el" href="classCursorMovement.html">CursorMovement</a>)</td></tr>
-<tr class="separator:aaef0a135309a5f4d347b6f5457ed5167"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a7032cb10b429abdd9bf2dcd2bea16e40"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a7032cb10b429abdd9bf2dcd2bea16e40"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>pan</b> ()</td></tr>
-<tr class="separator:a7032cb10b429abdd9bf2dcd2bea16e40"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac714b40d77c196fe0fd7c86e89a477fa"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ac714b40d77c196fe0fd7c86e89a477fa"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>endPan</b> ()</td></tr>
-<tr class="separator:ac714b40d77c196fe0fd7c86e89a477fa"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8e2813e8beabcfee72e2ec2e05fd72bb"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a8e2813e8beabcfee72e2ec2e05fd72bb"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>View</b> (<a class="el" href="classWindow.html">Window</a> *window, int width, int height)</td></tr>
+<tr class="separator:a8e2813e8beabcfee72e2ec2e05fd72bb"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2e97f6058d6a6690d9db72ceb43478a4"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a2e97f6058d6a6690d9db72ceb43478a4"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>translate</b> (float x, float y)</td></tr>
+<tr class="separator:a2e97f6058d6a6690d9db72ceb43478a4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac31ae2aee1e5374df420b657b3040f6d"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ac31ae2aee1e5374df420b657b3040f6d"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>scale</b> (float num)</td></tr>
+<tr class="separator:ac31ae2aee1e5374df420b657b3040f6d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad6c9a0c29d23c21f333b346aa538472a"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ad6c9a0c29d23c21f333b346aa538472a"></a>
+double&#160;</td><td class="memItemRight" valign="bottom"><b>pixelToRealX</b> (double px)</td></tr>
+<tr class="separator:ad6c9a0c29d23c21f333b346aa538472a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:adc37e8999407e00288c7ef8e36d7bea1"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="adc37e8999407e00288c7ef8e36d7bea1"></a>
+double&#160;</td><td class="memItemRight" valign="bottom"><b>pixelToRealY</b> (double py)</td></tr>
+<tr class="separator:adc37e8999407e00288c7ef8e36d7bea1"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-attribs"></a>
 Public Attributes</h2></td></tr>
-<tr class="memitem:a6adec4e5bdcc1204d9c19545b5c8ddbf"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a6adec4e5bdcc1204d9c19545b5c8ddbf"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>panning</b></td></tr>
-<tr class="separator:a6adec4e5bdcc1204d9c19545b5c8ddbf"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:adc268b708e33738a66655bdff10fea32"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="adc268b708e33738a66655bdff10fea32"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>reversePan</b></td></tr>
-<tr class="separator:adc268b708e33738a66655bdff10fea32"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a1367d310d57894ab1b3d165b26d970ee"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a1367d310d57894ab1b3d165b26d970ee"></a>
-double&#160;</td><td class="memItemRight" valign="bottom"><b>mouseHiddenAtX</b></td></tr>
-<tr class="separator:a1367d310d57894ab1b3d165b26d970ee"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a873de2cb56dd5ff51b447a485a61c788"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a873de2cb56dd5ff51b447a485a61c788"></a>
-double&#160;</td><td class="memItemRight" valign="bottom"><b>mouseHiddenAtY</b></td></tr>
-<tr class="separator:a873de2cb56dd5ff51b447a485a61c788"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:adef5e6c96c798a4353b696c69642366f"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="adef5e6c96c798a4353b696c69642366f"></a>
-double&#160;</td><td class="memItemRight" valign="bottom"><b>tempViewOffsetX</b> = 0.0</td></tr>
-<tr class="separator:adef5e6c96c798a4353b696c69642366f"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a171b97d781465c897c58e2298263d760"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a171b97d781465c897c58e2298263d760"></a>
-double&#160;</td><td class="memItemRight" valign="bottom"><b>tempViewOffsetY</b> = 0.0</td></tr>
-<tr class="separator:a171b97d781465c897c58e2298263d760"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a81c6f405ea08d9dd416a7ac04ce1e6ba"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a81c6f405ea08d9dd416a7ac04ce1e6ba"></a>
-double&#160;</td><td class="memItemRight" valign="bottom"><b>viewOffsetRealX</b> = 0.0</td></tr>
-<tr class="separator:a81c6f405ea08d9dd416a7ac04ce1e6ba"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a9aa40daef117c8837a4de0387ee2be75"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a9aa40daef117c8837a4de0387ee2be75"></a>
-double&#160;</td><td class="memItemRight" valign="bottom"><b>viewOffsetRealY</b> = 0.0</td></tr>
-<tr class="separator:a9aa40daef117c8837a4de0387ee2be75"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae047212bfa12abf0f0a57bf604e020ba"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ae047212bfa12abf0f0a57bf604e020ba"></a>
+<a class="el" href="classWindow.html">Window</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>parentWindow</b></td></tr>
+<tr class="separator:ae047212bfa12abf0f0a57bf604e020ba"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae039aa744b085db819ae149705b2c32b"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ae039aa744b085db819ae149705b2c32b"></a>
+int&#160;</td><td class="memItemRight" valign="bottom"><b>width</b></td></tr>
+<tr class="separator:ae039aa744b085db819ae149705b2c32b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6e3e5c18893617490f02166641356746"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a6e3e5c18893617490f02166641356746"></a>
+int&#160;</td><td class="memItemRight" valign="bottom"><b>height</b></td></tr>
+<tr class="separator:a6e3e5c18893617490f02166641356746"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9b210244771d77ebcc08e5f9e9862922"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a9b210244771d77ebcc08e5f9e9862922"></a>
+double&#160;</td><td class="memItemRight" valign="bottom"><b>viewOffsetX</b> = 0.0</td></tr>
+<tr class="separator:a9b210244771d77ebcc08e5f9e9862922"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae18f735f6c322277e5788fa56bb9c758"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ae18f735f6c322277e5788fa56bb9c758"></a>
+double&#160;</td><td class="memItemRight" valign="bottom"><b>viewOffsetY</b> = 0.0</td></tr>
+<tr class="separator:ae18f735f6c322277e5788fa56bb9c758"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ad2318a59fa2280eab8b7a59d317f4e5a"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ad2318a59fa2280eab8b7a59d317f4e5a"></a>
 double&#160;</td><td class="memItemRight" valign="bottom"><b>unitsPerPixelX</b> = 1.0</td></tr>
 <tr class="separator:ad2318a59fa2280eab8b7a59d317f4e5a"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -139,10 +143,10 @@ double&#160;</td><td class="memItemRight" valign="bottom"><b>unitsPerPixelY</b> 
 <tr class="separator:a28db7efdb0540ef7cdc49934ecb79893"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><p>The context has a view. The view has member variables to allow for mapping the 'real' world coordinate space to screen coordinates. Screen coordinates are such that only points in the range of [-1, 1] are visible. Not sure about the inclusion actually. </p>
+<div class="textblock"><p>A window has a view object. The <a class="el" href="classView.html">View</a> is responsible for maintaining the variables that the vertexShader uses to translate the points from real space to apparent space. Real space refers to the reference by which all of the shape objects in the Composer context are saved. It stretches from -inf to +inf. Apparent space is the (-1, 1) clamped view recognised by opengl. </p>
 </div><hr/>The documentation for this class was generated from the following files:<ul>
-<li><a class="el" href="myGL_8hpp_source.html">myGL.hpp</a></li>
-<li>context.cpp</li>
+<li><a class="el" href="MyGL_8hpp_source.html">MyGL.hpp</a></li>
+<li>MyGL.cpp</li>
 </ul>
 </div><!-- contents -->
 <!-- start footer part -->

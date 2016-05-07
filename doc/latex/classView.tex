@@ -2,45 +2,52 @@
 \label{classView}\index{View@{View}}
 
 
-{\ttfamily \#include $<$my\+G\+L.\+hpp$>$}
+{\ttfamily \#include $<$My\+G\+L.\+hpp$>$}
 
+
+
+Collaboration diagram for View\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{classView__coll__graph}
+\end{center}
+\end{figure}
 \subsection*{Public Member Functions}
 \begin{DoxyCompactItemize}
 \item 
-\hypertarget{classView_aaef0a135309a5f4d347b6f5457ed5167}{}void {\bfseries cursor\+Movement} (\hyperlink{classCursorMovement}{Cursor\+Movement})\label{classView_aaef0a135309a5f4d347b6f5457ed5167}
+\hypertarget{classView_a8e2813e8beabcfee72e2ec2e05fd72bb}{}{\bfseries View} (\hyperlink{classWindow}{Window} $\ast$window, int width, int height)\label{classView_a8e2813e8beabcfee72e2ec2e05fd72bb}
 
 \item 
-\hypertarget{classView_a7032cb10b429abdd9bf2dcd2bea16e40}{}void {\bfseries pan} ()\label{classView_a7032cb10b429abdd9bf2dcd2bea16e40}
+\hypertarget{classView_a2e97f6058d6a6690d9db72ceb43478a4}{}void {\bfseries translate} (float x, float y)\label{classView_a2e97f6058d6a6690d9db72ceb43478a4}
 
 \item 
-\hypertarget{classView_ac714b40d77c196fe0fd7c86e89a477fa}{}void {\bfseries end\+Pan} ()\label{classView_ac714b40d77c196fe0fd7c86e89a477fa}
+\hypertarget{classView_ac31ae2aee1e5374df420b657b3040f6d}{}void {\bfseries scale} (float num)\label{classView_ac31ae2aee1e5374df420b657b3040f6d}
+
+\item 
+\hypertarget{classView_ad6c9a0c29d23c21f333b346aa538472a}{}double {\bfseries pixel\+To\+Real\+X} (double px)\label{classView_ad6c9a0c29d23c21f333b346aa538472a}
+
+\item 
+\hypertarget{classView_adc37e8999407e00288c7ef8e36d7bea1}{}double {\bfseries pixel\+To\+Real\+Y} (double py)\label{classView_adc37e8999407e00288c7ef8e36d7bea1}
 
 \end{DoxyCompactItemize}
 \subsection*{Public Attributes}
 \begin{DoxyCompactItemize}
 \item 
-\hypertarget{classView_a6adec4e5bdcc1204d9c19545b5c8ddbf}{}bool {\bfseries panning}\label{classView_a6adec4e5bdcc1204d9c19545b5c8ddbf}
+\hypertarget{classView_ae047212bfa12abf0f0a57bf604e020ba}{}\hyperlink{classWindow}{Window} $\ast$ {\bfseries parent\+Window}\label{classView_ae047212bfa12abf0f0a57bf604e020ba}
 
 \item 
-\hypertarget{classView_adc268b708e33738a66655bdff10fea32}{}bool {\bfseries reverse\+Pan}\label{classView_adc268b708e33738a66655bdff10fea32}
+\hypertarget{classView_ae039aa744b085db819ae149705b2c32b}{}int {\bfseries width}\label{classView_ae039aa744b085db819ae149705b2c32b}
 
 \item 
-\hypertarget{classView_a1367d310d57894ab1b3d165b26d970ee}{}double {\bfseries mouse\+Hidden\+At\+X}\label{classView_a1367d310d57894ab1b3d165b26d970ee}
+\hypertarget{classView_a6e3e5c18893617490f02166641356746}{}int {\bfseries height}\label{classView_a6e3e5c18893617490f02166641356746}
 
 \item 
-\hypertarget{classView_a873de2cb56dd5ff51b447a485a61c788}{}double {\bfseries mouse\+Hidden\+At\+Y}\label{classView_a873de2cb56dd5ff51b447a485a61c788}
+\hypertarget{classView_a9b210244771d77ebcc08e5f9e9862922}{}double {\bfseries view\+Offset\+X} = 0.\+0\label{classView_a9b210244771d77ebcc08e5f9e9862922}
 
 \item 
-\hypertarget{classView_adef5e6c96c798a4353b696c69642366f}{}double {\bfseries temp\+View\+Offset\+X} = 0.\+0\label{classView_adef5e6c96c798a4353b696c69642366f}
-
-\item 
-\hypertarget{classView_a171b97d781465c897c58e2298263d760}{}double {\bfseries temp\+View\+Offset\+Y} = 0.\+0\label{classView_a171b97d781465c897c58e2298263d760}
-
-\item 
-\hypertarget{classView_a81c6f405ea08d9dd416a7ac04ce1e6ba}{}double {\bfseries view\+Offset\+Real\+X} = 0.\+0\label{classView_a81c6f405ea08d9dd416a7ac04ce1e6ba}
-
-\item 
-\hypertarget{classView_a9aa40daef117c8837a4de0387ee2be75}{}double {\bfseries view\+Offset\+Real\+Y} = 0.\+0\label{classView_a9aa40daef117c8837a4de0387ee2be75}
+\hypertarget{classView_ae18f735f6c322277e5788fa56bb9c758}{}double {\bfseries view\+Offset\+Y} = 0.\+0\label{classView_ae18f735f6c322277e5788fa56bb9c758}
 
 \item 
 \hypertarget{classView_ad2318a59fa2280eab8b7a59d317f4e5a}{}double {\bfseries units\+Per\+Pixel\+X} = 1.\+0\label{classView_ad2318a59fa2280eab8b7a59d317f4e5a}
@@ -52,9 +59,9 @@
 
 
 \subsection{Detailed Description}
-The context has a view. The view has member variables to allow for mapping the \textquotesingle{}real\textquotesingle{} world coordinate space to screen coordinates. Screen coordinates are such that only points in the range of \mbox{[}-\/1, 1\mbox{]} are visible. Not sure about the inclusion actually. 
+A window has a view object. The \hyperlink{classView}{View} is responsible for maintaining the variables that the vertex\+Shader uses to translate the points from real space to apparent space. Real space refers to the reference by which all of the shape objects in the Composer context are saved. It stretches from -\/inf to +inf. Apparent space is the (-\/1, 1) clamped view recognised by opengl. 
 
 The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
 \item 
-my\+G\+L.\+hpp\item 
-context.\+cpp\end{DoxyCompactItemize}
+My\+G\+L.\+hpp\item 
+My\+G\+L.\+cpp\end{DoxyCompactItemize}
