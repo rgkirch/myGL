@@ -1,0 +1,27 @@
+i am looking at it
+it's sort of hard for me to follow though
+what do spawn and loop do?
+auspicioussapling - Today at 5:10 PM
+unique ptr is a smart pointer which means that it will deallocate the resources when it goes out of scope
+tptr is then a unique_ptr to a thread that has in it (...)
+new thread creates a new thread object and the constructor expects something that is callable so that when it creates a new thread the new thread calls the argument and does work
+the argument to the new thread is a lambda function, an annonomous function that does two things
+the new thread creates a child object and calls a member function of that child object
+the main thread created tptr and passed in one argument, the lambda funciton, and continues to insert something into 'children'
+'children' is an unordered_map object. It pairs one-to-one thread ids to (unique_ptr to thread object)
+you get the template notation?
+so the main thread creates a thread object and adds it to a map to keep track of it
+the new thread goes off and runs 'loop' at its lesure, which is whenever it is scheduled by the os
+the child loop function just prints it's id (actually it prints a hash of its id because its id because its id is an object but i want some text)
+the hcild loop also waits a small random amount of time
+now that the code in the lambda function has all been run by the thread, it destructs
+so the child destructor runs which pushes the childs id onto a list (that resides in the parent) and notifies the parent that it's done
+the parent has been waiting for some notification. now that it got a notification, it joins the thread that it finds in the joinable list (the one that the child appended to)
+so, the program creates a parent object, spawns children threads, and waits to join the threads
+the child threads just wait for a little bit and then notify the parent
+there is a varible in the parent called 'joinableCV' that is of type condition_variable that allows for the child to notify the parent
+the parent can 'wait' on the voriable and the child can call 'notify' on th evariable
+The purpose of the code is so that threads can do work and then join with the parent in the order that they finish and there is no busy waiting.
+busy wait would be constant polling.
+while(not done) { check }
+the thread sleeps on a wait which costs no cycles
