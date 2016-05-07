@@ -13,6 +13,18 @@ static void error_callback(int error, const char* description) {
     fprintf(stderr, "Error %d: %s\n", error, description);
 }
 
+WindowHints::WindowHints() {
+    printf("windowhints constructor\n");
+	glfw_context_version_major = 3;
+	glfw_context_version_minor = 3;
+	glfw_opengl_profile = GLFW_OPENGL_CORE_PROFILE;
+	glfw_resizable = GL_FALSE;
+    glfw_opengl_forward_compat = GL_TRUE;
+    glfw_focused = GL_TRUE;
+    glfw_decorated = GL_TRUE;
+    glfw_visible = GL_TRUE;
+}
+
 /** Reads in a couple text files, compiles and links stuff and makes a shader program. Calls glUseProgram at the end and then needs to set up the uniforms.*/
 ShaderProgram::ShaderProgram(std::string vertexShaderFileName, std::string fragmentShaderFileName) {
     program = glCreateProgram();
@@ -333,18 +345,18 @@ Shape::Shape(float x, float y) {
     endY = y;
 }
 
-Window::Window(MyGL *parent, int width, int height) {
+Window::Window(MyGL *parent, int width, int height, const WindowHints& wh) {
     this->parentMyGL = parent;
     this->width = width;
     this->height = height;
-	glfwWindowHint( GLFW_CONTEXT_VERSION_MAJOR, 3 );
-	glfwWindowHint( GLFW_CONTEXT_VERSION_MINOR, 3 );
-	glfwWindowHint( GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE );
-	glfwWindowHint( GLFW_RESIZABLE, GL_FALSE );
-    glfwWindowHint( GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE ); /** for mac compatability*/
-    glfwWindowHint( GLFW_FOCUSED, GL_TRUE );
-    glfwWindowHint( GLFW_DECORATED, GL_TRUE );
-    glfwWindowHint( GLFW_VISIBLE, GL_FALSE );
+	glfwWindowHint( GLFW_CONTEXT_VERSION_MAJOR, wh.glfw_context_version_major );
+	glfwWindowHint( GLFW_CONTEXT_VERSION_MINOR, wh.glfw_context_version_minor );
+	glfwWindowHint( GLFW_OPENGL_PROFILE, wh.glfw_opengl_profile );
+	glfwWindowHint( GLFW_RESIZABLE, wh.glfw_resizable );
+    glfwWindowHint( GLFW_OPENGL_FORWARD_COMPAT, wh.glfw_opengl_forward_compat ); /** for mac compatability*/
+    glfwWindowHint( GLFW_FOCUSED, wh.glfw_focused );
+    glfwWindowHint( GLFW_DECORATED, wh.glfw_decorated );
+    glfwWindowHint( GLFW_VISIBLE, wh.glfw_visible );
     window = glfwCreateWindow( width, height, "myGL", NULL, NULL);
 	if ( !window ) {
 		glfwTerminate();
@@ -376,6 +388,23 @@ Window::Window(MyGL *parent, int width, int height) {
 
 }
 
+void Window::hide() {
+    glfwHideWindow(window);
+}
+
+void Window::show() {
+    glfwShowWindow(window);
+}
+
+void Window::moveAbsolute(int x, int y) {
+    printf("i know i'm supposed to move\n");
+    glfwSetWindowPos(window, x, y);
+}
+
+void Window::close() {
+    glfwSetWindowShouldClose(window, 1);
+}
+
 void Window::loop() {
     printf("thread running\n");
     while(! glfwWindowShouldClose(window)) {
@@ -383,15 +412,10 @@ void Window::loop() {
         std::lock_guard<std::mutex> lock(contextMutex);
         glfwMakeContextCurrent( window );
         glClearColor( 0.3f, 0.0f, 0.3f, 1.0f );
-        glPointSize(10);
-        glLineWidth(10);
-        //glfwPollEvents();
         glClear( GL_COLOR_BUFFER_BIT );
         glfwSwapBuffers( window );
         glfwMakeContextCurrent( NULL );
     }
-    printf("try to destroy window\n");
-    glfwDestroyWindow(window);
 }
 
 Window::~Window() {
@@ -476,7 +500,7 @@ MyGL::MyGL() {
     glfwSetMonitorCallback(monitor_callback);
 
     //shaderPrograms.push_back(std::unique_ptr<ShaderProgram>(new ShaderProgram(vertexShaderFileName, fragmentShaderFileName)));
-    snakeGame();
+    SnakeGame::snakeGame(this);
 
     glfwTerminate();
 
@@ -565,10 +589,15 @@ GLFWwindow* MyGL::makeWindowForContext() {
     return win;
 }
 
-void MyGL::snakeGame() {
-    //std::unordered_map<std::pair<int, int>, std::unique_ptr<Window>> grid;
+void SnakeGame::snakeGame(MyGL *application) {
+    enum cardinal {N, E, S, W};
+    std::vector<std::unique_ptr<Window>> grid; // row major
+
+    std::unordered_map<int, std::unique_ptr<std::thread>> children;
+
     int numberOfMonitors = 0;
     GLFWmonitor** monitors = glfwGetMonitors(&numberOfMonitors);
+    std::queue<std::pair<int, int>> snake;
     const GLFWvidmode *mode;
     int x = 0;
     int y = 0;
@@ -580,8 +609,44 @@ void MyGL::snakeGame() {
     screenHeight = mode->height;
     int gridHeight = screenHeight / tileSize;
     int gridWidth = screenWidth / tileSize;
+    grid.resize(gridHeight * gridWidth);
+    struct WindowHints windowhints;
+    windowhints.glfw_decorated = 0;
 
-    //std::thread(&Window::loop, this).detach();
+    snake.push(std::make_pair(0, 0));
+    std::unique_ptr<Window> w(new Window(application, tileSize, tileSize, windowhints));
+    w->show();
+    w->moveAbsolute(0, 0);
+    grid[0] = std::move(w);
+
+    //std::thread(&Window::loop, grid[0]);
+    std::unique_ptr<std::thread> tptr(new std::thread([&]{grid[0]->loop();}));
+    children.insert(std::make_pair(0, std::move(tptr)));
+    std::this_thread::sleep_for(std::chrono::seconds(2));
+    printf("close thread\n");
+    grid[0]->close();
+    printf("join thread\n");
+    children[0]->join();
+    printf("finish snake game\n");
+    std::this_thread::sleep_for(std::chrono::seconds(2));
+
+
+    //create one window in the top left
+    //the direction will be to the right
+    //loop this
+    //    sleep
+    //    move in direction
+    //    check if food window at index
+    //        if food window
+    //            remove food and place new window at index
+    //            place food somewhere else
+    //            if nowhere else to place food
+    //                win the game
+    //    else check if snake window at index
+    //        if window at index, lose
+    //    else check if no window
+    //        place new window
+
 
     /*
     while(! glfwWindowShouldClose(windowForContext)) {
@@ -594,6 +659,9 @@ void MyGL::snakeGame() {
         glfwMakeContextCurrent( NULL );
     }
     */
+}
+
+void SnakeGame::newTile() {
 }
 
 void printMonitorInfo() {

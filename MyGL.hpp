@@ -6,6 +6,7 @@
 
 #include <cstdio>
 #include <unordered_map>
+#include <condition_variable>
 #include <cstdlib>
 #include <cstring>
 #include <fstream>
@@ -49,6 +50,18 @@ namespace glfwInputCallback {
     void key_callback(GLFWwindow *window, int key, int scancode, int action, int mods);
     void drop_callback(GLFWwindow *window, int count, const char** paths);
 }
+
+struct WindowHints {
+    WindowHints();
+	unsigned int glfw_context_version_major;
+	unsigned int glfw_context_version_minor;
+	unsigned int glfw_opengl_profile;
+	unsigned int glfw_resizable;
+    unsigned int glfw_opengl_forward_compat;
+    unsigned int glfw_focused;
+    unsigned int glfw_decorated;
+    unsigned int glfw_visible;
+};
 
 /**
  * The PNG class is for reading and writing '.png' files. There are two static functions called readPNG() and writePNG() that can be used without instantiating an instance of the class.
@@ -179,10 +192,14 @@ public:
 class Window {
 public:
     typedef void (Window::*threadFunc)(void);
-    Window(MyGL *parent, int width, int height);
+    Window(MyGL *parent, int width, int height, const WindowHints& wh);
     ~Window();
     bool handles(GLFWwindow *window);
     void loop();
+    void hide();
+    void show();
+    void close();
+    void moveAbsolute(int x, int y);
     GLFWwindow *window; /** The window class needs to know which GLFWwindow it is taking care of. 1 Window for 1 GLFWwindow*/
     int width;
     int height;
@@ -205,7 +222,6 @@ class MyGL {
 public:
     MyGL();
     ~MyGL();
-    void snakeGame();
     void mainLoop(); /** Calls on all the windows to update themselvs.*/
     void genLotsWindows();
     GLFWwindow* makeWindowForContext();
@@ -219,5 +235,10 @@ public:
     std::string vertexShaderFileName {"vertexShader.glsl"};
     std::string fragmentShaderFileName {"fragmentShader.glsl"};
 };
+
+namespace SnakeGame {
+    void snakeGame(MyGL *application);
+    void newTile();
+}
 
 #endif
