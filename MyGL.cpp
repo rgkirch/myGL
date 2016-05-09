@@ -23,6 +23,7 @@ WindowHints::WindowHints() {
     glfw_focused = GL_TRUE;
     glfw_decorated = GL_TRUE;
     glfw_visible = GL_TRUE;
+    clearColor = std::move(glm::vec4(0.0, 0.0, 0.0, 1.0));
 }
 
 /** Reads in a couple text files, compiles and links stuff and makes a shader program. Calls glUseProgram at the end and then needs to set up the uniforms.*/
@@ -357,6 +358,9 @@ Window::Window(MyGL *parent, int width, int height, const WindowHints& wh) {
     glfwWindowHint( GLFW_FOCUSED, wh.glfw_focused );
     glfwWindowHint( GLFW_DECORATED, wh.glfw_decorated );
     glfwWindowHint( GLFW_VISIBLE, wh.glfw_visible );
+    clearColorRed = wh.clearColor.x;
+    clearColorGreen = wh.clearColor.y;
+    clearColorBlue = wh.clearColor.z;
     window = glfwCreateWindow( width, height, "myGL", NULL, NULL);
 	if ( !window ) {
 		glfwTerminate();
@@ -411,7 +415,8 @@ void Window::loop() {
         glfwWaitEvents();
         std::lock_guard<std::mutex> lock(contextMutex);
         glfwMakeContextCurrent( window );
-        glClearColor( 0.3f, 0.0f, 0.3f, 1.0f );
+        //glClearColor( 0.3f, 0.0f, 0.3f, 1.0f );
+        glClearColor( clearColorRed, clearColorGreen, clearColorBlue, 1.0f );
         glClear( GL_COLOR_BUFFER_BIT );
         glfwSwapBuffers( window );
         glfwMakeContextCurrent( NULL );
@@ -500,6 +505,7 @@ MyGL::MyGL() {
     glfwSetMonitorCallback(monitor_callback);
 
     //shaderPrograms.push_back(std::unique_ptr<ShaderProgram>(new ShaderProgram(vertexShaderFileName, fragmentShaderFileName)));
+    //printMonitorInfo();
     SnakeGame::snakeGame(this);
 
     glfwTerminate();
@@ -590,43 +596,47 @@ GLFWwindow* MyGL::makeWindowForContext() {
 }
 
 void SnakeGame::snakeGame(MyGL *application) {
-    enum cardinal {N, E, S, W};
     std::vector<std::unique_ptr<Window>> grid; // row major
 
     std::unordered_map<int, std::unique_ptr<std::thread>> children;
 
     int numberOfMonitors = 0;
     GLFWmonitor** monitors = glfwGetMonitors(&numberOfMonitors);
-    std::queue<std::pair<int, int>> snake;
+    std::queue<int> snake;
     const GLFWvidmode *mode;
     int x = 0;
     int y = 0;
     int screenWidth;
     int screenHeight;
-    int tileSize = 30; //px
+    int tileSize = 100; //px
     mode = glfwGetVideoMode(monitors[numberOfMonitors-1]);
     screenWidth = mode->width;
     screenHeight = mode->height;
     int gridHeight = screenHeight / tileSize;
     int gridWidth = screenWidth / tileSize;
+    printf("grid height %d, grid width %d\n", gridHeight, gridHeight);
     grid.resize(gridHeight * gridWidth);
     struct WindowHints windowhints;
     windowhints.glfw_decorated = 0;
+    windowhints.glfw_visible = 1;
+    windowhints.clearColor.x = 1.0f;
 
-    snake.push(std::make_pair(0, 0));
+    const int zero = 0;
+
+    snake.push(zero);
     std::unique_ptr<Window> w(new Window(application, tileSize, tileSize, windowhints));
-    w->show();
     w->moveAbsolute(0, 0);
-    grid[0] = std::move(w);
+    grid[zero] = std::move(w);
 
-    //std::thread(&Window::loop, grid[0]);
-    std::unique_ptr<std::thread> tptr(new std::thread([&]{grid[0]->loop();}));
-    children.insert(std::make_pair(0, std::move(tptr)));
+    //std::thread(&Window::loop, grid[zero]);
+    std::unique_ptr<std::thread> tptr(new std::thread([&]{grid[zero]->loop();}));
+    children.insert(std::make_pair(zero, std::move(tptr)));
     std::this_thread::sleep_for(std::chrono::seconds(2));
     printf("close thread\n");
-    grid[0]->close();
+    grid[zero]->close();
+    glfwPostEmptyEvent();
     printf("join thread\n");
-    children[0]->join();
+    children[zero]->join();
     printf("finish snake game\n");
     std::this_thread::sleep_for(std::chrono::seconds(2));
 

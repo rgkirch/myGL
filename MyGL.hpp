@@ -24,6 +24,7 @@
 #include <boost/filesystem.hpp>
 #include <boost/thread.hpp>
 #include <png.h>
+#include <glm/glm.hpp>
 
 //#include <fstream>
 //#include <sstream>
@@ -40,6 +41,8 @@ extern std::mutex contextMutex;
 
 class Window;
 class MyGL;
+
+void printMonitorInfo();
 
 namespace glfwInputCallback {
     void cursor_position_callback(GLFWwindow *window, double xpos, double ypos);
@@ -61,6 +64,7 @@ struct WindowHints {
     unsigned int glfw_focused;
     unsigned int glfw_decorated;
     unsigned int glfw_visible;
+    glm::vec4 clearColor;
 };
 
 /**
@@ -203,6 +207,9 @@ public:
     GLFWwindow *window; /** The window class needs to know which GLFWwindow it is taking care of. 1 Window for 1 GLFWwindow*/
     int width;
     int height;
+    float clearColorRed;
+    float clearColorGreen;
+    float clearColorBlue;
     std::unique_ptr<std::thread> t;
     View *currentView;
     std::vector<View*> views;

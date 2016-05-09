@@ -6,9 +6,9 @@ LINK=-lglfw -lGLEW -lGL -lpng -lboost_system -lboost_filesystem -lboost_thread -
 STD=-std=c++11
 
 all: app.exe
-app.exe: main.cpp MyGL.o
+app.exe: main.cpp MyGL.o MyGL.hpp
 	$(CC) -g -o app.exe main.cpp MyGL.o $(STD) $(INCLUDE) $(LINK)
-MyGL.o: MyGL.cpp
+MyGL.o: MyGL.cpp MyGL.hpp
 	$(CC) -g -c MyGL.cpp $(STD) $(INCLUDE) $(LINK)
 clean:
 	rm app.exe MyGL.o
