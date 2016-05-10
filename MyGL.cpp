@@ -416,9 +416,7 @@ void Window::close() {
 }
 
 void Window::loop() {
-    printf("thread running\n");
-    while(! glfwWindowShouldClose(window)) {
-        glfwWaitEvents();
+    if(window && !glfwWindowShouldClose(window)) {
         std::lock_guard<std::mutex> lock(contextMutex);
         glfwMakeContextCurrent( window );
         //glClearColor( 0.3f, 0.0f, 0.3f, 1.0f );
@@ -426,14 +424,12 @@ void Window::loop() {
         glClear( GL_COLOR_BUFFER_BIT );
         glfwSwapBuffers( window );
         glfwMakeContextCurrent( NULL );
-    }
+    } else if(window) glfwDestroyWindow( window );
 }
 
 Window::~Window() {
     printf("window destroyed\n");
-    if(window) {
-        glfwDestroyWindow( window );
-    }
+    if(window) glfwDestroyWindow( window );
 }
 
 bool Window::handles(GLFWwindow *window) {
@@ -469,7 +465,10 @@ void glfwInputCallback::key_callback(GLFWwindow *window, int key, int scancode, 
     printf("%d %d %d\n", key, scancode, mods);
     const Key input {key, scancode, action, mods};
     MyGL* mygl = static_cast<MyGL*>((glfwGetWindowUserPointer)(window));
-    if(mygl && mygl->inputFunction) mygl->inputFunction(input);
+    if(mygl && mygl->inputFunction) {
+        printf("call input callback\n");
+        mygl->inputFunction(input);
+    }
 }
 
 void glfwInputCallback::drop_callback(GLFWwindow *window, int count, const char **paths)
@@ -604,13 +603,11 @@ GLFWwindow* MyGL::makeWindowForContext() {
 }
 
 void SnakeGame::snakeGame(MyGL *application) {
-    std::vector<std::unique_ptr<Window>> grid; // row major
-
-    std::unordered_map<int, std::unique_ptr<std::thread>> children;
+    std::vector<Window*> grid; // row major
 
     int numberOfMonitors = 0;
     GLFWmonitor** monitors = glfwGetMonitors(&numberOfMonitors);
-    std::queue<int> snake;
+    std::list<int> snake;
     const GLFWvidmode *mode;
     int x = 0;
     int y = 0;
@@ -625,72 +622,58 @@ void SnakeGame::snakeGame(MyGL *application) {
     printf("grid height %d, grid width %d\n", gridHeight, gridHeight);
     grid.resize(gridHeight * gridWidth);
 
-    int movement = 1;
-    std::function<void(const Key&)> directionInput = [&](const Key& key) {
+    std::queue<int> movement;
+    movement.push(1);
+    application->inputFunction = [&](const Key& key) {
         if(key.action == GLFW_PRESS) {
+            printf("*******************key\n");
             switch(key.scancode) {
-                case 113: // up
-                    movement = -gridWidth;
+                case 111: // up
+                    movement.push(-gridWidth);
                     break;
-                case 111: //right
-                    movement = 1;
+                case 114: //right
+                    movement.push(1);
                     break;
-                case 114: //down
-                    movement = gridWidth;
+                case 116: //down
+                    movement.push(gridWidth);
                     break;
-                case 116: //left
-                    movement = -1;
+                case 113: //left
+                    movement.push(-1);
                     break;
             }
         }
     };
-    application->inputFunction = directionInput;
 
     struct WindowHints windowhints;
     windowhints.glfw_decorated = 0;
     windowhints.glfw_visible = 1;
     windowhints.clearColor.x = 1.0f;
+    windowhints.glfw_focused = 0;
 
     int head = 0;
 
-    snake.push(head);
-    std::unique_ptr<Window> w(new Window(application, tileSize, tileSize, windowhints));
-    w->moveAbsolute(0, 0);
-    grid[head] = std::move(w);
-
-    //std::thread(&Window::loop, grid[zero]);
-    std::unique_ptr<std::thread> tptr(new std::thread(std::function<void()>(
-        [&]{
-            grid[head]->loop();
-        }
-    )));
-    children.insert(std::make_pair(head, std::move(tptr)));
-    glfwPostEmptyEvent();
-
     while(head >= 0 && head < (gridWidth * gridHeight)) {
         printf("head %d\n", head);
-        std::this_thread::sleep_for(std::chrono::milliseconds(500));
-        head += movement;
-        snake.push(head);
-        std::unique_ptr<Window> w(new Window(application, tileSize, tileSize, windowhints));
+        snake.push_back(head);
+        Window *w(new Window(application, tileSize, tileSize, windowhints));
         w->moveAbsolute((head % gridWidth) * tileSize, (head / gridWidth) * tileSize);
-        grid[head] = std::move(w);
+        grid[head] = w;
 
         //std::thread(&Window::loop, grid[head]);
-        //std::unique_ptr<std::thread(&Window::loop, Window&)> tptr(new std::thread(grid[head]->loop, grid[head]);
-        std::unique_ptr<std::thread> tptr(new std::thread(std::function<void()>([&]{grid[head]->loop();})));
-        children.insert(std::make_pair(head, std::move(tptr)));
-        glfwPostEmptyEvent();
+        for(const auto x : snake) {
+            grid[x]->loop();
+        }
 
+        std::this_thread::sleep_for(std::chrono::seconds(1));
+        glfwPollEvents();
+        head += movement.front();
+        if(movement.size() > 1) movement.pop();
     }
-    while(!snake.empty()) {
+    for(std::list<int>::iterator begin = snake.begin(), end = snake.end(); begin != end;) {
         // remove them
         grid[snake.front()]->close();
-        glfwPostEmptyEvent();
-        children[snake.front()]->join();
-        grid[snake.front()] = NULL;
-        children[snake.front()] = NULL;
-        snake.pop();
+        delete grid[snake.front()];
+        begin = snake.erase(begin);
     }
     printf("finish snake game\n");
 
