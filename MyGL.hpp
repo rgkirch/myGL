@@ -21,8 +21,7 @@
 #include <thread>
 #include <vector>
 
-#include <boost/filesystem.hpp>
-#include <boost/thread.hpp>
+//#include <boost/filesystem.hpp>
 #include <png.h>
 #include <glm/glm.hpp>
 
@@ -204,6 +203,7 @@ public:
     void show();
     void close();
     void moveAbsolute(int x, int y);
+    void moveRelative(int x, int y);
     GLFWwindow *window; /** The window class needs to know which GLFWwindow it is taking care of. 1 Window for 1 GLFWwindow*/
     int width;
     int height;
@@ -233,6 +233,7 @@ public:
     void genLotsWindows();
     GLFWwindow* makeWindowForContext();
     GLFWwindow* windowForContext;
+    std::function<void(const Key&)> inputFunction;
     Context *currentContext;
     ShaderProgram *currentShaderProgram;
     std::list<Window*> windows;
@@ -245,7 +246,10 @@ public:
 
 namespace SnakeGame {
     void snakeGame(MyGL *application);
-    void newTile();
+    void stepNorth();
+    void stepEast();
+    void stepSouth();
+    void stepWest();
 }
 
 #endif
