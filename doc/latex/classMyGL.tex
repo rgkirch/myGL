@@ -1,13 +1,12 @@
-\hypertarget{classMyGL}{}\section{My\+G\+L Class Reference}
-\label{classMyGL}\index{My\+G\+L@{My\+G\+L}}
+\hypertarget{classMyGL}{}\section{My\+GL Class Reference}
+\label{classMyGL}\index{My\+GL@{My\+GL}}
 
 
 {\ttfamily \#include $<$My\+G\+L.\+hpp$>$}
 
 
 
-Collaboration diagram for My\+G\+L\+:
-\nopagebreak
+Collaboration diagram for My\+GL\+:\nopagebreak
 \begin{figure}[H]
 \begin{center}
 \leavevmode
@@ -17,7 +16,7 @@ Collaboration diagram for My\+G\+L\+:
 \subsection*{Public Member Functions}
 \begin{DoxyCompactItemize}
 \item 
-\hyperlink{classMyGL_abb621dca31a152540b416deadf23037c}{My\+G\+L} ()
+\hyperlink{classMyGL_abb621dca31a152540b416deadf23037c}{My\+GL} ()
 \item 
 void \hyperlink{classMyGL_a4c37ec888e514cc8d06b7bc0ea7e73bd}{main\+Loop} ()
 \item 
@@ -28,28 +27,31 @@ G\+L\+F\+Wwindow $\ast$ \hyperlink{classMyGL_a9f2cc53d2c05eceb1d433bb0b19d9db8}{
 \subsection*{Public Attributes}
 \begin{DoxyCompactItemize}
 \item 
-\hypertarget{classMyGL_ad9da207aec683d4e52190aa6ca4c8103}{}G\+L\+F\+Wwindow $\ast$ {\bfseries window\+For\+Context}\label{classMyGL_ad9da207aec683d4e52190aa6ca4c8103}
+G\+L\+F\+Wwindow $\ast$ {\bfseries window\+For\+Context}\hypertarget{classMyGL_ad9da207aec683d4e52190aa6ca4c8103}{}\label{classMyGL_ad9da207aec683d4e52190aa6ca4c8103}
 
 \item 
-\hypertarget{classMyGL_a64f2144f0057b9b37b14ebc9a94d4f75}{}\hyperlink{classContext}{Context} $\ast$ {\bfseries current\+Context}\label{classMyGL_a64f2144f0057b9b37b14ebc9a94d4f75}
+std\+::function$<$ void(const \hyperlink{classKey}{Key} \&)$>$ {\bfseries input\+Function}\hypertarget{classMyGL_aa729ce3c2c4c45a960ae17ac53d46585}{}\label{classMyGL_aa729ce3c2c4c45a960ae17ac53d46585}
 
 \item 
-\hypertarget{classMyGL_ae0a53010a55ec6920697018b90df6ee2}{}\hyperlink{classShaderProgram}{Shader\+Program} $\ast$ {\bfseries current\+Shader\+Program}\label{classMyGL_ae0a53010a55ec6920697018b90df6ee2}
+\hyperlink{classContext}{Context} $\ast$ {\bfseries current\+Context}\hypertarget{classMyGL_a64f2144f0057b9b37b14ebc9a94d4f75}{}\label{classMyGL_a64f2144f0057b9b37b14ebc9a94d4f75}
 
 \item 
-\hypertarget{classMyGL_ab7bc049b7ce8d79fe244a1dbd2e63bf0}{}std\+::list$<$ \hyperlink{classWindow}{Window} $\ast$ $>$ {\bfseries windows}\label{classMyGL_ab7bc049b7ce8d79fe244a1dbd2e63bf0}
+\hyperlink{classShaderProgram}{Shader\+Program} $\ast$ {\bfseries current\+Shader\+Program}\hypertarget{classMyGL_ae0a53010a55ec6920697018b90df6ee2}{}\label{classMyGL_ae0a53010a55ec6920697018b90df6ee2}
 
 \item 
-\hypertarget{classMyGL_a349d4b9d76a0427c048ab86c75346c8f}{}std\+::vector$<$ std\+::unique\+\_\+ptr$<$ \hyperlink{classContext}{Context} $>$ $>$ {\bfseries contexts}\label{classMyGL_a349d4b9d76a0427c048ab86c75346c8f}
+std\+::list$<$ \hyperlink{classWindow}{Window} $\ast$ $>$ {\bfseries windows}\hypertarget{classMyGL_ab7bc049b7ce8d79fe244a1dbd2e63bf0}{}\label{classMyGL_ab7bc049b7ce8d79fe244a1dbd2e63bf0}
 
 \item 
-\hypertarget{classMyGL_ad538dbfd1535c800bb09cab39e85226b}{}std\+::vector$<$ std\+::unique\+\_\+ptr$<$ \hyperlink{classShaderProgram}{Shader\+Program} $>$ $>$ {\bfseries shader\+Programs}\label{classMyGL_ad538dbfd1535c800bb09cab39e85226b}
+std\+::vector$<$ std\+::unique\+\_\+ptr$<$ \hyperlink{classContext}{Context} $>$ $>$ {\bfseries contexts}\hypertarget{classMyGL_a349d4b9d76a0427c048ab86c75346c8f}{}\label{classMyGL_a349d4b9d76a0427c048ab86c75346c8f}
 
 \item 
-\hypertarget{classMyGL_ae9b56982144e61ad3cdbd1941ece779c}{}std\+::string {\bfseries vertex\+Shader\+File\+Name} \{\char`\"{}vertex\+Shader.\+glsl\char`\"{}\}\label{classMyGL_ae9b56982144e61ad3cdbd1941ece779c}
+std\+::vector$<$ std\+::unique\+\_\+ptr$<$ \hyperlink{classShaderProgram}{Shader\+Program} $>$ $>$ {\bfseries shader\+Programs}\hypertarget{classMyGL_ad538dbfd1535c800bb09cab39e85226b}{}\label{classMyGL_ad538dbfd1535c800bb09cab39e85226b}
 
 \item 
-\hypertarget{classMyGL_a8366fc1559f38d409baefeb5df9a1d59}{}std\+::string {\bfseries fragment\+Shader\+File\+Name} \{\char`\"{}fragment\+Shader.\+glsl\char`\"{}\}\label{classMyGL_a8366fc1559f38d409baefeb5df9a1d59}
+std\+::string {\bfseries vertex\+Shader\+File\+Name} \{\char`\"{}vertex\+Shader.\+glsl\char`\"{}\}\hypertarget{classMyGL_ae9b56982144e61ad3cdbd1941ece779c}{}\label{classMyGL_ae9b56982144e61ad3cdbd1941ece779c}
+
+\item 
+std\+::string {\bfseries fragment\+Shader\+File\+Name} \{\char`\"{}fragment\+Shader.\+glsl\char`\"{}\}\hypertarget{classMyGL_a8366fc1559f38d409baefeb5df9a1d59}{}\label{classMyGL_a8366fc1559f38d409baefeb5df9a1d59}
 
 \end{DoxyCompactItemize}
 
@@ -58,37 +60,37 @@ G\+L\+F\+Wwindow $\ast$ \hyperlink{classMyGL_a9f2cc53d2c05eceb1d433bb0b19d9db8}{
 This is the topmost class for the program. Creating a new instance of this class means creating a new instance of the program. The main program should be as simple as running My\+G\+L$\ast$ mygl = new \hyperlink{classMyGL_abb621dca31a152540b416deadf23037c}{My\+G\+L()}; The main.\+cpp main can then interact with the program in different ways through mygl. mygl-\/$>$get\+Current\+Context(); mygl-\/$>$switch\+Current\+Context(\+Context); 
 
 \subsection{Constructor \& Destructor Documentation}
-\hypertarget{classMyGL_abb621dca31a152540b416deadf23037c}{}\index{My\+G\+L@{My\+G\+L}!My\+G\+L@{My\+G\+L}}
-\index{My\+G\+L@{My\+G\+L}!My\+G\+L@{My\+G\+L}}
-\subsubsection[{My\+G\+L}]{\setlength{\rightskip}{0pt plus 5cm}My\+G\+L\+::\+My\+G\+L (
+\index{My\+GL@{My\+GL}!My\+GL@{My\+GL}}
+\index{My\+GL@{My\+GL}!My\+GL@{My\+GL}}
+\subsubsection[{\texorpdfstring{My\+G\+L()}{MyGL()}}]{\setlength{\rightskip}{0pt plus 5cm}My\+G\+L\+::\+My\+GL (
 \begin{DoxyParamCaption}
 {}
 \end{DoxyParamCaption}
-)}\label{classMyGL_abb621dca31a152540b416deadf23037c}
+)}\hypertarget{classMyGL_abb621dca31a152540b416deadf23037c}{}\label{classMyGL_abb621dca31a152540b416deadf23037c}
 Initialize the library 
 
 \subsection{Member Function Documentation}
-\hypertarget{classMyGL_af7fa10909864af7f8417cf12553ba456}{}\index{My\+G\+L@{My\+G\+L}!gen\+Lots\+Windows@{gen\+Lots\+Windows}}
-\index{gen\+Lots\+Windows@{gen\+Lots\+Windows}!My\+G\+L@{My\+G\+L}}
-\subsubsection[{gen\+Lots\+Windows}]{\setlength{\rightskip}{0pt plus 5cm}void My\+G\+L\+::gen\+Lots\+Windows (
+\index{My\+GL@{My\+GL}!gen\+Lots\+Windows@{gen\+Lots\+Windows}}
+\index{gen\+Lots\+Windows@{gen\+Lots\+Windows}!My\+GL@{My\+GL}}
+\subsubsection[{\texorpdfstring{gen\+Lots\+Windows()}{genLotsWindows()}}]{\setlength{\rightskip}{0pt plus 5cm}void My\+G\+L\+::gen\+Lots\+Windows (
 \begin{DoxyParamCaption}
 {}
 \end{DoxyParamCaption}
-)}\label{classMyGL_af7fa10909864af7f8417cf12553ba456}
-Calls on all the windows to update themselvs. \hypertarget{classMyGL_a4c37ec888e514cc8d06b7bc0ea7e73bd}{}\index{My\+G\+L@{My\+G\+L}!main\+Loop@{main\+Loop}}
-\index{main\+Loop@{main\+Loop}!My\+G\+L@{My\+G\+L}}
-\subsubsection[{main\+Loop}]{\setlength{\rightskip}{0pt plus 5cm}void My\+G\+L\+::main\+Loop (
+)}\hypertarget{classMyGL_af7fa10909864af7f8417cf12553ba456}{}\label{classMyGL_af7fa10909864af7f8417cf12553ba456}
+Calls on all the windows to update themselvs. \index{My\+GL@{My\+GL}!main\+Loop@{main\+Loop}}
+\index{main\+Loop@{main\+Loop}!My\+GL@{My\+GL}}
+\subsubsection[{\texorpdfstring{main\+Loop()}{mainLoop()}}]{\setlength{\rightskip}{0pt plus 5cm}void My\+G\+L\+::main\+Loop (
 \begin{DoxyParamCaption}
 {}
 \end{DoxyParamCaption}
-)}\label{classMyGL_a4c37ec888e514cc8d06b7bc0ea7e73bd}
-If the thread has finished then we assume the window do have destructed. We just erase the unique\+\_\+ptr from the list. \hypertarget{classMyGL_a9f2cc53d2c05eceb1d433bb0b19d9db8}{}\index{My\+G\+L@{My\+G\+L}!make\+Window\+For\+Context@{make\+Window\+For\+Context}}
-\index{make\+Window\+For\+Context@{make\+Window\+For\+Context}!My\+G\+L@{My\+G\+L}}
-\subsubsection[{make\+Window\+For\+Context}]{\setlength{\rightskip}{0pt plus 5cm}G\+L\+F\+Wwindow $\ast$ My\+G\+L\+::make\+Window\+For\+Context (
+)}\hypertarget{classMyGL_a4c37ec888e514cc8d06b7bc0ea7e73bd}{}\label{classMyGL_a4c37ec888e514cc8d06b7bc0ea7e73bd}
+If the thread has finished then we assume the window do have destructed. We just erase the unique\+\_\+ptr from the list. \index{My\+GL@{My\+GL}!make\+Window\+For\+Context@{make\+Window\+For\+Context}}
+\index{make\+Window\+For\+Context@{make\+Window\+For\+Context}!My\+GL@{My\+GL}}
+\subsubsection[{\texorpdfstring{make\+Window\+For\+Context()}{makeWindowForContext()}}]{\setlength{\rightskip}{0pt plus 5cm}G\+L\+F\+Wwindow $\ast$ My\+G\+L\+::make\+Window\+For\+Context (
 \begin{DoxyParamCaption}
 {}
 \end{DoxyParamCaption}
-)}\label{classMyGL_a9f2cc53d2c05eceb1d433bb0b19d9db8}
+)}\hypertarget{classMyGL_a9f2cc53d2c05eceb1d433bb0b19d9db8}{}\label{classMyGL_a9f2cc53d2c05eceb1d433bb0b19d9db8}
 for mac compatability 
 
 The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
