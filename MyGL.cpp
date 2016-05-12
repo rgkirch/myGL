@@ -372,7 +372,7 @@ Window::Window(MyGL *parent, int width, int height, const WindowHints& wh) {
     this->height = height;
 	glfwWindowHint( GLFW_CONTEXT_VERSION_MAJOR, wh.glfw_context_version_major );
 	glfwWindowHint( GLFW_CONTEXT_VERSION_MINOR, wh.glfw_context_version_minor );
-	glfwWindowHint( GLFW_OPENGL_PROFILE, wh.glfw_opengl_profile );
+	//glfwWindowHint( GLFW_OPENGL_PROFILE, wh.glfw_opengl_profile );
 	glfwWindowHint( GLFW_RESIZABLE, wh.glfw_resizable );
     glfwWindowHint( GLFW_OPENGL_FORWARD_COMPAT, wh.glfw_opengl_forward_compat ); /** for mac compatability*/
     glfwWindowHint( GLFW_FOCUSED, wh.glfw_focused );
@@ -589,7 +589,7 @@ GLFWwindow* MyGL::makeWindowForContext() {
 
 	glfwWindowHint( GLFW_CONTEXT_VERSION_MAJOR, 3 );
 	glfwWindowHint( GLFW_CONTEXT_VERSION_MINOR, 3 );
-	glfwWindowHint( GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE );
+	//glfwWindowHint( GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE );
 	glfwWindowHint( GLFW_RESIZABLE, GL_FALSE );
     glfwWindowHint( GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE ); /** for mac compatability*/
     glfwWindowHint( GLFW_FOCUSED, GL_FALSE );
