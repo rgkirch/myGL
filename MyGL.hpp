@@ -55,6 +55,7 @@ namespace glfwInputCallback {
 
 struct WindowHints {
     WindowHints();
+    WindowHints(const WindowHints& wh);
 	unsigned int glfw_context_version_major;
 	unsigned int glfw_context_version_minor;
 	unsigned int glfw_opengl_profile;
@@ -63,7 +64,8 @@ struct WindowHints {
     unsigned int glfw_focused;
     unsigned int glfw_decorated;
     unsigned int glfw_visible;
-    glm::vec4 clearColor;
+    glm::vec3 clearColor;
+    glm::vec2 location;
 };
 
 /**

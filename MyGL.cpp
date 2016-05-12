@@ -14,7 +14,6 @@ static void error_callback(int error, const char* description) {
 }
 
 WindowHints::WindowHints() {
-    printf("windowhints constructor\n");
 	glfw_context_version_major = 3;
 	glfw_context_version_minor = 3;
 	glfw_opengl_profile = GLFW_OPENGL_CORE_PROFILE;
@@ -23,7 +22,28 @@ WindowHints::WindowHints() {
     glfw_focused = GL_TRUE;
     glfw_decorated = GL_TRUE;
     glfw_visible = GL_TRUE;
-    clearColor = std::move(glm::vec4(0.0, 0.0, 0.0, 1.0));
+    clearColor.x = 0.0;
+    clearColor.y = 0.0;
+    clearColor.z = 0.0;
+    location.x = 0.0f;
+    location.y = 0.0f;
+}
+
+// some part of this should be const so that it garuentees that it doesnt change what's passed in?
+WindowHints::WindowHints(const WindowHints& wh) {
+	glfw_context_version_major = wh.glfw_context_version_major;
+	glfw_context_version_minor = wh.glfw_context_version_minor;
+	glfw_opengl_profile = wh.glfw_opengl_profile;
+	glfw_resizable = wh.glfw_resizable;
+    glfw_opengl_forward_compat = wh.glfw_opengl_forward_compat;
+    glfw_focused = wh.glfw_focused;
+    glfw_decorated = wh.glfw_decorated;
+    glfw_visible = wh.glfw_visible;
+    clearColor.x = wh.clearColor.x;
+    clearColor.y = wh.clearColor.y;
+    clearColor.z = wh.clearColor.z;
+    location.x = 0.0f;
+    location.y = 0.0f;
 }
 
 /** Reads in a couple text files, compiles and links stuff and makes a shader program. Calls glUseProgram at the end and then needs to set up the uniforms.*/
@@ -366,6 +386,7 @@ Window::Window(MyGL *parent, int width, int height, const WindowHints& wh) {
 		glfwTerminate();
         throw std::runtime_error("GLFW failed to create the window in Window constructor.");
 	}
+    glfwSetWindowPos(window, wh.location.x, wh.location.y);
 
     std::unique_lock<std::mutex> contextLock(contextMutex);
 	glfwMakeContextCurrent( window );
@@ -417,8 +438,8 @@ void Window::loop() {
     if(window && !glfwWindowShouldClose(window)) {
         std::lock_guard<std::mutex> lock(contextMutex);
         glfwMakeContextCurrent( window );
-        //glClearColor( 0.3f, 0.0f, 0.3f, 1.0f );
-        glClearColor( clearColorRed, clearColorGreen, clearColorBlue, 1.0f );
+        glClearColor( 0.3f, 0.0f, 0.3f, 1.0f );
+        //glClearColor( clearColorRed, clearColorGreen, clearColorBlue, 1.0f );
         glClear( GL_COLOR_BUFFER_BIT );
         glfwSwapBuffers( window );
         glfwMakeContextCurrent( NULL );
@@ -600,6 +621,7 @@ GLFWwindow* MyGL::makeWindowForContext() {
 
 void SnakeGame::snakeGame(MyGL *application) {
     std::vector<Window*> grid; // row major
+    int food = 0;
 
     int numberOfMonitors = 0;
     GLFWmonitor** monitors = glfwGetMonitors(&numberOfMonitors);
@@ -624,7 +646,6 @@ void SnakeGame::snakeGame(MyGL *application) {
     movement = 1;
     application->inputFunction = [&](const Key& key) {
         if(key.action == GLFW_PRESS) {
-            printf("*******************key\n");
             switch(key.scancode) {
                 case 111: // up
                     //movement.push_back(-gridWidth);
@@ -646,11 +667,14 @@ void SnakeGame::snakeGame(MyGL *application) {
         }
     };
 
-    struct WindowHints windowhints;
-    windowhints.glfw_decorated = 0;
-    windowhints.glfw_visible = 1;
-    windowhints.clearColor.x = 1.0f;
-    windowhints.glfw_focused = 0;
+    struct WindowHints snakeWindowHint;
+    snakeWindowHint.glfw_decorated = 0;
+    snakeWindowHint.glfw_visible = 1;
+    snakeWindowHint.clearColor.x = 1.0f;
+    snakeWindowHint.glfw_focused = 0;
+    struct WindowHints foodWindowHint(snakeWindowHint);
+    //foodWindowHint.clearColor.x = 0.0f;
+    foodWindowHint.clearColor.z = 1.0f;
 
     int head = 0;
     std::chrono::system_clock::time_point tp = std::chrono::system_clock::now();
@@ -662,14 +686,22 @@ void SnakeGame::snakeGame(MyGL *application) {
             //head += movement.front();
             head += movement;
             if(head < 0 || head >= (gridWidth * gridHeight)) {
-                std::cout << "Out of bounds." << std::endl;
+                std::cout << "Out of bounds. You lose." << std::endl;
                 break;
             }
+            if(grid[head]) {
+                std::cout << "Ran into self. You lose." << std::endl;
+                break;
+            }
+            if(!grid[food]) {
+                Window *w(new Window(application, tileSize, tileSize, foodWindowHint));
+            }
+            if(head == food)
             //if(movement.size() > 1) movement.pop_front();
-            printf("head %d\n", head);
             snake.push_back(head);
-            Window *w(new Window(application, tileSize, tileSize, windowhints));
-            w->moveAbsolute((head % gridWidth) * tileSize, (head / gridWidth) * tileSize);
+            snakeWindowHint.location.x = (head % gridWidth) * tileSize;
+            snakeWindowHint.location.y = (head / gridWidth) * tileSize;
+            Window *w(new Window(application, tileSize, tileSize, snakeWindowHint));
             grid[head] = w;
             tp += std::chrono::milliseconds(500);
         }
@@ -678,6 +710,7 @@ void SnakeGame::snakeGame(MyGL *application) {
         for(const auto x : snake) {
             grid[x]->loop();
         }
+        if(food) grid[food]->loop();
     }
     for(std::list<int>::iterator begin = snake.begin(), end = snake.end(); begin != end;) {
         // remove them
