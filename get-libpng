@@ -1,0 +1,11 @@
+#!/bin/sh
+mkdir libpng
+cd libpng
+wget http://download.sourceforge.net/libpng/libpng-1.6.21.tar.xz
+tar -xf libpng-1.6.21.tar.xz
+cd libpng-1.6.21
+./configure
+make -j 4
+sudo make install
+sudo ldconfig
+cd ../..
