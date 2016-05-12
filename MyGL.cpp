@@ -366,7 +366,6 @@ Window::Window(MyGL *parent, int width, int height, const WindowHints& wh) {
 		glfwTerminate();
         throw std::runtime_error("GLFW failed to create the window in Window constructor.");
 	}
-    printf("window created\n");
 
     std::unique_lock<std::mutex> contextLock(contextMutex);
 	glfwMakeContextCurrent( window );
@@ -407,7 +406,6 @@ void Window::moveRelative(int x, int y) {
 }
 
 void Window::moveAbsolute(int x, int y) {
-    printf("move to\n");
     glfwSetWindowPos(window, x, y);
 }
 
@@ -428,7 +426,6 @@ void Window::loop() {
 }
 
 Window::~Window() {
-    printf("window destroyed\n");
     if(window) glfwDestroyWindow( window );
 }
 
@@ -466,7 +463,6 @@ void glfwInputCallback::key_callback(GLFWwindow *window, int key, int scancode, 
     const Key input {key, scancode, action, mods};
     MyGL* mygl = static_cast<MyGL*>((glfwGetWindowUserPointer)(window));
     if(mygl && mygl->inputFunction) {
-        printf("call input callback\n");
         mygl->inputFunction(input);
     }
 }
@@ -622,23 +618,29 @@ void SnakeGame::snakeGame(MyGL *application) {
     printf("grid height %d, grid width %d\n", gridHeight, gridHeight);
     grid.resize(gridHeight * gridWidth);
 
-    std::queue<int> movement;
-    movement.push(1);
+    //std::list<int> movement;
+    int movement;
+    //movement.push_back(1);
+    movement = 1;
     application->inputFunction = [&](const Key& key) {
         if(key.action == GLFW_PRESS) {
             printf("*******************key\n");
             switch(key.scancode) {
                 case 111: // up
-                    movement.push(-gridWidth);
+                    //movement.push_back(-gridWidth);
+                    movement = -gridWidth;
                     break;
                 case 114: //right
-                    movement.push(1);
+                    //movement.push_back(1);
+                    movement = 1;
                     break;
                 case 116: //down
-                    movement.push(gridWidth);
+                    //movement.push_back(gridWidth);
+                    movement = gridWidth;
                     break;
                 case 113: //left
-                    movement.push(-1);
+                    //movement.push_back(-1);
+                    movement = -1;
                     break;
             }
         }
@@ -651,23 +653,31 @@ void SnakeGame::snakeGame(MyGL *application) {
     windowhints.glfw_focused = 0;
 
     int head = 0;
+    std::chrono::system_clock::time_point tp = std::chrono::system_clock::now();
+    tp += std::chrono::milliseconds(500);
 
-    while(head >= 0 && head < (gridWidth * gridHeight)) {
-        printf("head %d\n", head);
-        snake.push_back(head);
-        Window *w(new Window(application, tileSize, tileSize, windowhints));
-        w->moveAbsolute((head % gridWidth) * tileSize, (head / gridWidth) * tileSize);
-        grid[head] = w;
+    while(1) {
+        glfwPollEvents();
+        if(std::chrono::system_clock::now() > tp) {
+            //head += movement.front();
+            head += movement;
+            if(head < 0 || head >= (gridWidth * gridHeight)) {
+                std::cout << "Out of bounds." << std::endl;
+                break;
+            }
+            //if(movement.size() > 1) movement.pop_front();
+            printf("head %d\n", head);
+            snake.push_back(head);
+            Window *w(new Window(application, tileSize, tileSize, windowhints));
+            w->moveAbsolute((head % gridWidth) * tileSize, (head / gridWidth) * tileSize);
+            grid[head] = w;
+            tp += std::chrono::milliseconds(500);
+        }
 
         //std::thread(&Window::loop, grid[head]);
         for(const auto x : snake) {
             grid[x]->loop();
         }
-
-        std::this_thread::sleep_for(std::chrono::seconds(1));
-        glfwPollEvents();
-        head += movement.front();
-        if(movement.size() > 1) movement.pop();
     }
     for(std::list<int>::iterator begin = snake.begin(), end = snake.end(); begin != end;) {
         // remove them
