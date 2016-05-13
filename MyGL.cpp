@@ -17,11 +17,11 @@ WindowHints::WindowHints() {
 	glfw_context_version_major = 3;
 	glfw_context_version_minor = 3;
 	glfw_opengl_profile = GLFW_OPENGL_CORE_PROFILE;
-	glfw_resizable = GL_FALSE;
-    glfw_opengl_forward_compat = GL_TRUE;
-    glfw_focused = GL_TRUE;
-    glfw_decorated = GL_TRUE;
-    glfw_visible = GL_TRUE;
+	glfw_resizable = 0;
+    glfw_opengl_forward_compat = 1;
+    glfw_focused = 1;
+    glfw_decorated = 1;
+    glfw_visible = 1;
     clearColor.x = 0.0;
     clearColor.y = 0.0;
     clearColor.z = 0.0;
@@ -29,7 +29,6 @@ WindowHints::WindowHints() {
     location.y = 0.0f;
 }
 
-// some part of this should be const so that it garuentees that it doesnt change what's passed in?
 WindowHints::WindowHints(const WindowHints& wh) {
 	glfw_context_version_major = wh.glfw_context_version_major;
 	glfw_context_version_minor = wh.glfw_context_version_minor;
@@ -438,8 +437,8 @@ void Window::loop() {
     if(window && !glfwWindowShouldClose(window)) {
         std::lock_guard<std::mutex> lock(contextMutex);
         glfwMakeContextCurrent( window );
-        glClearColor( 0.3f, 0.0f, 0.3f, 1.0f );
-        //glClearColor( clearColorRed, clearColorGreen, clearColorBlue, 1.0f );
+        //glClearColor( 0.3f, 0.0f, 0.3f, 1.0f );
+        glClearColor( clearColorRed, clearColorGreen, clearColorBlue, 1.0f );
         glClear( GL_COLOR_BUFFER_BIT );
         glfwSwapBuffers( window );
         glfwMakeContextCurrent( NULL );
@@ -621,11 +620,9 @@ GLFWwindow* MyGL::makeWindowForContext() {
 
 void SnakeGame::snakeGame(MyGL *application) {
     std::vector<Window*> grid; // row major
-    int food = 0;
 
     int numberOfMonitors = 0;
     GLFWmonitor** monitors = glfwGetMonitors(&numberOfMonitors);
-    std::list<int> snake;
     const GLFWvidmode *mode;
     int x = 0;
     int y = 0;
@@ -637,7 +634,7 @@ void SnakeGame::snakeGame(MyGL *application) {
     screenHeight = mode->height;
     int gridHeight = screenHeight / tileSize;
     int gridWidth = screenWidth / tileSize;
-    printf("grid height %d, grid width %d\n", gridHeight, gridHeight);
+    std::cout << "gridWidth " << gridWidth << " gridHeight " << gridHeight << std::endl;
     grid.resize(gridHeight * gridWidth);
 
     //std::list<int> movement;
@@ -673,43 +670,63 @@ void SnakeGame::snakeGame(MyGL *application) {
     snakeWindowHint.clearColor.x = 1.0f;
     snakeWindowHint.glfw_focused = 0;
     struct WindowHints foodWindowHint(snakeWindowHint);
-    //foodWindowHint.clearColor.x = 0.0f;
-    foodWindowHint.clearColor.z = 1.0f;
+    foodWindowHint.clearColor.x = 0.0f;
+    foodWindowHint.clearColor.y = 1.0f;
 
     int head = 0;
+    int food = 5;
+    std::list<int> snake;
     std::chrono::system_clock::time_point tp = std::chrono::system_clock::now();
-    tp += std::chrono::milliseconds(500);
+    tp += std::chrono::milliseconds(300);
+
+    foodWindowHint.location.x = (food % gridWidth) * tileSize;
+    foodWindowHint.location.y = (food / gridWidth) * tileSize;
+    grid[food] = new Window(application, tileSize, tileSize, foodWindowHint);
+
+    for(; head < 3; ++head) {
+        snake.push_back(head);
+        grid[head] = new Window(application, tileSize, tileSize, snakeWindowHint); 
+    }
 
     while(1) {
         glfwPollEvents();
         if(std::chrono::system_clock::now() > tp) {
             //head += movement.front();
             head += movement;
+            snake.push_back(head);
             if(head < 0 || head >= (gridWidth * gridHeight)) {
                 std::cout << "Out of bounds. You lose." << std::endl;
                 break;
             }
-            if(grid[head]) {
-                std::cout << "Ran into self. You lose." << std::endl;
-                break;
+            if(head == food) {
+                std::cout << "eat" << std::endl;
+                grid[head]->clearColorRed = 1.0;
+                grid[head]->clearColorGreen = 0.0;
+                while(grid[(food = rand() % (gridWidth * gridHeight))]); // bad code. should pick rand out of free space
+                foodWindowHint.location.x = (food % gridWidth) * tileSize;
+                foodWindowHint.location.y = (food / gridWidth) * tileSize;
+                grid[food] = new Window(application, tileSize, tileSize, foodWindowHint);
+            } else {
+                delete grid[snake.front()];
+                grid[snake.front()] = nullptr;
+                snake.pop_front();
+                if(grid[head]) {
+                    std::cout << "Ran into self. You lose." << std::endl;
+                    break;
+                }
+                snakeWindowHint.location.x = (head % gridWidth) * tileSize;
+                snakeWindowHint.location.y = (head / gridWidth) * tileSize;
+                grid[head] = new Window(application, tileSize, tileSize, snakeWindowHint);
             }
-            if(!grid[food]) {
-                Window *w(new Window(application, tileSize, tileSize, foodWindowHint));
-            }
-            if(head == food)
-            //if(movement.size() > 1) movement.pop_front();
-            snake.push_back(head);
-            snakeWindowHint.location.x = (head % gridWidth) * tileSize;
-            snakeWindowHint.location.y = (head / gridWidth) * tileSize;
-            Window *w(new Window(application, tileSize, tileSize, snakeWindowHint));
-            grid[head] = w;
-            tp += std::chrono::milliseconds(500);
+            tp += std::chrono::milliseconds(200);
         }
 
         //std::thread(&Window::loop, grid[head]);
         for(const auto x : snake) {
+            //std::cout << x;
             grid[x]->loop();
         }
+        //std::cout << std::endl;
         if(food) grid[food]->loop();
     }
     for(std::list<int>::iterator begin = snake.begin(), end = snake.end(); begin != end;) {
