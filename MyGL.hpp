@@ -249,7 +249,7 @@ public:
 
 namespace SnakeGame {
     void snakeGame(MyGL *application);
-    int newFoodLocation(int gridSize, const std::set<int> snake);
+    int newFoodLocation(int snakeSize, int gridSize, std::unordered_map<int, std::unique_ptr<Window>>& grid);
     void stepNorth();
     void stepEast();
     void stepSouth();

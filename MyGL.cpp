@@ -679,9 +679,9 @@ void SnakeGame::snakeGame(MyGL *application) {
 
 
     int head = 0;
-    std::set<int> snake;
+    std::list<int> snake;
     for(; head < 5; ++head) {
-        snake.insert(head);
+        snake.push_back(head);
         snakeWindowHint.location.x = (head % gridWidth) * tileSize;
         snakeWindowHint.location.y = (head / gridWidth) * tileSize;
         grid.insert(std::make_pair(head, std::make_unique<Window>(application, tileSize, tileSize, snakeWindowHint)));
@@ -689,7 +689,7 @@ void SnakeGame::snakeGame(MyGL *application) {
     }
     head--;
 
-    int food = SnakeGame::newFoodLocation(gridSize, snake);
+    int food = SnakeGame::newFoodLocation(snake.size(), gridSize, grid);
 
     foodWindowHint.location.x = (food % gridWidth) * tileSize;
     foodWindowHint.location.y = (food / gridWidth) * tileSize;
@@ -709,17 +709,16 @@ void SnakeGame::snakeGame(MyGL *application) {
                 std::cout << "eat" << std::endl;
                 grid.find(head)->second->clearColorRed = 1.0;
                 grid.find(head)->second->clearColorGreen = 0.0;
-                snake.insert(head);
-                food = newFoodLocation(gridSize, snake);
+                snake.push_back(head);
+                food = newFoodLocation(snake.size(), gridSize, grid);
                 foodWindowHint.location.x = (food % gridWidth) * tileSize;
                 foodWindowHint.location.y = (food / gridWidth) * tileSize;
                 grid.insert(std::make_pair(food, std::make_unique<Window>(application, tileSize, tileSize, foodWindowHint)));
                 grid.find(food)->second->loop();
             } else {
-                int temp = *snake.begin();
                 //grid.find(temp)->second->close();
                 //grid.find(temp)->second->loop();
-                grid.erase(temp);
+                grid.erase(snake.front());
                 snake.erase(snake.begin());
                 if(grid.find(head) != grid.end()) {
                     std::cout << "Ran into self. You lose." << std::endl;
@@ -729,7 +728,7 @@ void SnakeGame::snakeGame(MyGL *application) {
                 snakeWindowHint.location.y = (head / gridWidth) * tileSize;
                 grid.insert(std::make_pair(head, std::make_unique<Window>(application, tileSize, tileSize, snakeWindowHint)));
                 grid.find(head)->second->loop();
-                snake.insert(head);
+                snake.push_back(head);
             }
             tp += std::chrono::milliseconds(200);
         }
@@ -781,16 +780,17 @@ void SnakeGame::snakeGame(MyGL *application) {
     */
 }
 
-int SnakeGame::newFoodLocation(int gridSize, const std::set<int> snake) {
-    int r = rand() % (gridSize - snake.size());
+int SnakeGame::newFoodLocation(int snakeSize, int gridSize, std::unordered_map<int, std::unique_ptr<Window>>& grid) {
+    int r = rand() % (gridSize - snakeSize);
     for(int i = 0; i < gridSize; ++i) {
-        if(!snake.count(i)) {
+        if(grid.find(i) == grid.end()) {
             if(r == 0) {
                 return i;
             }
             r--;
         }
     }
+    throw std::runtime_error("this function should have returned");
 }
 
 void SnakeGame::stepNorth() {}
