@@ -370,10 +370,10 @@ Window::Window(MyGL *parent, int width, int height, const WindowHints& wh) {
     this->width = width;
     this->height = height;
 	glfwWindowHint( GLFW_CONTEXT_VERSION_MAJOR, wh.glfw_context_version_major );
-	//glfwWindowHint( GLFW_CONTEXT_VERSION_MINOR, wh.glfw_context_version_minor );
+	glfwWindowHint( GLFW_CONTEXT_VERSION_MINOR, wh.glfw_context_version_minor );
 	//glfwWindowHint( GLFW_OPENGL_PROFILE, wh.glfw_opengl_profile );
 	glfwWindowHint( GLFW_RESIZABLE, wh.glfw_resizable );
-    glfwWindowHint( GLFW_OPENGL_FORWARD_COMPAT, wh.glfw_opengl_forward_compat ); /** for mac compatability*/
+    //glfwWindowHint( GLFW_OPENGL_FORWARD_COMPAT, wh.glfw_opengl_forward_compat ); /** for mac compatability*/
     glfwWindowHint( GLFW_FOCUSED, wh.glfw_focused );
     glfwWindowHint( GLFW_DECORATED, wh.glfw_decorated );
     glfwWindowHint( GLFW_VISIBLE, wh.glfw_visible );
@@ -700,6 +700,14 @@ void SnakeGame::snakeGame(MyGL *application) {
         glfwPollEvents();
         if(std::chrono::system_clock::now() > tp) {
             //head += movement.front();
+            if(movement == 1 && head % gridWidth == gridWidth - 1) {
+                std::cout << "Out of bounds. You lose." << std::endl;
+                break;
+            }
+            if(movement == -1 && head % gridWidth == 0) {
+                std::cout << "Out of bounds. You lose." << std::endl;
+                break;
+            }
             head += movement;
             if(head < 0 || head >= (gridWidth * gridHeight)) {
                 std::cout << "Out of bounds. You lose." << std::endl;
@@ -710,6 +718,10 @@ void SnakeGame::snakeGame(MyGL *application) {
                 grid.find(head)->second->clearColorRed = 1.0;
                 grid.find(head)->second->clearColorGreen = 0.0;
                 snake.push_back(head);
+                if(gridSize - snake.size() == 0) {
+                    printf("You win!\n");
+                    break;
+                }
                 food = newFoodLocation(snake.size(), gridSize, grid);
                 foodWindowHint.location.x = (food % gridWidth) * tileSize;
                 foodWindowHint.location.y = (food / gridWidth) * tileSize;
