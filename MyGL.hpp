@@ -4,9 +4,8 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
-#include <cstdio>
-#include <unordered_map>
 #include <condition_variable>
+#include <cstdio>
 #include <cstdlib>
 #include <cstring>
 #include <fstream>
@@ -16,9 +15,11 @@
 #include <math.h>
 #include <mutex>
 #include <queue>
+#include <set>
 #include <sstream>
 #include <stdexcept>
 #include <thread>
+#include <unordered_map>
 #include <vector>
 
 //#include <boost/filesystem.hpp>
@@ -248,6 +249,7 @@ public:
 
 namespace SnakeGame {
     void snakeGame(MyGL *application);
+    int newFoodLocation(int gridSize, const std::set<int> snake);
     void stepNorth();
     void stepEast();
     void stepSouth();

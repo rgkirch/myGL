@@ -635,7 +635,8 @@ void SnakeGame::snakeGame(MyGL *application) {
     int gridHeight = screenHeight / tileSize;
     int gridWidth = screenWidth / tileSize;
     std::cout << "gridWidth " << gridWidth << " gridHeight " << gridHeight << std::endl;
-    grid.resize(gridHeight * gridWidth);
+    int gridSize = gridHeight * gridWidth;
+    grid.resize(gridSize);
 
     //std::list<int> movement;
     int movement;
@@ -673,27 +674,29 @@ void SnakeGame::snakeGame(MyGL *application) {
     foodWindowHint.clearColor.x = 0.0f;
     foodWindowHint.clearColor.y = 1.0f;
 
-    int head = 0;
-    int food = 5;
-    std::list<int> snake;
+    std::set<int> snake;
     std::chrono::system_clock::time_point tp = std::chrono::system_clock::now();
     tp += std::chrono::milliseconds(300);
+
+    int head = 0;
+
+    for(; head < 5; ++head) {
+        snake.insert(head);
+        grid[head] = new Window(application, tileSize, tileSize, snakeWindowHint); 
+    }
+
+    int food = SnakeGame::newFoodLocation(gridSize, snake);
 
     foodWindowHint.location.x = (food % gridWidth) * tileSize;
     foodWindowHint.location.y = (food / gridWidth) * tileSize;
     grid[food] = new Window(application, tileSize, tileSize, foodWindowHint);
-
-    for(; head < 3; ++head) {
-        snake.push_back(head);
-        grid[head] = new Window(application, tileSize, tileSize, snakeWindowHint); 
-    }
 
     while(1) {
         glfwPollEvents();
         if(std::chrono::system_clock::now() > tp) {
             //head += movement.front();
             head += movement;
-            snake.push_back(head);
+            snake.insert(head);
             if(head < 0 || head >= (gridWidth * gridHeight)) {
                 std::cout << "Out of bounds. You lose." << std::endl;
                 break;
@@ -702,14 +705,16 @@ void SnakeGame::snakeGame(MyGL *application) {
                 std::cout << "eat" << std::endl;
                 grid[head]->clearColorRed = 1.0;
                 grid[head]->clearColorGreen = 0.0;
-                while(grid[(food = rand() % (gridWidth * gridHeight))]); // bad code. should pick rand out of free space
+                snake.insert(head);
+                food = newFoodLocation(gridSize, snake);
                 foodWindowHint.location.x = (food % gridWidth) * tileSize;
                 foodWindowHint.location.y = (food / gridWidth) * tileSize;
                 grid[food] = new Window(application, tileSize, tileSize, foodWindowHint);
             } else {
-                delete grid[snake.front()];
-                grid[snake.front()] = nullptr;
-                snake.pop_front();
+                //grid.erase(*(snake.begin()));
+                delete grid[*snake.begin()];
+                grid[*snake.begin()] = nullptr;
+                snake.erase(snake.begin());
                 if(grid[head]) {
                     std::cout << "Ran into self. You lose." << std::endl;
                     break;
@@ -767,6 +772,18 @@ void SnakeGame::snakeGame(MyGL *application) {
         glfwMakeContextCurrent( NULL );
     }
     */
+}
+
+int SnakeGame::newFoodLocation(int gridSize, const std::set<int> snake) {
+    int r = rand() % (gridSize - snake.size());
+    for(int i = 0; i < gridSize; ++i) {
+        if(!snake.count(i)) {
+            if(r == 0) {
+                return i;
+            }
+            r--;
+        }
+    }
 }
 
 void SnakeGame::stepNorth() {}
