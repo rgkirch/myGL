@@ -446,6 +446,7 @@ void Window::loop() {
 }
 
 Window::~Window() {
+    printf("destructed\n");
     if(window) glfwDestroyWindow( window );
 }
 
@@ -619,7 +620,7 @@ GLFWwindow* MyGL::makeWindowForContext() {
 }
 
 void SnakeGame::snakeGame(MyGL *application) {
-    std::vector<Window*> grid; // row major
+    std::unordered_map<int, std::unique_ptr<Window>> grid; // row major
 
     int numberOfMonitors = 0;
     GLFWmonitor** monitors = glfwGetMonitors(&numberOfMonitors);
@@ -636,7 +637,6 @@ void SnakeGame::snakeGame(MyGL *application) {
     int gridWidth = screenWidth / tileSize;
     std::cout << "gridWidth " << gridWidth << " gridHeight " << gridHeight << std::endl;
     int gridSize = gridHeight * gridWidth;
-    grid.resize(gridSize);
 
     //std::list<int> movement;
     int movement;
@@ -674,71 +674,78 @@ void SnakeGame::snakeGame(MyGL *application) {
     foodWindowHint.clearColor.x = 0.0f;
     foodWindowHint.clearColor.y = 1.0f;
 
-    std::set<int> snake;
     std::chrono::system_clock::time_point tp = std::chrono::system_clock::now();
     tp += std::chrono::milliseconds(300);
 
-    int head = 0;
 
+    int head = 0;
+    std::set<int> snake;
     for(; head < 5; ++head) {
         snake.insert(head);
-        grid[head] = new Window(application, tileSize, tileSize, snakeWindowHint); 
+        snakeWindowHint.location.x = (head % gridWidth) * tileSize;
+        snakeWindowHint.location.y = (head / gridWidth) * tileSize;
+        grid.insert(std::make_pair(head, std::make_unique<Window>(application, tileSize, tileSize, snakeWindowHint)));
+        grid.find(head)->second->loop();
     }
+    head--;
 
     int food = SnakeGame::newFoodLocation(gridSize, snake);
 
     foodWindowHint.location.x = (food % gridWidth) * tileSize;
     foodWindowHint.location.y = (food / gridWidth) * tileSize;
-    grid[food] = new Window(application, tileSize, tileSize, foodWindowHint);
+    grid.insert(std::make_pair(food, std::make_unique<Window>(application, tileSize, tileSize, foodWindowHint)));
+    grid.find(food)->second->loop();
 
     while(1) {
         glfwPollEvents();
         if(std::chrono::system_clock::now() > tp) {
             //head += movement.front();
             head += movement;
-            snake.insert(head);
             if(head < 0 || head >= (gridWidth * gridHeight)) {
                 std::cout << "Out of bounds. You lose." << std::endl;
                 break;
             }
             if(head == food) {
                 std::cout << "eat" << std::endl;
-                grid[head]->clearColorRed = 1.0;
-                grid[head]->clearColorGreen = 0.0;
+                grid.find(head)->second->clearColorRed = 1.0;
+                grid.find(head)->second->clearColorGreen = 0.0;
                 snake.insert(head);
                 food = newFoodLocation(gridSize, snake);
                 foodWindowHint.location.x = (food % gridWidth) * tileSize;
                 foodWindowHint.location.y = (food / gridWidth) * tileSize;
-                grid[food] = new Window(application, tileSize, tileSize, foodWindowHint);
+                grid.insert(std::make_pair(food, std::make_unique<Window>(application, tileSize, tileSize, foodWindowHint)));
+                grid.find(food)->second->loop();
             } else {
-                //grid.erase(*(snake.begin()));
-                delete grid[*snake.begin()];
-                grid[*snake.begin()] = nullptr;
+                int temp = *snake.begin();
+                //grid.find(temp)->second->close();
+                //grid.find(temp)->second->loop();
+                grid.erase(temp);
                 snake.erase(snake.begin());
-                if(grid[head]) {
+                if(grid.find(head) != grid.end()) {
                     std::cout << "Ran into self. You lose." << std::endl;
                     break;
                 }
                 snakeWindowHint.location.x = (head % gridWidth) * tileSize;
                 snakeWindowHint.location.y = (head / gridWidth) * tileSize;
-                grid[head] = new Window(application, tileSize, tileSize, snakeWindowHint);
+                grid.insert(std::make_pair(head, std::make_unique<Window>(application, tileSize, tileSize, snakeWindowHint)));
+                grid.find(head)->second->loop();
+                snake.insert(head);
             }
             tp += std::chrono::milliseconds(200);
         }
 
-        //std::thread(&Window::loop, grid[head]);
         for(const auto x : snake) {
             //std::cout << x;
-            grid[x]->loop();
+            grid.find(x)->second->loop();
         }
         //std::cout << std::endl;
-        if(food) grid[food]->loop();
+        if(grid.find(food) != grid.end()) grid.find(food)->second->loop();
     }
-    for(std::list<int>::iterator begin = snake.begin(), end = snake.end(); begin != end;) {
+    for(auto item = snake.begin(), end = snake.end(); item != end;) {
         // remove them
-        grid[snake.front()]->close();
-        delete grid[snake.front()];
-        begin = snake.erase(begin);
+        grid.find(*item)->second->close();
+        grid.erase(*item);
+        item = snake.erase(item);
     }
     printf("finish snake game\n");
 

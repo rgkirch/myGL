@@ -4,7 +4,7 @@ INCLUDE=-I/usr/include -I/usr/local/include -L/usr/local/lib -L/usr/lib
 LINK=-lglfw -lGLEW -lGL -lpng -pthread
 # -lboost_system -lboost_filesystem -lboost_thread -lboost_chrono -lboost_date_time 
 
-STD=-std=c++11
+STD=-std=c++14
 
 all: app.exe
 app.exe: main.cpp MyGL.o MyGL.hpp
