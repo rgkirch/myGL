@@ -1,2 +1,0 @@
-// Richard Kirchofer
-
