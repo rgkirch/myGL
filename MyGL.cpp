@@ -646,19 +646,19 @@ void SnakeGame::snakeGame(MyGL *application) {
             switch(key.scancode) {
                 case 111: // up
                     //movement.push_back(-gridWidth);
-                    movement = -gridWidth;
+                    movement = movement == gridWidth ? movement : -gridWidth;
                     break;
                 case 114: //right
                     //movement.push_back(1);
-                    movement = 1;
+                    movement = movement == -1 ? movement : 1;
                     break;
                 case 116: //down
                     //movement.push_back(gridWidth);
-                    movement = gridWidth;
+                    movement = movement == -gridWidth ? movement : gridWidth;
                     break;
                 case 113: //left
                     //movement.push_back(-1);
-                    movement = -1;
+                    movement = movement == 1 ? movement : -1;
                     break;
             }
         }
