@@ -695,25 +695,28 @@ void SnakeGame::snakeGame(MyGL *application) {
     grid.insert(std::make_pair(food, std::make_unique<Window>(application, tileSize, tileSize, foodWindowHint)));
     grid.find(food)->second->loop();
 
+    int chrono = 200;
+
     while(1) {
         glfwPollEvents();
         if(std::chrono::system_clock::now() > tp) {
             //head += movement.front();
             if(movement == 1 && head % gridWidth == gridWidth - 1) {
-                std::cout << "Out of bounds. You lose." << std::endl;
+                std::cout << "Out of bounds. You lose. Score " << snake.size() << std::endl;
                 break;
             }
             if(movement == -1 && head % gridWidth == 0) {
-                std::cout << "Out of bounds. You lose." << std::endl;
+                std::cout << "Out of bounds. You lose. Score " << snake.size() << std::endl;
                 break;
             }
             head += movement;
             if(head < 0 || head >= (gridWidth * gridHeight)) {
-                std::cout << "Out of bounds. You lose." << std::endl;
+                std::cout << "Out of bounds. You lose. Score " << snake.size() << std::endl;
                 break;
             }
             if(head == food) {
                 std::cout << "eat" << std::endl;
+                chrono--;
                 grid.find(head)->second->clearColorRed = 1.0;
                 grid.find(head)->second->clearColorGreen = 0.0;
                 snake.push_back(head);
@@ -732,7 +735,7 @@ void SnakeGame::snakeGame(MyGL *application) {
                 grid.erase(snake.front());
                 snake.erase(snake.begin());
                 if(grid.find(head) != grid.end()) {
-                    std::cout << "Ran into self. You lose." << std::endl;
+                    std::cout << "Ran into self. You lose. Score " << snake.size() << std::endl;
                     break;
                 }
                 snakeWindowHint.location.x = (head % gridWidth) * tileSize;
@@ -741,7 +744,7 @@ void SnakeGame::snakeGame(MyGL *application) {
                 grid.find(head)->second->loop();
                 snake.push_back(head);
             }
-            tp += std::chrono::milliseconds(200);
+            tp += std::chrono::milliseconds(chrono);
         }
 
         for(const auto x : snake) {
