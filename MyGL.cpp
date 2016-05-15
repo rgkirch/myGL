@@ -674,7 +674,7 @@ void SnakeGame::snakeGame(MyGL *application) {
     foodWindowHint.clearColor.y = 1.0f;
 
     std::chrono::system_clock::time_point tp = std::chrono::system_clock::now();
-    tp += std::chrono::milliseconds(300);
+    tp += std::chrono::milliseconds(200);
 
 
     int head = 0;
@@ -716,7 +716,9 @@ void SnakeGame::snakeGame(MyGL *application) {
             }
             if(head == food) {
                 std::cout << "eat" << std::endl;
-                chrono--;
+                if(chrono > 50) {
+                    chrono--;
+                }
                 grid.find(head)->second->clearColorRed = 1.0;
                 grid.find(head)->second->clearColorGreen = 0.0;
                 snake.push_back(head);
