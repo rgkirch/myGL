@@ -590,7 +590,7 @@ GLFWwindow* MyGL::makeWindowForContext() {
 	//glfwWindowHint( GLFW_CONTEXT_VERSION_MINOR, 3 );
 	//glfwWindowHint( GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE );
 	glfwWindowHint( GLFW_RESIZABLE, GL_FALSE );
-    glfwWindowHint( GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE ); /** for mac compatability*/
+    //glfwWindowHint( GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE ); /** for mac compatability*/
     glfwWindowHint( GLFW_FOCUSED, GL_FALSE );
     glfwWindowHint( GLFW_DECORATED, GL_FALSE );
     glfwWindowHint( GLFW_VISIBLE, GL_FALSE );
