@@ -446,7 +446,6 @@ void Window::loop() {
 }
 
 Window::~Window() {
-    printf("destructed\n");
     if(window) glfwDestroyWindow( window );
 }
 
