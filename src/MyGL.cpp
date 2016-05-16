@@ -264,7 +264,7 @@ void Context::render(ShaderProgram *shader, View *view) {
     glUniform1f(shader->screenWidth,    view->width);
     glUniform1f(shader->screenHeight,   view->height);
 
-    for(int i = 0; i < shapes.size(); ++i) {
+    for(size_t i = 0; i < shapes.size(); ++i) {
         printf("shape vector size %d\n", (int)shapes.size());
         if(shapes[i]) shapes[i]->render();
     }
