@@ -1,0 +1,5 @@
+cmake_minimum_required (VERSION 2.6)
+project (MyGL)
+add_executable(MyGL src/MyGL.cpp)
+set_property(TARGET MyGL PROPERTY CXX_STANDARD 14)
+set_property(TARGET MyGL PROPERTY CXX_STANDARD_REQUIRED ON)
