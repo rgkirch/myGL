@@ -446,6 +446,7 @@ void Window::loop() {
 }
 
 Window::~Window() {
+    glfwSetWindowShouldClose(window, 1);
     if(window) glfwDestroyWindow( window );
 }
 
@@ -698,6 +699,7 @@ void SnakeGame::snakeGame(MyGL *application) {
     int chrono = 200;
 
     while(1) {
+        glfwPostEmptyEvent();
         glfwPollEvents();
         if(std::chrono::system_clock::now() > tp) {
             //head += movement.front();
@@ -721,6 +723,7 @@ void SnakeGame::snakeGame(MyGL *application) {
                 }
                 grid.find(head)->second->clearColorRed = 1.0;
                 grid.find(head)->second->clearColorGreen = 0.0;
+                grid.find(head)->second->loop();
                 snake.push_back(head);
                 if(gridSize - snake.size() == 0) {
                     printf("You win!\n");
@@ -749,10 +752,12 @@ void SnakeGame::snakeGame(MyGL *application) {
             tp += std::chrono::milliseconds(chrono);
         }
 
+        /*
         for(const auto x : snake) {
             //std::cout << x;
             grid.find(x)->second->loop();
         }
+        */
         //std::cout << std::endl;
         if(grid.find(food) != grid.end()) grid.find(food)->second->loop();
     }

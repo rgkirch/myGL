@@ -11,3 +11,7 @@ When I make the readPNG function I should replace the blurlock convert with my o
 Context:
     Compose: think ms paint
     typing practise. either random words or you can submit some text and it will walk through the text as you type with some visual feedback on your correctness
+
+
+figure out how to cross compile with mxe and cmake
+-DCMAKE_TOOLCHAIN_FILE=/home/eve/GitClone/mxe/usr/i686-w64-mingw32.static/share/cmake/mxe-conf.cmake
