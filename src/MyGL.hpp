@@ -22,7 +22,7 @@
 #include <unordered_map>
 #include <vector>
 
-//#include <boost/filesystem.hpp>
+#include <boost/filesystem.hpp>
 #include <png.h>
 #include <glm/glm.hpp>
 
@@ -255,5 +255,7 @@ namespace SnakeGame {
     void stepSouth();
     void stepWest();
 }
+
+void boostFun(std::string);
 
 #endif

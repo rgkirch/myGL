@@ -530,7 +530,7 @@ MyGL::MyGL() {
 
     //shaderPrograms.push_back(std::unique_ptr<ShaderProgram>(new ShaderProgram(vertexShaderFileName, fragmentShaderFileName)));
     //printMonitorInfo();
-    SnakeGame::snakeGame(this);
+    //SnakeGame::snakeGame(this);
 
     glfwTerminate();
 
@@ -833,4 +833,43 @@ void printMonitorInfo() {
         glfwGetMonitorPos(monitors[i], &x, &y);
         std::cout << "monitor " << i << " is " << x << " and " << y << std::endl;
     }
+}
+
+void ls(boost::filesystem::path p, int& total) {
+    using namespace boost::filesystem;
+    if(exists(p)) {
+        if(is_regular_file(p)) {
+            std::cout << p << std::endl;
+            total = 1;
+        } else if(is_directory(p)) {
+            std::vector<int> counts;
+            directory_iterator d(p);
+            std::list<std::unique_ptr<std::thread>> children;
+            while(d != directory_iterator()) {
+                counts.push_back(0);
+                children.push_back(std::make_unique<std::thread>(std::bind(ls, d->path(), counts[counts.size()-1])));
+                //children.push_back(std::make_unique<std::thread>([=]{ls(d->path());}));
+                d++;
+            }
+            while(!children.empty()) {
+                children.front()->join();
+                children.pop_front();
+            }
+            for(auto x : counts) {
+                std::cout << x;
+            }
+            std::cout << std::endl;
+            total = std::accumulate(counts.begin(), counts.end(), 0);
+        }
+    }
+}
+
+void boostFun(std::string str) {
+    using namespace boost;
+    //filesystem::path p(std::string("/home/eve/Github/myGL/"));
+    filesystem::path p(str);
+    //std::copy(boost::filesystem::directory_iterator(d), boost::filesystem::directory_iterator(), std::back_inserter(vec));
+    int count = 0;
+    ls(p, count);
+    std::cout << count << std::endl;
 }
