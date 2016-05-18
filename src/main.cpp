@@ -5,10 +5,14 @@
 #include "MyGL.hpp"
 
 int main(int argc, char** argv) {
-    //std::unique_ptr<MyGL>mygl(new MyGL());
-    //MyGL* mygl = new MyGL();
-    //mygl->mainLoop();
-    if(argc > 1) boostFun(argv[1]);
+    std::unique_ptr<MyGL> mygl;
+    if(argc > 1) {
+        std::make_unique<MyGL>(std::string(argv[1]));
+    } else {
+        std::make_unique<MyGL>();
+    }
+    mygl->start();
+    //if(argc > 1) boostFun(argv[1]);
 
     //delete mygl;
     //mygl->currentContext = new Context();

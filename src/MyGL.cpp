@@ -2,6 +2,8 @@
 
 std::mutex contextMutex;
 std::mutex glfwMutex;
+bool glfwInited;
+bool glewInited;
 
 typedef void (Shape::*renderFunc)();
 
@@ -27,6 +29,8 @@ WindowHints::WindowHints() {
     clearColor.z = 0.0;
     location.x = 0.0f;
     location.y = 0.0f;
+    width = 200;
+    height = 200;
 }
 
 WindowHints::WindowHints(const WindowHints& wh) {
@@ -41,8 +45,10 @@ WindowHints::WindowHints(const WindowHints& wh) {
     clearColor.x = wh.clearColor.x;
     clearColor.y = wh.clearColor.y;
     clearColor.z = wh.clearColor.z;
-    location.x = 0.0f;
-    location.y = 0.0f;
+    location.x = wh.location.x;
+    location.y = wh.location.y;
+    width = wh.width;
+    height = wh.height;
 }
 
 /** Reads in a couple text files, compiles and links stuff and makes a shader program. Calls glUseProgram at the end and then needs to set up the uniforms.*/
@@ -365,10 +371,17 @@ Shape::Shape(float x, float y) {
     endY = y;
 }
 
-Window::Window(MyGL *parent, int width, int height, const WindowHints& wh) {
+Window::Window(MyGL *parent, const WindowHints& wh) {
     this->parentMyGL = parent;
-    this->width = width;
-    this->height = height;
+    this->width = wh.width;
+    this->height = wh.height;
+    if(!glfwInited) {
+        if ( !glfwInit() ) {
+            throw std::runtime_error("GLFW failed to init.");
+        }
+        glfwSetErrorCallback(error_callback);
+        glfwSetMonitorCallback(monitor_callback);
+    }
 	glfwWindowHint( GLFW_CONTEXT_VERSION_MAJOR, wh.glfw_context_version_major );
 	glfwWindowHint( GLFW_CONTEXT_VERSION_MINOR, wh.glfw_context_version_minor );
 	//glfwWindowHint( GLFW_OPENGL_PROFILE, wh.glfw_opengl_profile );
@@ -385,6 +398,19 @@ Window::Window(MyGL *parent, int width, int height, const WindowHints& wh) {
 		glfwTerminate();
         throw std::runtime_error("GLFW failed to create the window in Window constructor.");
 	}
+    if(!glewInited) {
+        std::unique_lock<std::mutex> contextLock(contextMutex);
+        glfwMakeContextCurrent( window );
+
+        glewExperimental = GL_TRUE;
+        if( glewInit() != GLEW_OK ) {
+            fprintf(stderr, "GLEW failed to init.\n");
+            fprintf(stderr, "Exiting.\n");
+            throw std::runtime_error("glew failed to init");
+        }
+        glfwMakeContextCurrent( NULL );
+        contextLock.unlock();
+    }
     glfwSetWindowPos(window, wh.location.x, wh.location.y);
 
     std::unique_lock<std::mutex> contextLock(contextMutex);
@@ -504,35 +530,15 @@ double View::pixelToRealY(double py) {
 }
 
 
+MyGL::MyGL(std::string str) {
+}
+
 MyGL::MyGL() {
-    this->windowForContext = NULL;
-	/** Initialize the library */
-	if ( !glfwInit() ) {
-        throw std::runtime_error("GLFW failed to init.");
-	}
-
-    glfwSetErrorCallback(error_callback);
-
-    windowForContext = makeWindowForContext();
-    std::unique_lock<std::mutex> contextLock(contextMutex);
-    glfwMakeContextCurrent( windowForContext );
-
-	glewExperimental = GL_TRUE;
-	if( glewInit() != GLEW_OK ) {
-        fprintf(stderr, "GLEW failed to init.\n");
-        fprintf(stderr, "Exiting.\n");
-        exit(1);
-	}
-    glfwMakeContextCurrent( NULL );
-    contextLock.unlock();
-
-    glfwSetMonitorCallback(monitor_callback);
 
     //shaderPrograms.push_back(std::unique_ptr<ShaderProgram>(new ShaderProgram(vertexShaderFileName, fragmentShaderFileName)));
     //printMonitorInfo();
     //SnakeGame::snakeGame(this);
 
-    glfwTerminate();
 
     //printf( "VENDOR = %s\n", glGetString( GL_VENDOR ) ) ;
     //printf( "RENDERER = %s\n", glGetString( GL_RENDERER ) ) ;
@@ -557,19 +563,27 @@ MyGL::MyGL() {
 }
 
 MyGL::~MyGL() {
-    printf("destruct mygl\n");
 }
 
-void MyGL::mainLoop() {
-    while(windows.size() > 0) {
-        //for(std::list<Window*>::iterator it = windows.begin(); it != windows.end(); ++it) {
-        for(auto it : windows) {
-            /** If the thread has finished then we assume the window do have destructed. We just erase the unique_ptr from the list.*/
-            //if(it->t && it->t->timed_join(boost::posix_time::millisec(100))) {
-                //it = windows.erase(it);
-            //}
-        }
-    }
+void MyGL::start() {
+    std::list<std::unique_ptr<Window>> wins;
+    WindowHints wh;
+    wh.clearColor.x = 1.0;
+    wh.width = 400;
+    wh.height = 400;
+    wins.push_back(std::make_unique<Window>(this, wh));
+    wins.front()->loop();
+    wh.location.x = 400;
+    wh.clearColor.y = 1.0;
+    wh.width = 400;
+    wh.height = 400;
+    wins.push_back(std::make_unique<Window>(this, wh));
+    wins.back()->loop();
+    std::this_thread::sleep_for(std::chrono::system_clock::duration(std::chrono::seconds(1)));
+}
+
+void MyGL::end() {
+    glfwTerminate();
 }
 
 void MyGL::genLotsWindows() {
@@ -684,7 +698,9 @@ void SnakeGame::snakeGame(MyGL *application) {
         snake.push_back(head);
         snakeWindowHint.location.x = (head % gridWidth) * tileSize;
         snakeWindowHint.location.y = (head / gridWidth) * tileSize;
-        grid.insert(std::make_pair(head, std::make_unique<Window>(application, tileSize, tileSize, snakeWindowHint)));
+        snakeWindowHint.width = tileSize;
+        snakeWindowHint.height = tileSize;
+        grid.insert(std::make_pair(head, std::make_unique<Window>(application, snakeWindowHint)));
         grid.find(head)->second->loop();
     }
     head--;
@@ -693,7 +709,9 @@ void SnakeGame::snakeGame(MyGL *application) {
 
     foodWindowHint.location.x = (food % gridWidth) * tileSize;
     foodWindowHint.location.y = (food / gridWidth) * tileSize;
-    grid.insert(std::make_pair(food, std::make_unique<Window>(application, tileSize, tileSize, foodWindowHint)));
+    foodWindowHint.width = tileSize;
+    foodWindowHint.height = tileSize;
+    grid.insert(std::make_pair(food, std::make_unique<Window>(application, foodWindowHint)));
     grid.find(food)->second->loop();
 
     int chrono = 200;
@@ -732,7 +750,9 @@ void SnakeGame::snakeGame(MyGL *application) {
                 food = newFoodLocation(snake.size(), gridSize, grid);
                 foodWindowHint.location.x = (food % gridWidth) * tileSize;
                 foodWindowHint.location.y = (food / gridWidth) * tileSize;
-                grid.insert(std::make_pair(food, std::make_unique<Window>(application, tileSize, tileSize, foodWindowHint)));
+                foodWindowHint.width = tileSize;
+                foodWindowHint.height = tileSize;
+                grid.insert(std::make_pair(food, std::make_unique<Window>(application, foodWindowHint)));
                 grid.find(food)->second->loop();
             } else {
                 //grid.find(temp)->second->close();
@@ -745,7 +765,9 @@ void SnakeGame::snakeGame(MyGL *application) {
                 }
                 snakeWindowHint.location.x = (head % gridWidth) * tileSize;
                 snakeWindowHint.location.y = (head / gridWidth) * tileSize;
-                grid.insert(std::make_pair(head, std::make_unique<Window>(application, tileSize, tileSize, snakeWindowHint)));
+                snakeWindowHint.width = tileSize;
+                snakeWindowHint.height = tileSize;
+                grid.insert(std::make_pair(head, std::make_unique<Window>(application, snakeWindowHint)));
                 grid.find(head)->second->loop();
                 snake.push_back(head);
             }

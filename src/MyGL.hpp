@@ -68,6 +68,8 @@ struct WindowHints {
     unsigned int glfw_visible;
     glm::vec3 clearColor;
     glm::vec2 location;
+    int width;
+    int height;
 };
 
 /**
@@ -199,7 +201,7 @@ public:
 class Window {
 public:
     typedef void (Window::*threadFunc)(void);
-    Window(MyGL *parent, int width, int height, const WindowHints& wh);
+    Window(MyGL *parent, const WindowHints& wh);
     ~Window();
     bool handles(GLFWwindow *window);
     void loop();
@@ -232,8 +234,10 @@ public:
 class MyGL {
 public:
     MyGL();
+    MyGL(std::string);
     ~MyGL();
-    void mainLoop(); /** Calls on all the windows to update themselvs.*/
+    void start();
+    void end();
     void genLotsWindows();
     GLFWwindow* makeWindowForContext();
     GLFWwindow* windowForContext;
