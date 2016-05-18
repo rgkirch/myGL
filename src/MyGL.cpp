@@ -835,33 +835,29 @@ void printMonitorInfo() {
     }
 }
 
-void ls(boost::filesystem::path p, int& total) {
+int ls(boost::filesystem::path p) {
+    std::cout << std::this_thread::get_id() << std::endl;
     using namespace boost::filesystem;
     if(exists(p)) {
         if(is_regular_file(p)) {
-            std::cout << p << std::endl;
-            total = 1;
+            //std::cout << p << std::endl;
+            return 1;
         } else if(is_directory(p)) {
-            std::vector<int> counts;
-            directory_iterator d(p);
-            std::list<std::unique_ptr<std::thread>> children;
-            while(d != directory_iterator()) {
-                counts.push_back(0);
-                children.push_back(std::make_unique<std::thread>(std::bind(ls, d->path(), counts[counts.size()-1])));
-                //children.push_back(std::make_unique<std::thread>([=]{ls(d->path());}));
-                d++;
+            std::vector<std::future<int>> vec;
+            try {
+                directory_iterator d(p);
+                while(d != directory_iterator()) {
+                    vec.push_back(std::async(ls, d->path()));
+                    //children.push_back(std::make_unique<std::thread>([=]{ls(d->path());}));
+                    d++;
+                }
+            } catch (const filesystem_error& ex) {
+                std::cout << ex.what() << std::endl;
             }
-            while(!children.empty()) {
-                children.front()->join();
-                children.pop_front();
-            }
-            for(auto x : counts) {
-                std::cout << x;
-            }
-            std::cout << std::endl;
-            total = std::accumulate(counts.begin(), counts.end(), 0);
+            return std::accumulate(vec.begin(), vec.end(), 0, [] (int& s, std::future<int>& f) -> int {return s + f.get();});
         }
     }
+    return 0;
 }
 
 void boostFun(std::string str) {
@@ -869,7 +865,5 @@ void boostFun(std::string str) {
     //filesystem::path p(std::string("/home/eve/Github/myGL/"));
     filesystem::path p(str);
     //std::copy(boost::filesystem::directory_iterator(d), boost::filesystem::directory_iterator(), std::back_inserter(vec));
-    int count = 0;
-    ls(p, count);
-    std::cout << count << std::endl;
+    std::cout << ls(p) << std::endl;
 }

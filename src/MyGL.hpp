@@ -10,6 +10,7 @@
 #include <cstring>
 #include <fstream>
 #include <functional>
+#include <future>
 #include <iostream>
 #include <list>
 #include <math.h>
