@@ -14,3 +14,4 @@ pic.jpg
 pic.png
 lib/*
 lib/**/*
+build/
