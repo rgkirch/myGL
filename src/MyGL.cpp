@@ -568,17 +568,11 @@ MyGL::~MyGL() {
 void MyGL::start() {
     std::list<std::unique_ptr<Window>> wins;
     WindowHints wh;
-    wh.clearColor.x = 1.0;
+    wh.clearColor = glm::vec3(1.0, 1.0, 1.0);
     wh.width = 400;
     wh.height = 400;
     wins.push_back(std::make_unique<Window>(this, wh));
     wins.front()->loop();
-    wh.location.x = 400;
-    wh.clearColor.y = 1.0;
-    wh.width = 400;
-    wh.height = 400;
-    wins.push_back(std::make_unique<Window>(this, wh));
-    wins.back()->loop();
     std::this_thread::sleep_for(std::chrono::system_clock::duration(std::chrono::seconds(1)));
 }
 

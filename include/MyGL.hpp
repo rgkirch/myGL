@@ -26,6 +26,7 @@
 
 #include <boost/filesystem.hpp>
 #include <png.h>
+#include <Magick++.h>
 #include <glm/glm.hpp>
 
 //#include <fstream>

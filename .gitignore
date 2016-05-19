@@ -9,3 +9,8 @@ log.txt
 *.pyc
 template
 .ycm_extra_conf.pyc
+Magick++_tutorial.pdf
+pic.jpg
+pic.png
+lib/*
+lib/**/*
