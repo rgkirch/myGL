@@ -1,5 +1,5 @@
 cmake_minimum_required (VERSION 2.6)
-#cmake_policy(SET CMP0048 NEW)
+cmake_policy(SET CMP0048 NEW)
 #cmake_policy(SET CMP0010 NEW)
 
 project (MyGL)
@@ -15,14 +15,18 @@ set(CMAKE_VERBOSE_MAKEFILE on)
 #set(MyGL_VERSION_MINOR 0)
 
 #configure_file("${PROJECT_SOURCE_DIR}/src/Config.h.in" "${PROJECT_BINARY_DIR}/src/Config.h")
-set(PROJECT_SOURCE_DIR ${CMAKE_SOURCE_DIR}/src)
-add_executable(MyGL ${PROJECT_SOURCE_DIR}/MyGL.cpp ${PROJECT_SOURCE_DIR}/main.cpp ${PROJECT_SOURCE_DIR}/MyGL.hpp)
+#set(PROJECT_SOURCE_DIR ${CMAKE_SOURCE_DIR}/src)
+#add_executable(MyGL ${PROJECT_SOURCE_DIR}/MyGL.cpp ${PROJECT_SOURCE_DIR}/main.cpp ${PROJECT_SOURCE_DIR}/MyGL.hpp)
 
 #if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
 #  set(MyGL_FORWARD_COMPAT 1)
 #endif()
 
-include_directories("${PROJECT_BINARY_DIR}")
+#include_directories("${PROJECT_BINARY_DIR}")
+include_directories("include")
+file(GLOB SOURCES "src/*.cpp")
+add_executable(MyGL ${SOURCES})
+
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_FLAGS "-g -Wall -std=c++14")
 #set(CMAKE_CXX_FLAGS "-Wall -std=c++14" "pkg-config --cflags --static --libs glfw3")
