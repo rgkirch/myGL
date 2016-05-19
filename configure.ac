@@ -1,6 +1,3 @@
-#                                               -*- Autoconf -*-
-# Process this file with autoconf to produce a configure script.
-
 AC_PREREQ([2.69])
 AC_INIT([MyGL], [0.00], [BUG-REPORT-ADDRESS])
 AM_INIT_AUTOMAKE(myGL, 0.00)
