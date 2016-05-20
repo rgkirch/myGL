@@ -1,12 +1,19 @@
 branches:
-    only:
-        - master
+  only:
+    - master
 sudo: required
 dist: precise
 language: cpp
 
-before_install: sudo apt-get update -qq && sudo apt-get install -y -qq libglew-dev libglfw3-dev libglm-dev
+addons:
+  apt:
+    sources:
+      - libglew-dev
+      - libglfw3-dev
+      - libglm-dev
+
 script: cmake . && make
+
 
 #include:
 #    - compiler: gcc
