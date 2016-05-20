@@ -14,7 +14,7 @@ addons:
     - libglew-dev
     - libglfw3-dev
     - libglm-dev
-
+    - libboost-dev
 
 script: cmake . && make
 
