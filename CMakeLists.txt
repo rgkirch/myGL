@@ -14,6 +14,8 @@ set(CMAKE_VERBOSE_MAKEFILE on)
 #set(MyGL_VERSION_MAJOR 0)
 #set(MyGL_VERSION_MINOR 0)
 
+#set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules/")
+
 #configure_file("${PROJECT_SOURCE_DIR}/src/Config.h.in" "${PROJECT_BINARY_DIR}/src/Config.h")
 #set(PROJECT_SOURCE_DIR ${CMAKE_SOURCE_DIR}/src)
 #add_executable(MyGL ${PROJECT_SOURCE_DIR}/MyGL.cpp ${PROJECT_SOURCE_DIR}/main.cpp ${PROJECT_SOURCE_DIR}/MyGL.hpp)
