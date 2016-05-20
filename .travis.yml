@@ -9,6 +9,7 @@ addons:
   apt:
     sources:
     - ubuntu-toolchain-r-test
+    - debian-sid
     packages:
     - libglew-dev
     - libglfw3-dev
