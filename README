@@ -1,3 +1,6 @@
 Richard Kirchofer
 
 You may not distribute this code as your own. I need to find a real licence to put in here. I take no responsibility for the use of this code. This code is provided as is with no warrentry or garuentee. If this code breaks anything, it is not my fault. I will not be held liable for any negative consequences of this code.
+
+you need to copy ./cmakeModules/FindGLFW.cmake to /usr/share/cmake-3.5/Modules
+

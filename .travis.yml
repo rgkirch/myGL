@@ -16,7 +16,7 @@ addons:
     - libglm-dev
     - libboost-dev
 
-script: cmake . && make
+script: ./travis-script.sh && mkdir build && cd build && cmake .. && make
 
 
 #include:
