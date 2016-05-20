@@ -8,9 +8,12 @@ language: cpp
 addons:
   apt:
     sources:
-      - libglew-dev
-      - libglfw3-dev
-      - libglm-dev
+    - ubuntu-toolchain-r-test
+    packages:
+    - libglew-dev
+    - libglfw3-dev
+    - libglm-dev
+
 
 script: cmake . && make
 
