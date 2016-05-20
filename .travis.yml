@@ -8,7 +8,7 @@ language: cpp
 addons:
   apt:
     sources:
-    - ubuntu-toolchain-r-test
+        #- ubuntu-toolchain-r-test
     - debian-sid
     packages:
     - libglew-dev
