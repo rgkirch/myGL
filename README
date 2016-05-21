@@ -4,3 +4,4 @@ You may not distribute this code as your own. I need to find a real licence to p
 
 you need to copy ./cmakeModules/FindGLFW.cmake to /usr/share/cmake-3.5/Modules
 
+ubuntu 14.04 and before does not have libglfw3-dev
