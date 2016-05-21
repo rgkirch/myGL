@@ -82,7 +82,7 @@ if (ImageMagick_FOUND)
 endif()
 
 find_package(GLFW REQUIRED)
-##pkg_search_module(GLFW REQUIRED glfw3)
+pkg_search_module(GLFW REQUIRED glfw3)
 if (GLFW_FOUND)
     message("found glfw")
     include_directories(${GLFW_INCLUDE_DIR})

@@ -652,7 +652,7 @@ void SnakeGame::snakeGame(MyGL *application) {
     int chrono = 200;
 
     while(1) {
-        glfwPostEmptyEvent();
+        //glfwPostEmptyEvent();
         glfwPollEvents();
         if(std::chrono::system_clock::now() > tp) {
             //head += movement.front();
