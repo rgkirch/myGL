@@ -12,9 +12,13 @@ addons:
     - debian-sid
     packages:
     - libglew-dev
-    - libglfw3-dev
+    - libglfw-dev
     - libglm-dev
     - libboost-dev
+    - libboost-dev
+    - libboost-system-dev
+    - libboost-filesystem-dev
+    - libmagick++-dev
 
 script: ./travis-script.sh && mkdir build && cd build && cmake .. && make
 
