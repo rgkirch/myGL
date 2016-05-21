@@ -12,3 +12,5 @@ vagrant box add mynewbox mynew.box
 
 # somewhere else
 vagrant init mynewbox
+vagrant up
+vagrant sh
