@@ -1,12 +1,23 @@
 branches:
-    only:
-        - master
+  only:
+    - master
 sudo: required
 dist: precise
 language: cpp
 
-before_install: sudo apt-get update -qq && sudo apt-get install -y -qq libglew-dev libglfw3-dev libglm-dev
-script: cmake . && make
+addons:
+  apt:
+    sources:
+        #- ubuntu-toolchain-r-test
+    - debian-sid
+    packages:
+    - libglew-dev
+    - libglfw3-dev
+    - libglm-dev
+    - libboost-dev
+
+script: ./travis-script.sh && mkdir build && cd build && cmake .. && make
+
 
 #include:
 #    - compiler: gcc
