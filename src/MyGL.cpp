@@ -151,65 +151,6 @@ void ShaderProgram::printShaderLog(char *errorMessage, GLuint shader) {
     free(logText);
 }
 
-PNG::PNG() : imageName(NULL), data(NULL) {
-    memset(&image, 0x00, sizeof(image));
-}
-
-PNG::PNG(char imageName[]) : data(NULL) {
-    this->imageName = imageName;
-    memset(&image, 0x00, sizeof(image));
-    image.version = PNG_IMAGE_VERSION;
-    image.opaque = NULL;
-    png_image_begin_read_from_file(&image, imageName);
-    image.format = PNG_FORMAT_RGBA;
-    image.colormap_entries = 0;
-    data = (unsigned char*)malloc(image.width * image.height * 4 * sizeof(unsigned char));
-    png_image_finish_read(&image, NULL, data, 0, NULL);
-}
-
-int PNG::width() {
-    return image.width;
-}
-
-int PNG::height() {
-    return image.height;
-}
-
-unsigned char* PNG::pixels() {
-    return data;
-}
-
-unsigned char* PNG::readPNG(char *imageName) {
-    unsigned char *data = NULL;
-    png_image image;
-    memset(&image, 0x00, sizeof(image));
-    image.version = PNG_IMAGE_VERSION;
-    image.opaque = NULL;
-    png_image_begin_read_from_file(&image, imageName);
-    image.format = PNG_FORMAT_RGBA;
-    image.colormap_entries = 0;
-    data = (unsigned char*)malloc(image.width * image.height * 4 * sizeof(unsigned char));
-    png_image_finish_read(&image, NULL, data, 0, NULL);
-    png_image_free(&image);
-    return data;
-}
-
-void PNG::writePNG(char imageName[], unsigned char *data, int width, int height) {
-    //GLvoid *data = (GLvoid*)malloc(screenWidth * screenHeight * 4);
-    //glReadPixels(0, 0, screenWidth, screenHeight, GL_RGBA, GL_UNSIGNED_BYTE, data);
-    png_image image;
-    memset(&image, 0x00, sizeof(image));
-    image.version = PNG_IMAGE_VERSION;
-    image.width = width;
-    image.height = height;
-    image.format = PNG_FORMAT_RGBA;
-    image.flags = 0;
-    image.opaque = NULL;
-    image.colormap_entries = 0;
-    png_image_write_to_file(&image, imageName, 0, data, 0, NULL);
-    png_image_free(&image);
-}
-
 View::View(Window *window, int width, int height) {
     parentWindow = window;
     this->width = width;

@@ -25,7 +25,6 @@
 #include <vector>
 
 #include <boost/filesystem.hpp>
-#include <png.h>
 #include <Magick++.h>
 #include <glm/glm.hpp>
 
@@ -72,28 +71,6 @@ struct WindowHints {
     glm::vec2 location;
     int width;
     int height;
-};
-
-/**
- * The PNG class is for reading and writing '.png' files. There are two static functions called readPNG() and writePNG() that can be used without instantiating an instance of the class.
- * This class was made to solve the problem that
- *      writePNG(readPNG(fileName));
- * writePNG in the above statement doesn't know the width and height of the image. Now the width and height are stored in the object itself.
- */
-class PNG {
-public:
-    PNG();
-    PNG(char imageName[]);
-    static unsigned char *readPNG(char *imageName);
-    static void writePNG(char imageName[], unsigned char *data, int width, int height);
-    void read();
-    void write();
-    int width();
-    int height();
-    unsigned char* pixels();
-    png_image image;
-    char* imageName;
-    unsigned char *data;
 };
 
 class ShaderProgram {
