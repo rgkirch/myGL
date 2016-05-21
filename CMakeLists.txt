@@ -37,6 +37,15 @@ set_property(TARGET MyGL PROPERTY CXX_STANDARD_REQUIRED ON)
 
 find_package(PkgConfig REQUIRED)
 
+find_package(Threads REQUIRED)
+if(THREADS_HAVE_PTHREAD_ARG)
+  set_property(TARGET MyGL PROPERTY COMPILE_OPTIONS "-pthread")
+  set_property(TARGET MyGL PROPERTY INTERFACE_COMPILE_OPTIONS "-pthread")
+endif()
+if(CMAKE_THREAD_LIBS_INIT)
+  target_link_libraries(MyGL "${CMAKE_THREAD_LIBS_INIT}")
+endif()
+
 find_package(GLEW REQUIRED)
 if (GLEW_FOUND)
     include_directories(${GLEW_INCLUDE_DIRS})
