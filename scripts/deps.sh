@@ -1,5 +1,4 @@
 #!/bin/sh
 sudo apt-get install libglew-dev libglfw3-dev libglm-dev
-./get-libpng
 
 
