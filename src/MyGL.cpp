@@ -514,6 +514,17 @@ void MyGL::start() {
     wh.height = 400;
     wins.push_back(std::make_unique<Window>(this, wh));
     wins.front()->loop();
+    Magick::Image pic("pic.png");
+    pic.modifyImage();
+    Magick::Pixels pix(pic);
+    Magick::PixelPacket *data;
+    data = pix.get(0, 0, pic.columns(), pic.rows());
+    GLuint tex;
+    glGenTextures(1, &tex);
+    glBindTexture(GL_TEXTURE_2D, tex);
+    glTexStorage2D(GL_TEXTURE_2D, 0, GL_RGBA, pic.columns(), pic.rows());
+    glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, pic.columns(), pic.rows(), GL_RGBA, GL_UNSIGNED_BYTE, data);
+    glDeleteTextures(1, &tex);
     std::this_thread::sleep_for(std::chrono::system_clock::duration(std::chrono::seconds(1)));
 }
 
