@@ -182,8 +182,8 @@ public:
     typedef void (Window::*threadFunc)(void);
     Window(MyGL *parent, const WindowHints& wh);
     ~Window();
-    bool handles(GLFWwindow *window);
-    void loop();
+    bool handles(GLFWwindow *window); /** returns the GLFWwindow that the Window is managing*/
+    void loop(); /** updates the window*/
     void hide();
     void show();
     void close();

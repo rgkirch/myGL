@@ -507,13 +507,13 @@ MyGL::~MyGL() {
 }
 
 void MyGL::start() {
-    std::list<std::unique_ptr<Window>> wins;
+    std::unique_ptr<Window> win;
     WindowHints wh;
     wh.clearColor = glm::vec3(1.0, 1.0, 1.0);
     wh.width = 400;
     wh.height = 400;
-    wins.push_back(std::make_unique<Window>(this, wh));
-    wins.front()->loop();
+    win = std::make_unique<Window>(this, wh);
+    win->loop();
     Magick::Image pic("pic.png");
     pic.modifyImage();
     Magick::Pixels pix(pic);
@@ -522,8 +522,17 @@ void MyGL::start() {
     GLuint tex;
     glGenTextures(1, &tex);
     glBindTexture(GL_TEXTURE_2D, tex);
-    glTexStorage2D(GL_TEXTURE_2D, 0, GL_RGBA, pic.columns(), pic.rows());
-    glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, pic.columns(), pic.rows(), GL_RGBA, GL_UNSIGNED_BYTE, data);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, pic.columns(), pic.rows(), 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+    //glTexStorage2D(GL_TEXTURE_2D, 0, GL_RGBA, pic.columns(), pic.rows());
+    //glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, pic.columns(), pic.rows(), GL_RGBA, GL_UNSIGNED_BYTE, data);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    std::unique_lock<std::mutex> lock(contextMutex);
+    glfwMakeContextCurrent( win->window );
+    ShaderProgram shader(std::string("vertexShader.glsl"), std::string("fragmentShader.glsl"));
+    glfwMakeContextCurrent( NULL );
+    lock.unlock();
+    win->loop();
     glDeleteTextures(1, &tex);
     std::this_thread::sleep_for(std::chrono::system_clock::duration(std::chrono::seconds(1)));
 }
