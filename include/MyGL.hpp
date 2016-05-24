@@ -150,6 +150,7 @@ class Shape {
 public:
     typedef void (Shape::*renderFunc)(void);
     Shape(float x, float y);
+    Shape(float x, float y, float ex, float ey);
     int dataLength();
     void finish(); /** prep the data, gen the buffers, and make 'renderPtr' point to 'finalRender' called before pushing the current shape onto context's vector<Shape*> */
     void render(); /** Context's render renders all shapes in vector<Shape*> and Shape::render calls whatever renderPtr points to */

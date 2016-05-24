@@ -316,6 +316,14 @@ Shape::Shape(float x, float y) {
     endY = y;
 }
 
+Shape::Shape(float x, float y, float ex, float ey) {
+    renderPtr = &Shape::frameRender;
+    startX = x;
+    startY = y;
+    endX = ex;
+    endY = ey;
+}
+
 Window::Window(MyGL *parent, const WindowHints& wh) {
     this->parentMyGL = parent;
     this->width = wh.width;
@@ -534,9 +542,13 @@ void MyGL::start() {
     std::unique_lock<std::mutex> lock(contextMutex);
     glfwMakeContextCurrent( win->window );
     ShaderProgram shader(std::string("../src/vertexShader.glsl"), std::string("../src/fragmentShader.glsl"));
+    Shape square(0, 0, 1, 1);
+    square.render();
+    glfwSwapBuffers( win->window );
+    std::this_thread::sleep_for(std::chrono::system_clock::duration(std::chrono::seconds(1)));
     glfwMakeContextCurrent( NULL );
     lock.unlock();
-    win->loop();
+    //win->loop();
     glDeleteTextures(1, &tex);
     std::this_thread::sleep_for(std::chrono::system_clock::duration(std::chrono::seconds(1)));
 }
