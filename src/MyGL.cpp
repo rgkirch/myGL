@@ -524,33 +524,55 @@ void MyGL::start() {
     wh.clearColor = glm::vec3(1.0, 1.0, 1.0);
     wh.width = 400;
     wh.height = 400;
+    int texWidth;
+    int texHeight;
     win = std::make_unique<Window>(this, wh);
     win->loop();
     Magick::Image pic("pic.png");
+    texWidth = pic.columns();
+    texHeight = pic.rows();
+    //pic.display();
     pic.modifyImage();
     Magick::Pixels pix(pic);
-    Magick::PixelPacket *data;
-    data = pix.get(0, 0, pic.columns(), pic.rows());
+    //Magick::PixelPacket *data;
+    //data = pix.get(0, 0, pic.columns(), pic.rows());
+    texWidth = 256;
+    texHeight = 256;
+    char* data = (char*)malloc(4 * texWidth * texHeight * sizeof(char));
+    memset(data, 0x00AAAAFF, pic.columns() * pic.rows() * sizeof(char));
     GLuint tex;
+    glActiveTexture(GL_TEXTURE0);
     glGenTextures(1, &tex);
     glBindTexture(GL_TEXTURE_2D, tex);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, pic.columns(), pic.rows(), 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, texWidth, texHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
     //glTexStorage2D(GL_TEXTURE_2D, 0, GL_RGBA, pic.columns(), pic.rows());
     //glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, pic.columns(), pic.rows(), GL_RGBA, GL_UNSIGNED_BYTE, data);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
     std::unique_lock<std::mutex> lock(contextMutex);
     glfwMakeContextCurrent( win->window );
     ShaderProgram shader(std::string("../src/vertexShader.glsl"), std::string("../src/fragmentShader.glsl"));
-    Shape square(0, 0, 1, 1);
-    square.render();
-    glfwSwapBuffers( win->window );
-    std::this_thread::sleep_for(std::chrono::system_clock::duration(std::chrono::seconds(1)));
     glfwMakeContextCurrent( NULL );
     lock.unlock();
+    Shape square(0, 0, 1, 1);
+    //glEnable(GL_TEXTURE_2D);
+    glUniform1i(glGetUniformLocation(shader.program, "texture"), 0);
+    std::chrono::system_clock::time_point tp = std::chrono::system_clock::now();
+    tp += std::chrono::seconds(2);
+    while(std::chrono::system_clock::now() < tp) {
+        std::lock_guard<std::mutex> lock(contextMutex);
+        glfwMakeContextCurrent( win->window );
+        //glClearColor( 0.3f, 0.0f, 0.3f, 1.0f );
+        glClearColor( 1.0f, 1.0f, 1.0f, 1.0f );
+        glClear( GL_COLOR_BUFFER_BIT );
+        square.render();
+        glfwSwapBuffers( win->window );
+        glfwMakeContextCurrent( NULL );
+    }
     //win->loop();
     glDeleteTextures(1, &tex);
-    std::this_thread::sleep_for(std::chrono::system_clock::duration(std::chrono::seconds(1)));
 }
 
 void MyGL::end() {
