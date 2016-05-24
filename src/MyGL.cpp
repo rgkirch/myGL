@@ -92,6 +92,10 @@ GLuint ShaderProgram::id() {
 }
 
 std::string ShaderProgram::readFile(std::string fileName) {
+    //std::ifstream in(fileName);
+    //std::string data;
+    //data = static_cast<std::stringstream const&>(std::stringstream() << in.rdbuf()).str();
+    //std::cout << data << std::endl;
 
     std::ifstream stream(fileName);
     std::string data;
@@ -529,7 +533,7 @@ void MyGL::start() {
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     std::unique_lock<std::mutex> lock(contextMutex);
     glfwMakeContextCurrent( win->window );
-    ShaderProgram shader(std::string("vertexShader.glsl"), std::string("fragmentShader.glsl"));
+    ShaderProgram shader(std::string("../src/vertexShader.glsl"), std::string("../src/fragmentShader.glsl"));
     glfwMakeContextCurrent( NULL );
     lock.unlock();
     win->loop();
