@@ -567,7 +567,50 @@ void MyGL::start() {
         //glClearColor( 0.3f, 0.0f, 0.3f, 1.0f );
         glClearColor( 1.0f, 1.0f, 1.0f, 1.0f );
         glClear( GL_COLOR_BUFFER_BIT );
-        square.render();
+
+        float startX, startY, endX, endY;
+        startX = startY = 0;
+        endX = endY = 1;
+        int dataLength = 12;
+        bufferData.reserve(dataLength);
+        bufferData[0] = startX;
+        bufferData[1] = startY;
+        bufferData[2] = endX;
+        bufferData[3] = startY;
+        bufferData[4] = startX;
+        bufferData[5] = endY;
+        bufferData[6] = endX;
+        bufferData[7] = endY;
+        bufferData[8] = startX;
+        bufferData[9] = endY;
+        bufferData[10] = endX;
+        bufferData[11] = startY;
+
+        GLuit vbo[2], vao[2];
+        glGenBuffers(2, &vbo);
+        glGenBuffers(2, &UVbuffer);
+        glBindBuffer(GL_ARRAY_BUFFER, vbo[0]);
+        glBufferData(GL_ARRAY_BUFFER, dataLength * sizeof(float), &bufferData[0], GL_STREAM_DRAW);
+        glBindBuffer(GL_ARRAY_BUFFER, vbo[1]);
+        glBufferData(GL_ARRAY_BUFFER, dataLength * sizeof(float), &bufferData[0], GL_STREAM_DRAW);
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
+        glGenVertexArrays(2, &vao);
+        glBindVertexArray(vao[0]);
+        glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), NULL);
+        //glVertexAttribPointer(1, 1, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (GLvoid*)sizeof(float));
+        glEnableVertexAttribArray(0);
+        glEnableVertexAttribArray(1);
+
+        glDrawArrays(GL_TRIANGLES, 0, dataLength / 2);
+
+        glDisableVertexAttribArray(0);
+        //glDisableVertexAttribArray(1);
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
+        glBindVertexArray(0);
+
+        glDeleteBuffers(1, &vbo);
+        glDeleteVertexArrays(1, &vao);
+
         glfwSwapBuffers( win->window );
         glfwMakeContextCurrent( NULL );
     }
