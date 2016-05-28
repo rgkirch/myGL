@@ -519,6 +519,7 @@ MyGL::~MyGL() {
 }
 
 void MyGL::start() {
+    Magick::InitializeMagick(NULL);
     std::unique_ptr<Window> win;
     WindowHints wh;
     wh.clearColor = glm::vec3(1.0, 1.0, 1.0);
@@ -531,12 +532,12 @@ void MyGL::start() {
     Magick::Image pic("../container.jpg");
     texWidth = pic.columns();
     texHeight = pic.rows();
-    pic.display();
+    //pic.display();
     pic.modifyImage();
     Magick::Pixels pix(pic);
     Magick::PixelPacket *data;
     data = pix.get(0, 0, pic.columns(), pic.rows());
-    fwrite((unsigned char*)data, texWidth * texHeight, 1, fopen("data", "w"));
+    //fwrite((unsigned char*)data, texWidth * texHeight * 3, 1, fopen("data", "w"));
     //texWidth = 256;
     //texHeight = 256;
     //char* data = (char*)malloc(4 * texWidth * texHeight * sizeof(char));
@@ -545,7 +546,7 @@ void MyGL::start() {
     glActiveTexture(GL_TEXTURE0);
     glGenTextures(1, &tex);
     glBindTexture(GL_TEXTURE_2D, tex);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, texWidth, texHeight, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB8, texWidth, texHeight, 0, GL_RGB8, GL_UNSIGNED_BYTE, data);
     //glTexStorage2D(GL_TEXTURE_2D, 0, GL_RGBA, pic.columns(), pic.rows());
     //glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, pic.columns(), pic.rows(), GL_RGBA, GL_UNSIGNED_BYTE, data);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
@@ -557,7 +558,7 @@ void MyGL::start() {
     ShaderProgram shader(std::string("../src/vertexShader.glsl"), std::string("../src/fragmentShader.glsl"));
     glfwMakeContextCurrent( NULL );
     lock.unlock();
-    Shape square(0, 0, 1, 1);
+    //Shape square(0, 0, 1, 1);
     //glEnable(GL_TEXTURE_2D);
     glUniform1i(glGetUniformLocation(shader.program, "texture"), 0);
     std::chrono::system_clock::time_point tp = std::chrono::system_clock::now();
@@ -587,11 +588,11 @@ void MyGL::start() {
         bufferData[10] = endX;
         bufferData[11] = startY;
 
-        GLuint vbo[2], vao[2];
-        glGenVertexArrays(2, vao);
-        glBindVertexArray(vao[0]);
-        glGenBuffers(2, vbo);
-        glBindBuffer(GL_ARRAY_BUFFER, vbo[0]);
+        GLuint vbo, vao;
+        glGenVertexArrays(1, &vao);
+        glBindVertexArray(vao);
+        glGenBuffers(1, &vbo);
+        glBindBuffer(GL_ARRAY_BUFFER, vbo);
         glBufferData(GL_ARRAY_BUFFER, dataLength * sizeof(float), bufferData, GL_STREAM_DRAW);
         glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), NULL);
         //glVertexAttribPointer(1, 1, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (GLvoid*)sizeof(float));
@@ -603,8 +604,8 @@ void MyGL::start() {
         //glBindBuffer(GL_ARRAY_BUFFER, 0);
         //glBindVertexArray(0);
 
-        glDeleteBuffers(2, vbo);
-        glDeleteVertexArrays(2, vao);
+        glDeleteBuffers(1, &vbo);
+        glDeleteVertexArrays(1, &vao);
 
         glfwSwapBuffers( win->window );
         glfwMakeContextCurrent( NULL );
