@@ -528,23 +528,24 @@ void MyGL::start() {
     int texHeight;
     win = std::make_unique<Window>(this, wh);
     win->loop();
-    Magick::Image pic("pic.png");
+    Magick::Image pic("../container.jpg");
     texWidth = pic.columns();
     texHeight = pic.rows();
-    //pic.display();
+    pic.display();
     pic.modifyImage();
     Magick::Pixels pix(pic);
-    //Magick::PixelPacket *data;
-    //data = pix.get(0, 0, pic.columns(), pic.rows());
-    texWidth = 256;
-    texHeight = 256;
-    char* data = (char*)malloc(4 * texWidth * texHeight * sizeof(char));
-    memset(data, 0x00AAAAFF, pic.columns() * pic.rows() * sizeof(char));
+    Magick::PixelPacket *data;
+    data = pix.get(0, 0, pic.columns(), pic.rows());
+    fwrite((unsigned char*)data, texWidth * texHeight, 1, fopen("data", "w"));
+    //texWidth = 256;
+    //texHeight = 256;
+    //char* data = (char*)malloc(4 * texWidth * texHeight * sizeof(char));
+    //memset(data, 0x00AAAA55, pic.columns() * pic.rows() * sizeof(char));
     GLuint tex;
     glActiveTexture(GL_TEXTURE0);
     glGenTextures(1, &tex);
     glBindTexture(GL_TEXTURE_2D, tex);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, texWidth, texHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, texWidth, texHeight, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
     //glTexStorage2D(GL_TEXTURE_2D, 0, GL_RGBA, pic.columns(), pic.rows());
     //glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, pic.columns(), pic.rows(), GL_RGBA, GL_UNSIGNED_BYTE, data);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
@@ -572,7 +573,7 @@ void MyGL::start() {
         startX = startY = 0;
         endX = endY = 1;
         int dataLength = 12;
-        bufferData.reserve(dataLength);
+        float bufferData[12];
         bufferData[0] = startX;
         bufferData[1] = startY;
         bufferData[2] = endX;
@@ -586,30 +587,24 @@ void MyGL::start() {
         bufferData[10] = endX;
         bufferData[11] = startY;
 
-        GLuit vbo[2], vao[2];
-        glGenBuffers(2, &vbo);
-        glGenBuffers(2, &UVbuffer);
-        glBindBuffer(GL_ARRAY_BUFFER, vbo[0]);
-        glBufferData(GL_ARRAY_BUFFER, dataLength * sizeof(float), &bufferData[0], GL_STREAM_DRAW);
-        glBindBuffer(GL_ARRAY_BUFFER, vbo[1]);
-        glBufferData(GL_ARRAY_BUFFER, dataLength * sizeof(float), &bufferData[0], GL_STREAM_DRAW);
-        glBindBuffer(GL_ARRAY_BUFFER, 0);
-        glGenVertexArrays(2, &vao);
+        GLuint vbo[2], vao[2];
+        glGenVertexArrays(2, vao);
         glBindVertexArray(vao[0]);
+        glGenBuffers(2, vbo);
+        glBindBuffer(GL_ARRAY_BUFFER, vbo[0]);
+        glBufferData(GL_ARRAY_BUFFER, dataLength * sizeof(float), bufferData, GL_STREAM_DRAW);
         glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), NULL);
         //glVertexAttribPointer(1, 1, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (GLvoid*)sizeof(float));
         glEnableVertexAttribArray(0);
-        glEnableVertexAttribArray(1);
 
         glDrawArrays(GL_TRIANGLES, 0, dataLength / 2);
 
-        glDisableVertexAttribArray(0);
-        //glDisableVertexAttribArray(1);
-        glBindBuffer(GL_ARRAY_BUFFER, 0);
-        glBindVertexArray(0);
+        //glDisableVertexAttribArray(0);
+        //glBindBuffer(GL_ARRAY_BUFFER, 0);
+        //glBindVertexArray(0);
 
-        glDeleteBuffers(1, &vbo);
-        glDeleteVertexArrays(1, &vao);
+        glDeleteBuffers(2, vbo);
+        glDeleteVertexArrays(2, vao);
 
         glfwSwapBuffers( win->window );
         glfwMakeContextCurrent( NULL );

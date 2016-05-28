@@ -107,4 +107,4 @@ endif()
 
 #target_link_libraries(MyGL -lGLEW -lGL -lGLU -lpthread -lglfw3)
 
-target_link_libraries(MyGL -DMAGICKCORE_HDRI_ENABLE=0 -DMAGICKCORE_QUANTUM_DEPTH=16 ${Boost_FILESYSTEM_LIBRARY} ${Boost_SYSTEM_LIBRARY} ${GLFW_CFLAGS} ${GLFW_LDFLAGS} ${OPENGL_LIBRARIES} ${GLEW_LIBRARIES} ${ImageMagick_LIBRARIES} -lGL -lGLU -lglfw3 -lX11 -lXxf86vm -lXrandr -lpthread -lXi -ldl -lGLEW -lXrandr -lXinerama  -lXxf86vm -lXcursor)
+target_link_libraries(MyGL -DMAGICKCORE_HDRI_ENABLE=0 -DMAGICKCORE_QUANTUM_DEPTH=16 ${Boost_FILESYSTEM_LIBRARY} ${Boost_SYSTEM_LIBRARY} ${GLFW_CFLAGS} ${GLFW_LDFLAGS} ${OPENGL_LIBRARIES} ${GLEW_LIBRARIES} ${ImageMagick_LIBRARIES} -lGL -lGLU -lglfw -lX11 -lXxf86vm -lXrandr -lpthread -lXi -ldl -lGLEW -lXrandr -lXinerama  -lXxf86vm -lXcursor)

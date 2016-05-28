@@ -1,0 +1,23 @@
+Printing YouCompleteMe debug information...
+-- Server has Clang support compiled in: True
+-- Clang version: clang version 3.7.0 (tags/RELEASE_370/final)
+-- Flags for /home/richie/github/rgkirch/myGL/src/MyGL.cpp loaded from /home/richie/github/rgkirc
+h/myGL/.ycm_extra_conf.py:
+-- ['-Wall', '-Wextra', '-Werror', '-Wc++98-compat', '-Wno-long-long', '-Wno-variadic-macros', '-
+fexceptions', '-DNDEBUG', '-DUSE_CLANG_COMPLETER', '-std=c++14', '-x', 'c++', '-isystem', '/home/
+richie/github/rgkirch/myGL/../BoostParts', '-isystem', '/System/Library/Frameworks/Python.framewo
+rk/Headers', '-isystem', '/home/richie/github/rgkirch/myGL/../llvm/include', '-isystem', '/home/r
+ichie/github/rgkirch/myGL/../llvm/tools/clang/include', '-I', '/home/richie/github/rgkirch/myGL/.
+', '-I', '/home/richie/github/rgkirch/myGL/./ClangCompleter', '-isystem', '/home/richie/github/rg
+kirch/myGL/./tests/gmock/gtest', '-isystem', '/home/richie/github/rgkirch/myGL/./tests/gmock/gtes
+t/include', '-isystem', '/home/richie/github/rgkirch/myGL/./tests/gmock', '-isystem', '/home/rich
+ie/github/rgkirch/myGL/./tests/gmock/include', '-I/usr/include', '-I/home/richie/github/rgkirch/m
+yGL/./include', '-I/usr/local/include', '-lglfw', '-lGLEW', '-lGLU', '-lGL', '-lpng', '-lboost_sy
+stem', '-lboost_filesystem', '-isystem', '/home/richie/.vim/bundle/YouCompleteMe/third_party/ycmd
+/ycmd/../clang_includes']
+-- Server running at: http://127.0.0.1:38484
+-- Server process ID: 30936
+-- Server logfiles:
+--   /tmp/ycm_temp/server_38484_stdout.log
+--   /tmp/ycm_temp/server_38484_stderr.log
+
