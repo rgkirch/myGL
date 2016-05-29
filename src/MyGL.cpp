@@ -519,7 +519,7 @@ MyGL::~MyGL() {
 }
 
 void MyGL::start() {
-    Magick::InitializeMagick(NULL);
+    //Magick::InitializeMagick(NULL);
     std::unique_ptr<Window> win;
     WindowHints wh;
     wh.clearColor = glm::vec3(1.0, 1.0, 1.0);
@@ -529,19 +529,22 @@ void MyGL::start() {
     int texHeight;
     win = std::make_unique<Window>(this, wh);
     win->loop();
-    Magick::Image pic("../container.jpg");
-    texWidth = pic.columns();
-    texHeight = pic.rows();
+    glfwMakeContextCurrent( win->window );
+    ShaderProgram shader(std::string("vertexShader.glsl"), std::string("fragmentShader.glsl"));
+    //Magick::Image pic("../container.jpg");
+    //texWidth = pic.columns();
+    //texHeight = pic.rows();
     //pic.display();
-    pic.modifyImage();
-    Magick::Pixels pix(pic);
-    Magick::PixelPacket *data;
-    data = pix.get(0, 0, pic.columns(), pic.rows());
+    //pic.modifyImage();
+    //Magick::Pixels pix(pic);
+    //Magick::PixelPacket *data;
+    //data = pix.get(0, 0, pic.columns(), pic.rows());
+
     //fwrite((unsigned char*)data, texWidth * texHeight * 3, 1, fopen("data", "w"));
-    //texWidth = 256;
-    //texHeight = 256;
-    //char* data = (char*)malloc(4 * texWidth * texHeight * sizeof(char));
-    //memset(data, 0x00AAAA55, pic.columns() * pic.rows() * sizeof(char));
+    texWidth = 256;
+    texHeight = 256;
+    char* data = (char*)malloc(4 * texWidth * texHeight * sizeof(char));
+    memset(data, 0xAA, 4 * texWidth * texHeight * sizeof(char));
     GLuint tex;
     glActiveTexture(GL_TEXTURE0);
     glGenTextures(1, &tex);
@@ -553,52 +556,29 @@ void MyGL::start() {
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    std::unique_lock<std::mutex> lock(contextMutex);
-    glfwMakeContextCurrent( win->window );
-    ShaderProgram shader(std::string("../src/vertexShader.glsl"), std::string("../src/fragmentShader.glsl"));
-    glfwMakeContextCurrent( NULL );
-    lock.unlock();
     //Shape square(0, 0, 1, 1);
     //glEnable(GL_TEXTURE_2D);
     glUniform1i(glGetUniformLocation(shader.program, "texture"), 0);
     std::chrono::system_clock::time_point tp = std::chrono::system_clock::now();
     tp += std::chrono::seconds(2);
     while(std::chrono::system_clock::now() < tp) {
-        std::lock_guard<std::mutex> lock(contextMutex);
-        glfwMakeContextCurrent( win->window );
         //glClearColor( 0.3f, 0.0f, 0.3f, 1.0f );
         glClearColor( 1.0f, 1.0f, 1.0f, 1.0f );
         glClear( GL_COLOR_BUFFER_BIT );
 
-        float startX, startY, endX, endY;
-        startX = startY = 0;
-        endX = endY = 1;
-        int dataLength = 12;
-        float bufferData[12];
-        bufferData[0] = startX;
-        bufferData[1] = startY;
-        bufferData[2] = endX;
-        bufferData[3] = startY;
-        bufferData[4] = startX;
-        bufferData[5] = endY;
-        bufferData[6] = endX;
-        bufferData[7] = endY;
-        bufferData[8] = startX;
-        bufferData[9] = endY;
-        bufferData[10] = endX;
-        bufferData[11] = startY;
+        float bufferData[] = {0.0, 0.0, 1.0, 0.0, 0.5, 1.0};
 
         GLuint vbo, vao;
         glGenVertexArrays(1, &vao);
         glBindVertexArray(vao);
         glGenBuffers(1, &vbo);
         glBindBuffer(GL_ARRAY_BUFFER, vbo);
-        glBufferData(GL_ARRAY_BUFFER, dataLength * sizeof(float), bufferData, GL_STREAM_DRAW);
-        glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), NULL);
+        glBufferData(GL_ARRAY_BUFFER, 6 * sizeof(float), bufferData, GL_STREAM_DRAW);
+        glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, NULL);
         //glVertexAttribPointer(1, 1, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (GLvoid*)sizeof(float));
         glEnableVertexAttribArray(0);
 
-        glDrawArrays(GL_TRIANGLES, 0, dataLength / 2);
+        glDrawArrays(GL_TRIANGLES, 0, 3);
 
         //glDisableVertexAttribArray(0);
         //glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -608,9 +588,9 @@ void MyGL::start() {
         glDeleteVertexArrays(1, &vao);
 
         glfwSwapBuffers( win->window );
-        glfwMakeContextCurrent( NULL );
     }
     //win->loop();
+    glfwMakeContextCurrent( NULL );
     glDeleteTextures(1, &tex);
 }
 
