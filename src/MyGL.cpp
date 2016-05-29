@@ -528,7 +528,7 @@ void MyGL::start() {
     int texWidth;
     int texHeight;
     win = std::make_unique<Window>(this, wh);
-    win->loop();
+    //win->loop();
     glfwMakeContextCurrent( win->window );
     ShaderProgram shader(std::string("vertexShader.glsl"), std::string("fragmentShader.glsl"));
     //Magick::Image pic("../container.jpg");
@@ -549,7 +549,7 @@ void MyGL::start() {
     glActiveTexture(GL_TEXTURE0);
     glGenTextures(1, &tex);
     glBindTexture(GL_TEXTURE_2D, tex);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB8, texWidth, texHeight, 0, GL_RGB8, GL_UNSIGNED_BYTE, data);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, texWidth, texHeight, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
     //glTexStorage2D(GL_TEXTURE_2D, 0, GL_RGBA, pic.columns(), pic.rows());
     //glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, pic.columns(), pic.rows(), GL_RGBA, GL_UNSIGNED_BYTE, data);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
@@ -559,36 +559,32 @@ void MyGL::start() {
     //Shape square(0, 0, 1, 1);
     //glEnable(GL_TEXTURE_2D);
     glUniform1i(glGetUniformLocation(shader.program, "texture"), 0);
+
+    float bufferData[] = {0.0, 0.0, 1.0, 0.0, 0.5, 1.0};
+    GLuint vbo, vao;
+    glGenVertexArrays(1, &vao);
+    glBindVertexArray(vao);
+    glGenBuffers(1, &vbo);
+    glBindBuffer(GL_ARRAY_BUFFER, vbo);
+    glBufferData(GL_ARRAY_BUFFER, 6 * sizeof(float), bufferData, GL_STATIC_DRAW);
+    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, NULL);
+    //glVertexAttribPointer(1, 1, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (GLvoid*)sizeof(float));
+    glEnableVertexAttribArray(0);
+    //glDisableVertexAttribArray(0);
+    //glBindBuffer(GL_ARRAY_BUFFER, 0);
+    //glBindVertexArray(0);
+
     std::chrono::system_clock::time_point tp = std::chrono::system_clock::now();
     tp += std::chrono::seconds(2);
     while(std::chrono::system_clock::now() < tp) {
         //glClearColor( 0.3f, 0.0f, 0.3f, 1.0f );
         glClearColor( 1.0f, 1.0f, 1.0f, 1.0f );
-        glClear( GL_COLOR_BUFFER_BIT );
-
-        float bufferData[] = {0.0, 0.0, 1.0, 0.0, 0.5, 1.0};
-
-        GLuint vbo, vao;
-        glGenVertexArrays(1, &vao);
-        glBindVertexArray(vao);
-        glGenBuffers(1, &vbo);
-        glBindBuffer(GL_ARRAY_BUFFER, vbo);
-        glBufferData(GL_ARRAY_BUFFER, 6 * sizeof(float), bufferData, GL_STREAM_DRAW);
-        glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, NULL);
-        //glVertexAttribPointer(1, 1, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (GLvoid*)sizeof(float));
-        glEnableVertexAttribArray(0);
-
+		glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
         glDrawArrays(GL_TRIANGLES, 0, 3);
-
-        //glDisableVertexAttribArray(0);
-        //glBindBuffer(GL_ARRAY_BUFFER, 0);
-        //glBindVertexArray(0);
-
-        glDeleteBuffers(1, &vbo);
-        glDeleteVertexArrays(1, &vao);
-
         glfwSwapBuffers( win->window );
     }
+    glDeleteBuffers(1, &vbo);
+    glDeleteVertexArrays(1, &vao);
     //win->loop();
     glfwMakeContextCurrent( NULL );
     glDeleteTextures(1, &tex);
