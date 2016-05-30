@@ -518,49 +518,49 @@ MyGL::MyGL() {
 MyGL::~MyGL() {
 }
 
-void MyGL::start() {
-    //Magick::InitializeMagick(NULL);
+void MyGL::collage() {
+    Magick::InitializeMagick(NULL);
     std::unique_ptr<Window> win;
     WindowHints wh;
     wh.clearColor = glm::vec3(1.0, 1.0, 1.0);
-    wh.width = 400;
-    wh.height = 400;
+    wh.width = 1000;
+    wh.height = 1000;
     int texWidth;
     int texHeight;
     win = std::make_unique<Window>(this, wh);
     //win->loop();
     glfwMakeContextCurrent( win->window );
     ShaderProgram shader(std::string("vertexShader.glsl"), std::string("fragmentShader.glsl"));
-    //Magick::Image pic("../container.jpg");
-    //texWidth = pic.columns();
-    //texHeight = pic.rows();
+    Magick::Image pic("../container.jpg");
+    texWidth = pic.columns();
+    texHeight = pic.rows();
     //pic.display();
-    //pic.modifyImage();
-    //Magick::Pixels pix(pic);
-    //Magick::PixelPacket *data;
-    //data = pix.get(0, 0, pic.columns(), pic.rows());
+    pic.modifyImage();
+    Magick::Pixels pix(pic);
+    Magick::PixelPacket *data;
+    data = pix.get(0, 0, pic.columns(), pic.rows());
 
     //fwrite((unsigned char*)data, texWidth * texHeight * 3, 1, fopen("data", "w"));
-    texWidth = 256;
-    texHeight = 256;
-    char* data = (char*)malloc(4 * texWidth * texHeight * sizeof(char));
-    memset(data, 0xAA, 4 * texWidth * texHeight * sizeof(char));
+    //texWidth = 256;
+    //texHeight = 256;
+    //char* data = (char*)malloc(4 * texWidth * texHeight * sizeof(char));
+    //memset(data, 0xAA, 4 * texWidth * texHeight * sizeof(char));
     GLuint tex;
     glActiveTexture(GL_TEXTURE0);
     glGenTextures(1, &tex);
     glBindTexture(GL_TEXTURE_2D, tex);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB8, texWidth, texHeight, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, texWidth, texHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
     //glTexStorage2D(GL_TEXTURE_2D, 0, GL_RGBA, pic.columns(), pic.rows());
     //glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, pic.columns(), pic.rows(), GL_RGBA, GL_UNSIGNED_BYTE, data);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST); //GL_NEAREST
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST); //GL_LINEAR
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
     //Shape square(0, 0, 1, 1);
     //glEnable(GL_TEXTURE_2D);
     glUniform1i(glGetUniformLocation(shader.program, "texture"), 0);
 
-    float bufferData[] = {0.0, 0.0, 1.0, 0.0, 0.5, 1.0};
+    float bufferData[] = {-1.0, -1.0, 4.0, -1.0, -1.0, 4.0};
     GLuint vbo, vao;
     glGenVertexArrays(1, &vao);
     glBindVertexArray(vao);
@@ -575,7 +575,7 @@ void MyGL::start() {
     //glBindVertexArray(0);
 
     std::chrono::system_clock::time_point tp = std::chrono::system_clock::now();
-    tp += std::chrono::seconds(2);
+    tp += std::chrono::seconds(10);
     while(std::chrono::system_clock::now() < tp) {
         //glClearColor( 0.3f, 0.0f, 0.3f, 1.0f );
         glClearColor( 1.0f, 1.0f, 1.0f, 1.0f );

@@ -11,7 +11,7 @@ int main(int argc, char** argv) {
     } else {
         std::make_unique<MyGL>();
     }
-    mygl->start();
+    mygl->collage();
     //if(argc > 1) boostFun(argv[1]);
 
     //delete mygl;
