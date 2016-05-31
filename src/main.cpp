@@ -4,14 +4,15 @@
 #include <memory>
 #include "MyGL.hpp"
 
-int main(int argc, char** argv) {
+int main(int argc, char* argv[]) {
     std::unique_ptr<MyGL> mygl;
     if(argc > 1) {
-        std::make_unique<MyGL>(std::string(argv[1]));
+        mygl = std::make_unique<MyGL>(std::string(argv[1]));
+        mygl->collage(argv[1]);
     } else {
-        std::make_unique<MyGL>();
+        mygl = std::make_unique<MyGL>();
+        mygl->collage("");
     }
-    mygl->collage(argv[1]);
     //if(argc > 1) boostFun(argv[1]);
 
     //delete mygl;

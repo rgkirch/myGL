@@ -216,6 +216,7 @@ public:
     MyGL();
     MyGL(std::string);
     ~MyGL();
+    void renderSquare();
     void collage(std::string);
     void end();
     void genLotsWindows();
