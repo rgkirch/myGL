@@ -216,7 +216,7 @@ public:
     MyGL();
     MyGL(std::string);
     ~MyGL();
-    void collage();
+    void collage(std::string);
     void end();
     void genLotsWindows();
     GLFWwindow* makeWindowForContext();

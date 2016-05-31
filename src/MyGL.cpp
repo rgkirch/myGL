@@ -518,7 +518,7 @@ MyGL::MyGL() {
 MyGL::~MyGL() {
 }
 
-void MyGL::collage() {
+void MyGL::collage(std::string picture) {
     Magick::InitializeMagick(NULL);
     std::unique_ptr<Window> win;
     WindowHints wh;
@@ -531,25 +531,28 @@ void MyGL::collage() {
     //win->loop();
     glfwMakeContextCurrent( win->window );
     ShaderProgram shader(std::string("vertexShader.glsl"), std::string("fragmentShader.glsl"));
-    Magick::Image pic("../container.jpg");
+    Magick::Image pic;
+    pic.read(picture.c_str());
     texWidth = pic.columns();
     texHeight = pic.rows();
     //pic.display();
-    pic.modifyImage();
-    Magick::Pixels pix(pic);
-    Magick::PixelPacket *data;
-    data = pix.get(0, 0, pic.columns(), pic.rows());
+    //pic.modifyImage();
+    //Magick::Pixels pix(pic);
+    //Magick::PixelPacket *data;
+    //data = pix.get(0, 0, pic.columns(), pic.rows());
 
     //fwrite((unsigned char*)data, texWidth * texHeight * 3, 1, fopen("data", "w"));
     //texWidth = 256;
     //texHeight = 256;
-    //char* data = (char*)malloc(4 * texWidth * texHeight * sizeof(char));
+    char* data = (char*)malloc(4 * texWidth * texHeight * sizeof(char));
     //memset(data, 0xAA, 4 * texWidth * texHeight * sizeof(char));
+    pic.write(0, 0, texWidth, texHeight, "RGB", Magick::CharPixel, data);
+
     GLuint tex;
     glActiveTexture(GL_TEXTURE0);
     glGenTextures(1, &tex);
     glBindTexture(GL_TEXTURE_2D, tex);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, texWidth, texHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB8, texWidth, texHeight, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
     //glTexStorage2D(GL_TEXTURE_2D, 0, GL_RGBA, pic.columns(), pic.rows());
     //glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, pic.columns(), pic.rows(), GL_RGBA, GL_UNSIGNED_BYTE, data);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST); //GL_NEAREST
@@ -575,7 +578,7 @@ void MyGL::collage() {
     //glBindVertexArray(0);
 
     std::chrono::system_clock::time_point tp = std::chrono::system_clock::now();
-    tp += std::chrono::seconds(10);
+    tp += std::chrono::seconds(1);
     while(std::chrono::system_clock::now() < tp) {
         //glClearColor( 0.3f, 0.0f, 0.3f, 1.0f );
         glClearColor( 1.0f, 1.0f, 1.0f, 1.0f );
