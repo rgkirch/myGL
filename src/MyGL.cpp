@@ -578,6 +578,12 @@ void MyGL::collage(std::string directory) {
     while(std::chrono::system_clock::now() < tp) {
         glClearColor( 1.0f, 1.0f, 1.0f, 1.0f );
 		glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
+        glm::mat4 translationMatrix = glm::translate(glm::vec3(0.5f, 0.5f, 0.0f));
+        glm::mat4 rotationMatrix(1.0f);
+        glm::mat4 scaleMatrix = glm::scale(glm::vec3(0.5f, 0.5f, 0.0f));
+        glUniformMatrix4fv(glGetUniformLocation(shader.program, "translationMatrix"), 1, GL_FALSE, glm::value_ptr(translationMatrix));
+        glUniformMatrix4fv(glGetUniformLocation(shader.program, "rotationMatrix"), 1, GL_FALSE, glm::value_ptr(rotationMatrix));
+        glUniformMatrix4fv(glGetUniformLocation(shader.program, "scaleMatrix"), 1, GL_FALSE, glm::value_ptr(scaleMatrix));
         renderSquare();
         glfwSwapBuffers( win->window );
     }
