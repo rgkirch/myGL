@@ -519,7 +519,7 @@ MyGL::~MyGL() {
 }
 
 void MyGL::renderSquare() {
-    float bufferData[] = {-1.0, 1.0, -1.0, -1.0, 1.0, 1.0, 1.0, 1.0, -1.0, -1.0, 1.0, -1.0};
+    float bufferData[] = {-1.0, 1.0, -1.0, 0.0, 0.0, 1.0, -1.0, 0.0, 0.0, 0.0, 0.0, 1.0};
     GLuint vbo, vao;
     glGenVertexArrays(1, &vao);
     glGenBuffers(1, &vbo);
@@ -555,7 +555,7 @@ void MyGL::collage(std::string directory) {
     //win->loop();
     glfwMakeContextCurrent( win->window );
     ShaderProgram shader(std::string("vertexShader.glsl"), std::string("fragmentShader.glsl"));
-    Image pic;
+    //Image pic;
     //pic.read(picture.c_str());
     //texWidth = pic.columns();
     //texHeight = pic.rows();
@@ -578,13 +578,17 @@ void MyGL::collage(std::string directory) {
     while(std::chrono::system_clock::now() < tp) {
         glClearColor( 1.0f, 1.0f, 1.0f, 1.0f );
 		glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
-        glm::mat4 translationMatrix = glm::translate(glm::vec3(0.5f, 0.5f, 0.0f));
-        glm::mat4 rotationMatrix(1.0f);
-        glm::mat4 scaleMatrix = glm::scale(glm::vec3(0.5f, 0.5f, 0.0f));
-        glUniformMatrix4fv(glGetUniformLocation(shader.program, "translationMatrix"), 1, GL_FALSE, glm::value_ptr(translationMatrix));
-        glUniformMatrix4fv(glGetUniformLocation(shader.program, "rotationMatrix"), 1, GL_FALSE, glm::value_ptr(rotationMatrix));
-        glUniformMatrix4fv(glGetUniformLocation(shader.program, "scaleMatrix"), 1, GL_FALSE, glm::value_ptr(scaleMatrix));
-        renderSquare();
+        int size = 4;
+        float unit = 2.0 / size;
+        for(int i = 0; i < size * size; ++i) {
+            glm::mat4 translationMatrix = glm::translate(glm::vec3(-0.5 + ((i % size) * unit), 0.5 - (i / size) * unit, 0.0f));
+            glm::mat4 rotationMatrix(1.0f);
+            glm::mat4 scaleMatrix = glm::scale(glm::vec3(0.5, 0.5, 0.0f));
+            glUniformMatrix4fv(glGetUniformLocation(shader.program, "translationMatrix"), 1, GL_FALSE, glm::value_ptr(translationMatrix));
+            glUniformMatrix4fv(glGetUniformLocation(shader.program, "rotationMatrix"), 1, GL_FALSE, glm::value_ptr(rotationMatrix));
+            glUniformMatrix4fv(glGetUniformLocation(shader.program, "scaleMatrix"), 1, GL_FALSE, glm::value_ptr(scaleMatrix));
+            renderSquare();
+        }
         glfwSwapBuffers( win->window );
     }
     glfwMakeContextCurrent( NULL );
