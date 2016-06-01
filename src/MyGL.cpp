@@ -92,6 +92,10 @@ GLuint ShaderProgram::id() {
 }
 
 std::string ShaderProgram::readFile(std::string fileName) {
+    //std::ifstream in(fileName);
+    //std::string data;
+    //data = static_cast<std::stringstream const&>(std::stringstream() << in.rdbuf()).str();
+    //std::cout << data << std::endl;
 
     std::ifstream stream(fileName);
     std::string data;
@@ -312,6 +316,14 @@ Shape::Shape(float x, float y) {
     endY = y;
 }
 
+Shape::Shape(float x, float y, float ex, float ey) {
+    renderPtr = &Shape::frameRender;
+    startX = x;
+    startY = y;
+    endX = ex;
+    endY = ey;
+}
+
 Window::Window(MyGL *parent, const WindowHints& wh) {
     this->parentMyGL = parent;
     this->width = wh.width;
@@ -506,15 +518,86 @@ MyGL::MyGL() {
 MyGL::~MyGL() {
 }
 
-void MyGL::start() {
-    std::list<std::unique_ptr<Window>> wins;
+void MyGL::renderSquare() {
+    float bufferData[] = {-1.0, 1.0, -1.0, 0.0, 0.0, 1.0, -1.0, 0.0, 0.0, 0.0, 0.0, 1.0};
+    //float bufferData[] = {-1.0, 1.0, -1.0, -1.0, 1.0, 1.0, 1.0, 1.0, -1.0, -1.0, 1.0, -1.0};
+    //float bufferData[] = {0.0, 1.0, 0.0, 0.0, 1.0, 1.0, 1.0, 1.0, 0.0, 0.0, 1.0, 0.0};
+    GLuint vbo, vao;
+    glGenVertexArrays(1, &vao);
+    glGenBuffers(1, &vbo);
+    glBindVertexArray(vao);
+    glBindBuffer(GL_ARRAY_BUFFER, vbo);
+    glBufferData(GL_ARRAY_BUFFER, 12 * sizeof(float), bufferData, GL_STREAM_DRAW); // GL_STATIC_DRAW, GL_STREAM_DRAW
+    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, NULL);
+    //glVertexAttribPointer(1, 1, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (GLvoid*)sizeof(float));
+    glEnableVertexAttribArray(0);
+
+    glDrawArrays(GL_TRIANGLES, 0, 6);
+
+    glDisableVertexAttribArray(0);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindVertexArray(0);
+    glDeleteBuffers(1, &vbo);
+    glDeleteVertexArrays(1, &vao);
+}
+
+void MyGL::collage(std::string directory) {
+    using namespace boost::filesystem;
+    using namespace Magick;
+    path path(directory);
+    InitializeMagick(NULL);
+    std::unique_ptr<Window> win;
     WindowHints wh;
     wh.clearColor = glm::vec3(1.0, 1.0, 1.0);
-    wh.width = 400;
-    wh.height = 400;
-    wins.push_back(std::make_unique<Window>(this, wh));
-    wins.front()->loop();
-    std::this_thread::sleep_for(std::chrono::system_clock::duration(std::chrono::seconds(1)));
+    wh.width = 1000;
+    wh.height = 1000;
+    int texWidth;
+    int texHeight;
+    win = std::make_unique<Window>(this, wh);
+    //win->loop();
+    glfwMakeContextCurrent( win->window );
+    ShaderProgram shader(std::string("vertexShader.glsl"), std::string("fragmentShader.glsl"));
+
+    Image pic;
+    pic.read("test.png");
+    pic.flip();
+    texWidth = pic.columns();
+    texHeight = pic.rows();
+    char *data = new char[3 * texWidth * texHeight]();
+    pic.write(0, 0, texWidth, texHeight, "RGB", Magick::CharPixel, data);
+
+    GLuint tex;
+    glActiveTexture(GL_TEXTURE0);
+    glGenTextures(1, &tex);
+    glBindTexture(GL_TEXTURE_2D, tex);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB8, texWidth, texHeight, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST); //GL_NEAREST
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST); //GL_LINEAR
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glUniform1i(glGetUniformLocation(shader.program, "texture"), 0);
+
+    std::chrono::system_clock::time_point tp = std::chrono::system_clock::now();
+    tp += std::chrono::seconds(1);
+    while(std::chrono::system_clock::now() < tp) {
+        glClearColor( 1.0f, 1.0f, 1.0f, 1.0f );
+		glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
+        int size = 4;
+        float unit = 2.0 / size;
+        for(int i = 0; i < size * size; ++i) {
+            glm::mat4 translationMatrix = glm::translate(glm::vec3(-0.5 + ((i % size) * unit), 0.5 - (i / size) * unit, 0.0f));
+            glm::mat4 rotationMatrix(1.0f);
+            glm::mat4 scaleMatrix = glm::scale(glm::vec3(0.5, 0.5, 0.0f));
+            glUniformMatrix4fv(glGetUniformLocation(shader.program, "translationMatrix"), 1, GL_FALSE, glm::value_ptr(translationMatrix));
+            glUniformMatrix4fv(glGetUniformLocation(shader.program, "rotationMatrix"), 1, GL_FALSE, glm::value_ptr(rotationMatrix));
+            glUniformMatrix4fv(glGetUniformLocation(shader.program, "scaleMatrix"), 1, GL_FALSE, glm::value_ptr(scaleMatrix));
+            renderSquare();
+        }
+        glfwSwapBuffers( win->window );
+    }
+    glfwMakeContextCurrent( NULL );
+    //glDeleteTextures(1, &tex);
+    //delete[] data;
 }
 
 void MyGL::end() {

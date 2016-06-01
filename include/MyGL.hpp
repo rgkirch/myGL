@@ -27,6 +27,11 @@
 #include <boost/filesystem.hpp>
 #include <Magick++.h>
 #include <glm/glm.hpp>
+#include <glm/vec3.hpp>
+#include <glm/mat4x4.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
+#include <glm/gtx/transform.hpp>
 
 //#include <fstream>
 //#include <sstream>
@@ -150,6 +155,7 @@ class Shape {
 public:
     typedef void (Shape::*renderFunc)(void);
     Shape(float x, float y);
+    Shape(float x, float y, float ex, float ey);
     int dataLength();
     void finish(); /** prep the data, gen the buffers, and make 'renderPtr' point to 'finalRender' called before pushing the current shape onto context's vector<Shape*> */
     void render(); /** Context's render renders all shapes in vector<Shape*> and Shape::render calls whatever renderPtr points to */
@@ -182,8 +188,8 @@ public:
     typedef void (Window::*threadFunc)(void);
     Window(MyGL *parent, const WindowHints& wh);
     ~Window();
-    bool handles(GLFWwindow *window);
-    void loop();
+    bool handles(GLFWwindow *window); /** returns the GLFWwindow that the Window is managing*/
+    void loop(); /** updates the window*/
     void hide();
     void show();
     void close();
@@ -215,7 +221,8 @@ public:
     MyGL();
     MyGL(std::string);
     ~MyGL();
-    void start();
+    void renderSquare();
+    void collage(std::string);
     void end();
     void genLotsWindows();
     GLFWwindow* makeWindowForContext();
