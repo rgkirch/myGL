@@ -518,6 +518,17 @@ MyGL::MyGL() {
 MyGL::~MyGL() {
 }
 
+void MyGL::directoryIterate(boost::filesystem::path path) {
+    if(boost::filesystem::is_directory(path)) {
+        try {
+            boost::filesystem::directory_iterator dirIter(path);
+            while(dirIter != boost::filesystem::directory_iterator()) {
+
+            }
+        }
+    }
+}
+
 void MyGL::renderSquare() {
     float bufferData[] = {-1.0, 1.0, -1.0, 0.0, 0.0, 1.0, -1.0, 0.0, 0.0, 0.0, 0.0, 1.0};
     //float bufferData[] = {-1.0, 1.0, -1.0, -1.0, 1.0, 1.0, 1.0, 1.0, -1.0, -1.0, 1.0, -1.0};
@@ -558,24 +569,32 @@ void MyGL::collage(std::string directory) {
     glfwMakeContextCurrent( win->window );
     ShaderProgram shader(std::string("vertexShader.glsl"), std::string("fragmentShader.glsl"));
 
-    Image pic;
-    pic.read("test.png");
-    pic.flip();
-    texWidth = pic.columns();
-    texHeight = pic.rows();
-    char *data = new char[3 * texWidth * texHeight]();
-    pic.write(0, 0, texWidth, texHeight, "RGB", Magick::CharPixel, data);
+    boost::filesystem::path path(directory);
+    if(boost::filesystem::exists(path)) {
+    } else {
+        throw std::runtime_error("given path doesn't exist");
+    }
 
-    GLuint tex;
-    glActiveTexture(GL_TEXTURE0);
-    glGenTextures(1, &tex);
-    glBindTexture(GL_TEXTURE_2D, tex);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB8, texWidth, texHeight, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST); //GL_NEAREST
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST); //GL_LINEAR
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    glUniform1i(glGetUniformLocation(shader.program, "texture"), 0);
+    for(int i = 0; i < 16; ++i) {
+        Image pic;
+        pic.read("test.png");
+        pic.flip();
+        texWidth = pic.columns();
+        texHeight = pic.rows();
+        char *data = new char[3 * texWidth * texHeight]();
+        pic.write(0, 0, texWidth, texHeight, "RGB", Magick::CharPixel, data);
+
+        GLuint tex[16];
+        glGenTextures(16, tex);
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, tex[0]);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB8, texWidth, texHeight, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST); //GL_NEAREST
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST); //GL_LINEAR
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+        glUniform1i(glGetUniformLocation(shader.program, "texture"), 0);
+    }
 
     std::chrono::system_clock::time_point tp = std::chrono::system_clock::now();
     tp += std::chrono::seconds(1);
@@ -596,7 +615,7 @@ void MyGL::collage(std::string directory) {
         glfwSwapBuffers( win->window );
     }
     glfwMakeContextCurrent( NULL );
-    //glDeleteTextures(1, &tex);
+    //glDeleteTextures(16, tex);
     //delete[] data;
 }
 
