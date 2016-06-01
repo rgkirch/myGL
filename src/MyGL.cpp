@@ -520,6 +520,8 @@ MyGL::~MyGL() {
 
 void MyGL::renderSquare() {
     float bufferData[] = {-1.0, 1.0, -1.0, 0.0, 0.0, 1.0, -1.0, 0.0, 0.0, 0.0, 0.0, 1.0};
+    //float bufferData[] = {-1.0, 1.0, -1.0, -1.0, 1.0, 1.0, 1.0, 1.0, -1.0, -1.0, 1.0, -1.0};
+    //float bufferData[] = {0.0, 1.0, 0.0, 0.0, 1.0, 1.0, 1.0, 1.0, 0.0, 0.0, 1.0, 0.0};
     GLuint vbo, vao;
     glGenVertexArrays(1, &vao);
     glGenBuffers(1, &vbo);
@@ -557,7 +559,8 @@ void MyGL::collage(std::string directory) {
     ShaderProgram shader(std::string("vertexShader.glsl"), std::string("fragmentShader.glsl"));
 
     Image pic;
-    pic.read("../pic.jpg");
+    pic.read("test.png");
+    pic.flip();
     texWidth = pic.columns();
     texHeight = pic.rows();
     char *data = new char[3 * texWidth * texHeight]();
