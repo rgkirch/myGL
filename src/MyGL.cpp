@@ -555,23 +555,24 @@ void MyGL::collage(std::string directory) {
     //win->loop();
     glfwMakeContextCurrent( win->window );
     ShaderProgram shader(std::string("vertexShader.glsl"), std::string("fragmentShader.glsl"));
-    //Image pic;
-    //pic.read(picture.c_str());
-    //texWidth = pic.columns();
-    //texHeight = pic.rows();
-    //char *data = new char[3 * texWidth * texHeight]();
-    //pic.write(0, 0, texWidth, texHeight, "RGB", Magick::CharPixel, data);
 
-    //GLuint tex;
-    //glActiveTexture(GL_TEXTURE0);
-    //glGenTextures(1, &tex);
-    //glBindTexture(GL_TEXTURE_2D, tex);
-    //glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB8, texWidth, texHeight, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
-    //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST); //GL_NEAREST
-    //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST); //GL_LINEAR
-    //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    //glUniform1i(glGetUniformLocation(shader.program, "texture"), 0);
+    Image pic;
+    pic.read("../pic.jpg");
+    texWidth = pic.columns();
+    texHeight = pic.rows();
+    char *data = new char[3 * texWidth * texHeight]();
+    pic.write(0, 0, texWidth, texHeight, "RGB", Magick::CharPixel, data);
+
+    GLuint tex;
+    glActiveTexture(GL_TEXTURE0);
+    glGenTextures(1, &tex);
+    glBindTexture(GL_TEXTURE_2D, tex);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB8, texWidth, texHeight, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST); //GL_NEAREST
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST); //GL_LINEAR
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glUniform1i(glGetUniformLocation(shader.program, "texture"), 0);
 
     std::chrono::system_clock::time_point tp = std::chrono::system_clock::now();
     tp += std::chrono::seconds(1);
