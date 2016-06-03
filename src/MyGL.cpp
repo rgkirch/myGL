@@ -519,22 +519,23 @@ MyGL::~MyGL() {
 }
 
 // TODO - how does caller know that it returned the last image, return tuple with bool?
-boost::filesystem::recursive_directory_iterator MyGL::grabNextImage(boost::filesystem::recursive_directory_iterator dirIter) {
+Magick::Image MyGL::grabNextImage(boost::filesystem::recursive_directory_iterator& dirIter) {
+    Magick::Image pic;
     while(dirIter != boost::filesystem::recursive_directory_iterator()) {
         while(!boost::filesystem::is_regular_file(dirIter->path())) { // TODO - what happens when it runs out of files
             dirIter++;
         }
         try {
-            Magick::Image pic;
             pic.read(dirIter->path().string());
             std::cout << dirIter->path() << std::endl;
+            ++dirIter;
             break;
         } catch(Magick::Exception& e) {
             //std::cout << e.what() << std::endl;
+            ++dirIter;
         }
-        ++dirIter;
     }
-    return dirIter;
+    return pic;
 }
 
 void MyGL::renderSquare() {
@@ -582,10 +583,8 @@ void MyGL::collage(std::string directory) {
     for(int texNum = 0; texNum < size * size;) {
         int texWidth;
         int texHeight;
-        dirIter = grabNextImage(dirIter);
-        Magick::Image pic;
-        pic.read(dirIter->path().string());
-        ++dirIter;
+        Magick::Image pic = grabNextImage(dirIter);
+        //pic.read(dirIter->path().string());
         pic.flip();
         texWidth = pic.columns();
         texHeight = pic.rows();
@@ -614,10 +613,8 @@ void MyGL::collage(std::string directory) {
             tp += std::chrono::milliseconds(500);
             int texWidth;
             int texHeight;
-            dirIter = grabNextImage(dirIter);
-            Magick::Image pic;
-            pic.read(dirIter->path().string());
-            ++dirIter;
+            Magick::Image pic = grabNextImage(dirIter);
+            //pic.read(dirIter->path().string());
             pic.flip();
             texWidth = pic.columns();
             texHeight = pic.rows();
