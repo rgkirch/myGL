@@ -618,7 +618,9 @@ void MyGL::collage(std::string directory) {
 
     std::chrono::system_clock::time_point tp = std::chrono::system_clock::now();
     tp += std::chrono::seconds(1);
-    while(std::chrono::system_clock::now() < tp) {
+    //while(std::chrono::system_clock::now() < tp) {
+    while(!glfwWindowShouldClose(win->window)) {
+        glfwPollEvents();
         glClearColor( 1.0f, 1.0f, 1.0f, 1.0f );
 		glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
         float unit = 2.0 / size;
