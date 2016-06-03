@@ -518,16 +518,28 @@ MyGL::MyGL() {
 MyGL::~MyGL() {
 }
 
-void MyGL::directoryIterate(boost::filesystem::path path) {
-    if(boost::filesystem::is_directory(path)) {
-        try {
-            boost::filesystem::directory_iterator dirIter(path);
-            while(dirIter != boost::filesystem::directory_iterator()) {
-
+/*
+auto MyGL::directoryIterate(std::list<boost::filesystem::path> folders, boost::filesystem::directory_iterator dirIter) {
+    // lets do bfs
+    try {
+        while(!folders.empty() && dirIter != boost::filesystem::directory_iterator()) {
+            if(boost::filesystem::is_regular_file(dirIter->path())) {
+                std::string fileName(dirIter->path().filename());
+                dirIter++;
+                return std::make_pair(std::make_pair(folders, dirIter), fileName);
+            } else if(boost::filesystem::is_directory(dirIter->path())) {
+                folders.push_back(dirIter->path());
+                dirIter++;
+                return std::make_pair(std::make_pair(folders, dirIter), std::string());
+            } else {
+                dirIter++;
             }
         }
+    } catch (const boost::filesystem::filesystem_error& ex) {
+        std::cout << ex.what() << std::endl;
     }
 }
+*/
 
 void MyGL::renderSquare() {
     float bufferData[] = {-1.0, 1.0, -1.0, 0.0, 0.0, 1.0, -1.0, 0.0, 0.0, 0.0, 0.0, 1.0};
@@ -552,11 +564,9 @@ void MyGL::renderSquare() {
     glDeleteVertexArrays(1, &vao);
 }
 
+// assume directory is legit
 void MyGL::collage(std::string directory) {
-    using namespace boost::filesystem;
-    using namespace Magick;
-    path path(directory);
-    InitializeMagick(NULL);
+    Magick::InitializeMagick(NULL);
     std::unique_ptr<Window> win;
     WindowHints wh;
     wh.clearColor = glm::vec3(1.0, 1.0, 1.0);
@@ -569,31 +579,41 @@ void MyGL::collage(std::string directory) {
     glfwMakeContextCurrent( win->window );
     ShaderProgram shader(std::string("vertexShader.glsl"), std::string("fragmentShader.glsl"));
 
-    boost::filesystem::path path(directory);
-    if(boost::filesystem::exists(path)) {
-    } else {
-        throw std::runtime_error("given path doesn't exist");
-    }
+    GLuint tex[16];
+    glGenTextures(16, tex);
 
-    for(int i = 0; i < 16; ++i) {
-        Image pic;
-        pic.read("test.png");
+    boost::filesystem::recursive_directory_iterator dirIter(directory); // TODO - cant from string
+    int size = 4;
+
+    for(int texNum = 0; texNum < size * size;) {
+        while(!boost::filesystem::is_regular_file(dirIter->path())) { // TODO - what happens when it runs out of files
+            dirIter++;
+        }
+        Magick::Image pic;
+        try {
+            pic.read(dirIter->path().string());
+            std::cout << dirIter->path() << std::endl;
+            ++dirIter;
+        } catch(Magick::Exception& e) {
+            //std::cout << e.what() << std::endl;
+            ++dirIter;
+            continue;
+        }
         pic.flip();
         texWidth = pic.columns();
         texHeight = pic.rows();
         char *data = new char[3 * texWidth * texHeight]();
         pic.write(0, 0, texWidth, texHeight, "RGB", Magick::CharPixel, data);
 
-        GLuint tex[16];
-        glGenTextures(16, tex);
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, tex[0]);
+        glActiveTexture(GL_TEXTURE0 + texNum);
+        glBindTexture(GL_TEXTURE_2D, tex[texNum]);
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB8, texWidth, texHeight, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST); //GL_NEAREST
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST); //GL_LINEAR
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-        glUniform1i(glGetUniformLocation(shader.program, "texture"), 0);
+        std::cout << "added texture" << std::endl;
+        ++texNum;
     }
 
     std::chrono::system_clock::time_point tp = std::chrono::system_clock::now();
@@ -601,7 +621,6 @@ void MyGL::collage(std::string directory) {
     while(std::chrono::system_clock::now() < tp) {
         glClearColor( 1.0f, 1.0f, 1.0f, 1.0f );
 		glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
-        int size = 4;
         float unit = 2.0 / size;
         for(int i = 0; i < size * size; ++i) {
             glm::mat4 translationMatrix = glm::translate(glm::vec3(-0.5 + ((i % size) * unit), 0.5 - (i / size) * unit, 0.0f));
@@ -610,6 +629,7 @@ void MyGL::collage(std::string directory) {
             glUniformMatrix4fv(glGetUniformLocation(shader.program, "translationMatrix"), 1, GL_FALSE, glm::value_ptr(translationMatrix));
             glUniformMatrix4fv(glGetUniformLocation(shader.program, "rotationMatrix"), 1, GL_FALSE, glm::value_ptr(rotationMatrix));
             glUniformMatrix4fv(glGetUniformLocation(shader.program, "scaleMatrix"), 1, GL_FALSE, glm::value_ptr(scaleMatrix));
+            glUniform1i(glGetUniformLocation(shader.program, "texture"), i); // TODO - not zero but texNum, will loop this
             renderSquare();
         }
         glfwSwapBuffers( win->window );
