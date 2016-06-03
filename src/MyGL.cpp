@@ -568,8 +568,6 @@ void MyGL::collage(std::string directory) {
     wh.clearColor = glm::vec3(1.0, 1.0, 1.0);
     wh.width = 1000;
     wh.height = 1000;
-    int texWidth;
-    int texHeight;
     win = std::make_unique<Window>(this, wh);
     //win->loop();
     glfwMakeContextCurrent( win->window );
@@ -582,6 +580,8 @@ void MyGL::collage(std::string directory) {
     int size = 4;
 
     for(int texNum = 0; texNum < size * size;) {
+        int texWidth;
+        int texHeight;
         dirIter = grabNextImage(dirIter);
         Magick::Image pic;
         pic.read(dirIter->path().string());
@@ -604,10 +604,36 @@ void MyGL::collage(std::string directory) {
     }
 
     std::chrono::system_clock::time_point tp = std::chrono::system_clock::now();
-    tp += std::chrono::seconds(1);
+    tp += std::chrono::milliseconds(1000);
+    int intervals = 0;
     //while(std::chrono::system_clock::now() < tp) {
     while(!glfwWindowShouldClose(win->window)) {
         glfwPollEvents();
+
+        if(std::chrono::system_clock::now() > tp) {
+            int texWidth;
+            int texHeight;
+            dirIter = grabNextImage(dirIter);
+            Magick::Image pic;
+            pic.read(dirIter->path().string());
+            ++dirIter;
+            pic.flip();
+            texWidth = pic.columns();
+            texHeight = pic.rows();
+            char *data = new char[3 * texWidth * texHeight]();
+            pic.write(0, 0, texWidth, texHeight, "RGB", Magick::CharPixel, data);
+
+            glActiveTexture(GL_TEXTURE0 + intervals % (size * size));
+            glBindTexture(GL_TEXTURE_2D, tex[intervals % (size * size)]);
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB8, texWidth, texHeight, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST); //GL_NEAREST
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST); //GL_LINEAR
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+            std::cout << "added texture" << std::endl;
+            ++intervals;
+        }
+
         glClearColor( 1.0f, 1.0f, 1.0f, 1.0f );
 		glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
         float unit = 2.0 / size;
