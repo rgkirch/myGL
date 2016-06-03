@@ -518,28 +518,24 @@ MyGL::MyGL() {
 MyGL::~MyGL() {
 }
 
-/*
-auto MyGL::directoryIterate(std::list<boost::filesystem::path> folders, boost::filesystem::directory_iterator dirIter) {
-    // lets do bfs
-    try {
-        while(!folders.empty() && dirIter != boost::filesystem::directory_iterator()) {
-            if(boost::filesystem::is_regular_file(dirIter->path())) {
-                std::string fileName(dirIter->path().filename());
-                dirIter++;
-                return std::make_pair(std::make_pair(folders, dirIter), fileName);
-            } else if(boost::filesystem::is_directory(dirIter->path())) {
-                folders.push_back(dirIter->path());
-                dirIter++;
-                return std::make_pair(std::make_pair(folders, dirIter), std::string());
-            } else {
-                dirIter++;
-            }
+// TODO - how does caller know that it returned the last image, return tuple with bool?
+boost::filesystem::recursive_directory_iterator MyGL::grabNextImage(boost::filesystem::recursive_directory_iterator dirIter) {
+    while(dirIter != boost::filesystem::recursive_directory_iterator()) {
+        while(!boost::filesystem::is_regular_file(dirIter->path())) { // TODO - what happens when it runs out of files
+            dirIter++;
         }
-    } catch (const boost::filesystem::filesystem_error& ex) {
-        std::cout << ex.what() << std::endl;
+        try {
+            Magick::Image pic;
+            pic.read(dirIter->path().string());
+            std::cout << dirIter->path() << std::endl;
+            break;
+        } catch(Magick::Exception& e) {
+            //std::cout << e.what() << std::endl;
+        }
+        ++dirIter;
     }
+    return dirIter;
 }
-*/
 
 void MyGL::renderSquare() {
     float bufferData[] = {-1.0, 1.0, -1.0, 0.0, 0.0, 1.0, -1.0, 0.0, 0.0, 0.0, 0.0, 1.0};
@@ -582,23 +578,14 @@ void MyGL::collage(std::string directory) {
     GLuint tex[16];
     glGenTextures(16, tex);
 
-    boost::filesystem::recursive_directory_iterator dirIter(directory); // TODO - cant from string
+    boost::filesystem::recursive_directory_iterator dirIter(directory);
     int size = 4;
 
     for(int texNum = 0; texNum < size * size;) {
-        while(!boost::filesystem::is_regular_file(dirIter->path())) { // TODO - what happens when it runs out of files
-            dirIter++;
-        }
+        dirIter = grabNextImage(dirIter);
         Magick::Image pic;
-        try {
-            pic.read(dirIter->path().string());
-            std::cout << dirIter->path() << std::endl;
-            ++dirIter;
-        } catch(Magick::Exception& e) {
-            //std::cout << e.what() << std::endl;
-            ++dirIter;
-            continue;
-        }
+        pic.read(dirIter->path().string());
+        ++dirIter;
         pic.flip();
         texWidth = pic.columns();
         texHeight = pic.rows();

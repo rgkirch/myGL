@@ -222,7 +222,7 @@ public:
     MyGL(std::string);
     ~MyGL();
     void renderSquare();
-    //auto MyGL::directoryIterate(std::list<boost::filesystem::path> folders, boost::filesystem::directory_iterator dirIter);
+    boost::filesystem::recursive_directory_iterator grabNextImage(boost::filesystem::recursive_directory_iterator dirIter);
     void collage(std::string);
     void end();
     void genLotsWindows();
