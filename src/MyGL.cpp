@@ -538,6 +538,7 @@ Magick::Image MyGL::grabNextImage(boost::filesystem::recursive_directory_iterato
     return pic;
 }
 
+// TODO - use instancing
 void MyGL::renderSquare() {
     float bufferData[] = {-1.0, 1.0, -1.0, 0.0, 0.0, 1.0, -1.0, 0.0, 0.0, 0.0, 0.0, 1.0};
     //float bufferData[] = {-1.0, 1.0, -1.0, -1.0, 1.0, 1.0, 1.0, 1.0, -1.0, -1.0, 1.0, -1.0};
@@ -603,14 +604,15 @@ void MyGL::collage(std::string directory) {
     }
 
     std::chrono::system_clock::time_point tp = std::chrono::system_clock::now();
-    tp += std::chrono::milliseconds(500);
+    int delay = 200;
+    tp += std::chrono::milliseconds(delay);
     int intervals = 0;
     //while(std::chrono::system_clock::now() < tp) {
     while(!glfwWindowShouldClose(win->window)) {
         glfwPollEvents();
 
         if(std::chrono::system_clock::now() > tp) {
-            tp += std::chrono::milliseconds(500);
+            tp += std::chrono::milliseconds(delay);
             int texWidth;
             int texHeight;
             Magick::Image pic = grabNextImage(dirIter);
