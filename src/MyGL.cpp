@@ -604,13 +604,14 @@ void MyGL::collage(std::string directory) {
     }
 
     std::chrono::system_clock::time_point tp = std::chrono::system_clock::now();
-    tp += std::chrono::milliseconds(1000);
+    tp += std::chrono::milliseconds(500);
     int intervals = 0;
     //while(std::chrono::system_clock::now() < tp) {
     while(!glfwWindowShouldClose(win->window)) {
         glfwPollEvents();
 
         if(std::chrono::system_clock::now() > tp) {
+            tp += std::chrono::milliseconds(500);
             int texWidth;
             int texHeight;
             dirIter = grabNextImage(dirIter);
