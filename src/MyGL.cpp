@@ -540,8 +540,8 @@ Magick::Image MyGL::grabNextImage(boost::filesystem::recursive_directory_iterato
 
 // TODO - use instancing
 void MyGL::renderSquare() {
-    float bufferData[] = {-1.0, 1.0, -1.0, 0.0, 0.0, 1.0, -1.0, 0.0, 0.0, 0.0, 0.0, 1.0};
-    //float bufferData[] = {-1.0, 1.0, -1.0, -1.0, 1.0, 1.0, 1.0, 1.0, -1.0, -1.0, 1.0, -1.0};
+    //float bufferData[] = {-1.0, 1.0, -1.0, 0.0, 0.0, 1.0, -1.0, 0.0, 0.0, 0.0, 0.0, 1.0};
+    float bufferData[] = {-1.0, 1.0, -1.0, -1.0, 1.0, 1.0, 1.0, 1.0, -1.0, -1.0, 1.0, -1.0};
     //float bufferData[] = {0.0, 1.0, 0.0, 0.0, 1.0, 1.0, 1.0, 1.0, 0.0, 0.0, 1.0, 0.0};
     GLuint vbo, vao;
     glGenVertexArrays(1, &vao);
@@ -564,24 +564,26 @@ void MyGL::renderSquare() {
 
 // assume directory is legit
 void MyGL::collage(std::string directory) {
+    int tileSize = 200;
+    int tilesWide = 6;
+    int tilesHigh = 4;
+    int numTiles = tilesWide * tilesHigh;
     Magick::InitializeMagick(NULL);
     std::unique_ptr<Window> win;
     WindowHints wh;
     wh.clearColor = glm::vec3(1.0, 1.0, 1.0);
-    wh.width = 1000;
-    wh.height = 1000;
+    wh.width = tilesWide * tileSize;
+    wh.height = tilesHigh * tileSize;
     win = std::make_unique<Window>(this, wh);
-    //win->loop();
     glfwMakeContextCurrent( win->window );
     ShaderProgram shader(std::string("vertexShader.glsl"), std::string("fragmentShader.glsl"));
 
-    GLuint tex[16];
-    glGenTextures(16, tex);
+    GLuint tex[numTiles];
+    glGenTextures(numTiles, tex);
 
     boost::filesystem::recursive_directory_iterator dirIter(directory);
-    int size = 4;
 
-    for(int texNum = 0; texNum < size * size;) {
+    for(int texNum = 0; texNum < numTiles;) {
         int texWidth;
         int texHeight;
         Magick::Image pic = grabNextImage(dirIter);
@@ -623,8 +625,8 @@ void MyGL::collage(std::string directory) {
             char *data = new char[3 * texWidth * texHeight]();
             pic.write(0, 0, texWidth, texHeight, "RGB", Magick::CharPixel, data);
 
-            glActiveTexture(GL_TEXTURE0 + intervals % (size * size));
-            glBindTexture(GL_TEXTURE_2D, tex[intervals % (size * size)]);
+            glActiveTexture(GL_TEXTURE0 + intervals % (tilesWide * tilesHigh));
+            glBindTexture(GL_TEXTURE_2D, tex[intervals % (tilesWide * tilesHigh)]);
             glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB8, texWidth, texHeight, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST); //GL_NEAREST
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST); //GL_LINEAR
@@ -636,15 +638,14 @@ void MyGL::collage(std::string directory) {
 
         glClearColor( 1.0f, 1.0f, 1.0f, 1.0f );
 		glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
-        float unit = 2.0 / size;
-        for(int i = 0; i < size * size; ++i) {
-            glm::mat4 translationMatrix = glm::translate(glm::vec3(-0.5 + ((i % size) * unit), 0.5 - (i / size) * unit, 0.0f));
+        for(int tile = 0; tile < numTiles; ++tile) {
+            glm::mat4 translationMatrix = glm::translate(glm::vec3(-1.0 + (1.0 / tilesWide / 2.0) + ((tile % tilesWide) / tilesWide * tile), 1.0 - (1.0 / tilesHigh / 2.0) + ((tile / tilesWide) / tilesHigh * tile), 0.0f));
             glm::mat4 rotationMatrix(1.0f);
-            glm::mat4 scaleMatrix = glm::scale(glm::vec3(0.5, 0.5, 0.0f));
+            glm::mat4 scaleMatrix = glm::scale(glm::vec3(1.0 / tilesWide, 1.0 / tilesHigh, 0.0f));
             glUniformMatrix4fv(glGetUniformLocation(shader.program, "translationMatrix"), 1, GL_FALSE, glm::value_ptr(translationMatrix));
             glUniformMatrix4fv(glGetUniformLocation(shader.program, "rotationMatrix"), 1, GL_FALSE, glm::value_ptr(rotationMatrix));
             glUniformMatrix4fv(glGetUniformLocation(shader.program, "scaleMatrix"), 1, GL_FALSE, glm::value_ptr(scaleMatrix));
-            glUniform1i(glGetUniformLocation(shader.program, "texture"), i); // TODO - not zero but texNum, will loop this
+            glUniform1i(glGetUniformLocation(shader.program, "texture"), tile); // TODO - not zero but texNum, will loop this
             renderSquare();
         }
         glfwSwapBuffers( win->window );
