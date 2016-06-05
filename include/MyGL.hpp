@@ -209,6 +209,12 @@ public:
     //glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 };
 
+struct ImageIterator {
+    ImageIterator(std::string);
+    Magick::Image operator()();
+    boost::filesystem::recursive_directory_iterator dirIter;
+};
+
 /** This is the topmost class for the program. Creating a new instance of this class means creating a new instance of the program.
  *  The main program should be as simple as running
  *  MyGL* mygl = new MyGL();

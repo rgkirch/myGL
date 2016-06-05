@@ -519,7 +519,11 @@ MyGL::~MyGL() {
 }
 
 // TODO - how does caller know that it returned the last image, return tuple with bool?
-Magick::Image MyGL::grabNextImage(boost::filesystem::recursive_directory_iterator& dirIter) {
+ImageIterator::ImageIterator(std::string dirName) {
+    dirIter = boost::filesystem::recursive_directory_iterator(dirName);
+}
+
+Magick::Image ImageIterator::operator()() {
     Magick::Image pic;
     while(dirIter != boost::filesystem::recursive_directory_iterator()) {
         while(!boost::filesystem::is_regular_file(dirIter->path())) { // TODO - what happens when it runs out of files
@@ -581,12 +585,12 @@ void MyGL::collage(std::string directory) {
     GLuint tex[numTiles];
     glGenTextures(numTiles, tex);
 
-    boost::filesystem::recursive_directory_iterator dirIter(directory);
+    ImageIterator imgIter(directory);
 
     for(int texNum = 0; texNum < numTiles;) {
         int texWidth;
         int texHeight;
-        Magick::Image pic = grabNextImage(dirIter);
+        Magick::Image pic = imgIter();
         //pic.read(dirIter->path().string());
         pic.flip();
         texWidth = pic.columns();
@@ -617,7 +621,7 @@ void MyGL::collage(std::string directory) {
             tp += std::chrono::milliseconds(delay);
             int texWidth;
             int texHeight;
-            Magick::Image pic = grabNextImage(dirIter);
+            Magick::Image pic = imgIter();
             //pic.read(dirIter->path().string());
             pic.flip();
             texWidth = pic.columns();
