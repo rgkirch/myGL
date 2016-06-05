@@ -222,6 +222,7 @@ public:
     MyGL(std::string);
     ~MyGL();
     void renderSquare();
+    Magick::Image grabNextImage(boost::filesystem::recursive_directory_iterator& dirIter);
     void collage(std::string);
     void end();
     void genLotsWindows();

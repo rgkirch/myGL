@@ -518,9 +518,30 @@ MyGL::MyGL() {
 MyGL::~MyGL() {
 }
 
+// TODO - how does caller know that it returned the last image, return tuple with bool?
+Magick::Image MyGL::grabNextImage(boost::filesystem::recursive_directory_iterator& dirIter) {
+    Magick::Image pic;
+    while(dirIter != boost::filesystem::recursive_directory_iterator()) {
+        while(!boost::filesystem::is_regular_file(dirIter->path())) { // TODO - what happens when it runs out of files
+            dirIter++;
+        }
+        try {
+            pic.read(dirIter->path().string());
+            std::cout << dirIter->path() << std::endl;
+            ++dirIter;
+            break;
+        } catch(Magick::Exception& e) {
+            //std::cout << e.what() << std::endl;
+            ++dirIter;
+        }
+    }
+    return pic;
+}
+
+// TODO - use instancing
 void MyGL::renderSquare() {
-    float bufferData[] = {-1.0, 1.0, -1.0, 0.0, 0.0, 1.0, -1.0, 0.0, 0.0, 0.0, 0.0, 1.0};
-    //float bufferData[] = {-1.0, 1.0, -1.0, -1.0, 1.0, 1.0, 1.0, 1.0, -1.0, -1.0, 1.0, -1.0};
+    //float bufferData[] = {-1.0, 1.0, -1.0, 0.0, 0.0, 1.0, -1.0, 0.0, 0.0, 0.0, 0.0, 1.0};
+    float bufferData[] = {-1.0, 1.0, -1.0, -1.0, 1.0, 1.0, 1.0, 1.0, -1.0, -1.0, 1.0, -1.0};
     //float bufferData[] = {0.0, 1.0, 0.0, 0.0, 1.0, 1.0, 1.0, 1.0, 0.0, 0.0, 1.0, 0.0};
     GLuint vbo, vao;
     glGenVertexArrays(1, &vao);
@@ -541,62 +562,97 @@ void MyGL::renderSquare() {
     glDeleteVertexArrays(1, &vao);
 }
 
+// assume directory is legit
 void MyGL::collage(std::string directory) {
-    using namespace boost::filesystem;
-    using namespace Magick;
-    path path(directory);
-    InitializeMagick(NULL);
+    int tileSize = 200;
+    int tilesWide = 6;
+    int tilesHigh = 4;
+    int numTiles = tilesWide * tilesHigh;
+    Magick::InitializeMagick(NULL);
     std::unique_ptr<Window> win;
     WindowHints wh;
     wh.clearColor = glm::vec3(1.0, 1.0, 1.0);
-    wh.width = 1000;
-    wh.height = 1000;
-    int texWidth;
-    int texHeight;
+    wh.width = tilesWide * tileSize;
+    wh.height = tilesHigh * tileSize;
     win = std::make_unique<Window>(this, wh);
-    //win->loop();
     glfwMakeContextCurrent( win->window );
     ShaderProgram shader(std::string("vertexShader.glsl"), std::string("fragmentShader.glsl"));
 
-    Image pic;
-    pic.read("test.png");
-    pic.flip();
-    texWidth = pic.columns();
-    texHeight = pic.rows();
-    char *data = new char[3 * texWidth * texHeight]();
-    pic.write(0, 0, texWidth, texHeight, "RGB", Magick::CharPixel, data);
+    GLuint tex[numTiles];
+    glGenTextures(numTiles, tex);
 
-    GLuint tex;
-    glActiveTexture(GL_TEXTURE0);
-    glGenTextures(1, &tex);
-    glBindTexture(GL_TEXTURE_2D, tex);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB8, texWidth, texHeight, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST); //GL_NEAREST
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST); //GL_LINEAR
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    glUniform1i(glGetUniformLocation(shader.program, "texture"), 0);
+    boost::filesystem::recursive_directory_iterator dirIter(directory);
+
+    for(int texNum = 0; texNum < numTiles;) {
+        int texWidth;
+        int texHeight;
+        Magick::Image pic = grabNextImage(dirIter);
+        //pic.read(dirIter->path().string());
+        pic.flip();
+        texWidth = pic.columns();
+        texHeight = pic.rows();
+        char *data = new char[3 * texWidth * texHeight]();
+        pic.write(0, 0, texWidth, texHeight, "RGB", Magick::CharPixel, data);
+
+        glActiveTexture(GL_TEXTURE0 + texNum);
+        glBindTexture(GL_TEXTURE_2D, tex[texNum]);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB8, texWidth, texHeight, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST); //GL_NEAREST
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST); //GL_LINEAR
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+        std::cout << "added texture" << std::endl;
+        ++texNum;
+    }
 
     std::chrono::system_clock::time_point tp = std::chrono::system_clock::now();
-    tp += std::chrono::seconds(1);
-    while(std::chrono::system_clock::now() < tp) {
+    int delay = 200;
+    tp += std::chrono::milliseconds(delay);
+    int interval = 0; /** Always increasing. Increment per new pic read.*/
+    //while(std::chrono::system_clock::now() < tp) {
+    while(!glfwWindowShouldClose(win->window)) {
+        glfwPollEvents();
+
+        if(std::chrono::system_clock::now() > tp) {
+            tp += std::chrono::milliseconds(delay);
+            int texWidth;
+            int texHeight;
+            Magick::Image pic = grabNextImage(dirIter);
+            //pic.read(dirIter->path().string());
+            pic.flip();
+            texWidth = pic.columns();
+            texHeight = pic.rows();
+            std::unique_ptr<unsigned char[]> data = std::make_unique<unsigned char[]>(3 * texWidth * texHeight);
+            pic.write(0, 0, texWidth, texHeight, "RGB", Magick::CharPixel, &data[0]);
+
+            glActiveTexture(GL_TEXTURE0 + interval % numTiles);
+            glBindTexture(GL_TEXTURE_2D, tex[interval % (tilesWide * tilesHigh)]);
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB8, texWidth, texHeight, 0, GL_RGB, GL_UNSIGNED_BYTE, &data[0]);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST); //GL_NEAREST
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST); //GL_LINEAR
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+            glGenerateMipmap(GL_TEXTURE_2D);
+            std::cout << "added texture" << std::endl;
+            ++interval;
+        }
+
         glClearColor( 1.0f, 1.0f, 1.0f, 1.0f );
 		glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
-        int size = 4;
-        float unit = 2.0 / size;
-        for(int i = 0; i < size * size; ++i) {
-            glm::mat4 translationMatrix = glm::translate(glm::vec3(-0.5 + ((i % size) * unit), 0.5 - (i / size) * unit, 0.0f));
+        for(int tile = 0; tile < numTiles; ++tile) {
+            glm::mat4 translationMatrix = glm::translate(glm::vec3((-1.0 + 2.0 / tilesWide / 2.0) + ((tile % tilesWide) * (2.0 / tilesWide)), (1.0 - 2.0 / tilesHigh / 2.0) - ((tile / tilesHigh) * (2.0 / tilesHigh)), 0.0f));
             glm::mat4 rotationMatrix(1.0f);
-            glm::mat4 scaleMatrix = glm::scale(glm::vec3(0.5, 0.5, 0.0f));
+            glm::mat4 scaleMatrix = glm::scale(glm::vec3(1.0 / tilesWide, 1.0 / tilesHigh, 0.0f));
             glUniformMatrix4fv(glGetUniformLocation(shader.program, "translationMatrix"), 1, GL_FALSE, glm::value_ptr(translationMatrix));
             glUniformMatrix4fv(glGetUniformLocation(shader.program, "rotationMatrix"), 1, GL_FALSE, glm::value_ptr(rotationMatrix));
             glUniformMatrix4fv(glGetUniformLocation(shader.program, "scaleMatrix"), 1, GL_FALSE, glm::value_ptr(scaleMatrix));
+            glUniform1i(glGetUniformLocation(shader.program, "texture"), tile);
             renderSquare();
         }
         glfwSwapBuffers( win->window );
     }
     glfwMakeContextCurrent( NULL );
-    //glDeleteTextures(1, &tex);
+    //glDeleteTextures(16, tex);
     //delete[] data;
 }
 
