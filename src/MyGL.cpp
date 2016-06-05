@@ -632,6 +632,7 @@ void MyGL::collage(std::string directory) {
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST); //GL_LINEAR
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+            glGenerateMipmap(GL_TEXTURE_2D);
             std::cout << "added texture" << std::endl;
             ++interval;
         }
@@ -639,15 +640,13 @@ void MyGL::collage(std::string directory) {
         glClearColor( 1.0f, 1.0f, 1.0f, 1.0f );
 		glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
         for(int tile = 0; tile < numTiles; ++tile) {
-
-            glm::mat4 translationMatrix = glm::translate(glm::vec3(-0.75 + ((tile % tilesWide) * (1.0 / tilesWide)), 0.75 - ((tile / tilesHigh) * (1.0 / tilesWide)), 0.0f));
-
+            glm::mat4 translationMatrix = glm::translate(glm::vec3((-1.0 + 2.0 / tilesWide / 2.0) + ((tile % tilesWide) * (2.0 / tilesWide)), (1.0 - 2.0 / tilesHigh / 2.0) - ((tile / tilesHigh) * (2.0 / tilesHigh)), 0.0f));
             glm::mat4 rotationMatrix(1.0f);
             glm::mat4 scaleMatrix = glm::scale(glm::vec3(1.0 / tilesWide, 1.0 / tilesHigh, 0.0f));
             glUniformMatrix4fv(glGetUniformLocation(shader.program, "translationMatrix"), 1, GL_FALSE, glm::value_ptr(translationMatrix));
             glUniformMatrix4fv(glGetUniformLocation(shader.program, "rotationMatrix"), 1, GL_FALSE, glm::value_ptr(rotationMatrix));
             glUniformMatrix4fv(glGetUniformLocation(shader.program, "scaleMatrix"), 1, GL_FALSE, glm::value_ptr(scaleMatrix));
-            glUniform1i(glGetUniformLocation(shader.program, "texture"), tile); // TODO - not zero but texNum, will loop this
+            glUniform1i(glGetUniformLocation(shader.program, "texture"), tile);
             renderSquare();
         }
         glfwSwapBuffers( win->window );
