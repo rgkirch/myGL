@@ -608,7 +608,7 @@ void MyGL::collage(std::string directory) {
     std::chrono::system_clock::time_point tp = std::chrono::system_clock::now();
     int delay = 200;
     tp += std::chrono::milliseconds(delay);
-    int intervals = 0;
+    int interval = 0; /** Always increasing. Increment per new pic read.*/
     //while(std::chrono::system_clock::now() < tp) {
     while(!glfwWindowShouldClose(win->window)) {
         glfwPollEvents();
@@ -622,24 +622,26 @@ void MyGL::collage(std::string directory) {
             pic.flip();
             texWidth = pic.columns();
             texHeight = pic.rows();
-            char *data = new char[3 * texWidth * texHeight]();
-            pic.write(0, 0, texWidth, texHeight, "RGB", Magick::CharPixel, data);
+            std::unique_ptr<unsigned char[]> data = std::make_unique<unsigned char[]>(3 * texWidth * texHeight);
+            pic.write(0, 0, texWidth, texHeight, "RGB", Magick::CharPixel, &data[0]);
 
-            glActiveTexture(GL_TEXTURE0 + intervals % (tilesWide * tilesHigh));
-            glBindTexture(GL_TEXTURE_2D, tex[intervals % (tilesWide * tilesHigh)]);
-            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB8, texWidth, texHeight, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+            glActiveTexture(GL_TEXTURE0 + interval % numTiles);
+            glBindTexture(GL_TEXTURE_2D, tex[interval % (tilesWide * tilesHigh)]);
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB8, texWidth, texHeight, 0, GL_RGB, GL_UNSIGNED_BYTE, &data[0]);
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST); //GL_NEAREST
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST); //GL_LINEAR
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
             std::cout << "added texture" << std::endl;
-            ++intervals;
+            ++interval;
         }
 
         glClearColor( 1.0f, 1.0f, 1.0f, 1.0f );
 		glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
         for(int tile = 0; tile < numTiles; ++tile) {
-            glm::mat4 translationMatrix = glm::translate(glm::vec3(-1.0 + (1.0 / tilesWide / 2.0) + ((tile % tilesWide) / tilesWide * tile), 1.0 - (1.0 / tilesHigh / 2.0) + ((tile / tilesWide) / tilesHigh * tile), 0.0f));
+
+            glm::mat4 translationMatrix = glm::translate(glm::vec3(-0.75 + ((tile % tilesWide) * (1.0 / tilesWide)), 0.75 - ((tile / tilesHigh) * (1.0 / tilesWide)), 0.0f));
+
             glm::mat4 rotationMatrix(1.0f);
             glm::mat4 scaleMatrix = glm::scale(glm::vec3(1.0 / tilesWide, 1.0 / tilesHigh, 0.0f));
             glUniformMatrix4fv(glGetUniformLocation(shader.program, "translationMatrix"), 1, GL_FALSE, glm::value_ptr(translationMatrix));
