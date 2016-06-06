@@ -10,9 +10,9 @@ LIBS=glfw3
 #LIBS= $(REQ) $(ORIG)
 
 
-INCLUDE:=$(shell $(PKG) --cflags $(LIBS)) $(shell Magick++-config --cxxflags --cppflags)
+INCLUDE:=$(shell $(PKG) --cflags $(LIBS)) $(shell Magick++-config --cppflags)
 #LINK=$(shell $(PKG) --libs $(ORIG)) -lboost_system -lboost_filesystem -pthread
-LINK:=$(shell Magick++-config --ldflags --libs) -lboost_system -lboost_filesystem -pthread -fopenmp -lGL -lGLU -lglfw -lX11 -lXxf86vm -lXrandr -lpthread -lXi -ldl -lGLEW -lXrandr -lXinerama  -lXxf86vm -lXcursor
+LINK:=$(shell Magick++-config --libs) -lboost_system -lboost_filesystem -pthread -fopenmp -lGL -lGLU -lglfw -lX11 -lXxf86vm -lXrandr -lpthread -lXi -ldl -lGLEW -lXrandr -lXinerama  -lXxf86vm -lXcursor
 
 all: main.cpp MyGL.cpp ../include/MyGL.hpp
 	$(CC) -g -o app.exe main.cpp MyGL.cpp -I../include $(STD) $(INCLUDE) $(LINK)
