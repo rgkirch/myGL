@@ -75,7 +75,8 @@ find_package(X11 REQUIRED)
 #    target_link_libraries(MyGL "${CMAKE_THREAD_LIBS_INIT}")
 #endif()
 
-find_package(Boost COMPONENTS system filesystem REQUIRED)
+find_package(Boost COMPONENTS system filesystem program_options REQUIRED)
+include_directories("${Boost_INCLUDE_DIR}")
 
 #find_package(ImageMagick REQUIRED)
 find_package(ImageMagick COMPONENTS Magick++)
@@ -107,4 +108,7 @@ endif()
 
 #target_link_libraries(MyGL -lGLEW -lGL -lGLU -lpthread -lglfw3)
 
-target_link_libraries(MyGL -DMAGICKCORE_HDRI_ENABLE=0 -DMAGICKCORE_QUANTUM_DEPTH=16 ${Boost_FILESYSTEM_LIBRARY} ${Boost_SYSTEM_LIBRARY} ${GLFW_CFLAGS} ${GLFW_LDFLAGS} ${OPENGL_LIBRARIES} ${GLEW_LIBRARIES} ${ImageMagick_LIBRARIES} -lGL -lGLU -lglfw -lX11 -lXxf86vm -lXrandr -lpthread -lXi -ldl -lGLEW -lXrandr -lXinerama  -lXxf86vm -lXcursor)
+message("boost include dir " ${Boost_INCLUDE_DIR} )
+message("boost libraries " ${Boost_LIBRARIES} )
+
+target_link_libraries(MyGL -DMAGICKCORE_HDRI_ENABLE=0 -DMAGICKCORE_QUANTUM_DEPTH=16 ${Boost_FILESYSTEM_LIBRARY} ${Boost_LIBRARIES} ${GLFW_CFLAGS} ${GLFW_LDFLAGS} ${OPENGL_LIBRARIES} ${GLEW_LIBRARIES} ${ImageMagick_LIBRARIES} -lGL -lGLU -lglfw -lX11 -lXxf86vm -lXrandr -lpthread -lXi -ldl -lGLEW -lXrandr -lXinerama  -lXxf86vm -lXcursor)
