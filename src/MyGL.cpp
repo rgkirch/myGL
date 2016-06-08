@@ -595,12 +595,12 @@ void MyGL::collage(std::string directory) {
         pic.flip();
         texWidth = pic.columns();
         texHeight = pic.rows();
-        char *data = new char[3 * texWidth * texHeight]();
-        pic.write(0, 0, texWidth, texHeight, "RGB", Magick::CharPixel, data);
+        std::unique_ptr<unsigned char[]> data = std::make_unique<unsigned char[]>(3 * texWidth * texHeight);
+        pic.write(0, 0, texWidth, texHeight, "RGB", Magick::CharPixel, data.get());
 
         glActiveTexture(GL_TEXTURE0 + texNum);
         glBindTexture(GL_TEXTURE_2D, tex[texNum]);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB8, texWidth, texHeight, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB8, texWidth, texHeight, 0, GL_RGB, GL_UNSIGNED_BYTE, data.get());
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST); //GL_NEAREST
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST); //GL_LINEAR
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
@@ -627,11 +627,11 @@ void MyGL::collage(std::string directory) {
             texWidth = pic.columns();
             texHeight = pic.rows();
             std::unique_ptr<unsigned char[]> data = std::make_unique<unsigned char[]>(3 * texWidth * texHeight);
-            pic.write(0, 0, texWidth, texHeight, "RGB", Magick::CharPixel, &data[0]);
+            pic.write(0, 0, texWidth, texHeight, "RGB", Magick::CharPixel, data.get());
 
             glActiveTexture(GL_TEXTURE0 + interval % numTiles);
             glBindTexture(GL_TEXTURE_2D, tex[interval % (tilesWide * tilesHigh)]);
-            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB8, texWidth, texHeight, 0, GL_RGB, GL_UNSIGNED_BYTE, &data[0]);
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB8, texWidth, texHeight, 0, GL_RGB, GL_UNSIGNED_BYTE, data.get());
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST); //GL_NEAREST
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST); //GL_LINEAR
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
