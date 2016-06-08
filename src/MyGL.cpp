@@ -586,17 +586,19 @@ void MyGL::collage(std::string directory) {
     glGenTextures(numTiles, tex);
 
     ImageIterator imgIter(directory);
+    std::future<Magick::Image> image = std::async(std::launch::async, imgIter);
 
     for(int texNum = 0; texNum < numTiles;) {
         int texWidth;
         int texHeight;
-        Magick::Image pic = imgIter();
-        //pic.read(dirIter->path().string());
+        //pic.get().read(dirIter->path().string());
+        Magick::Image pic = image.get();
         pic.flip();
         texWidth = pic.columns();
         texHeight = pic.rows();
         std::unique_ptr<unsigned char[]> data = std::make_unique<unsigned char[]>(3 * texWidth * texHeight);
         pic.write(0, 0, texWidth, texHeight, "RGB", Magick::CharPixel, data.get());
+        image = std::async(std::launch::async, imgIter);
 
         glActiveTexture(GL_TEXTURE0 + texNum);
         glBindTexture(GL_TEXTURE_2D, tex[texNum]);
@@ -609,8 +611,8 @@ void MyGL::collage(std::string directory) {
         ++texNum;
     }
 
-    std::chrono::system_clock::time_point tp = std::chrono::system_clock::now();
     int delay = 200;
+    std::chrono::system_clock::time_point tp = std::chrono::system_clock::now();
     tp += std::chrono::milliseconds(delay);
     int interval = 0; /** Always increasing. Increment per new pic read.*/
     //while(std::chrono::system_clock::now() < tp) {
@@ -621,16 +623,17 @@ void MyGL::collage(std::string directory) {
             tp += std::chrono::milliseconds(delay);
             int texWidth;
             int texHeight;
-            Magick::Image pic = imgIter();
-            //pic.read(dirIter->path().string());
+            //pic.get().read(dirIter->path().string());
+            Magick::Image pic = image.get();
             pic.flip();
             texWidth = pic.columns();
             texHeight = pic.rows();
             std::unique_ptr<unsigned char[]> data = std::make_unique<unsigned char[]>(3 * texWidth * texHeight);
             pic.write(0, 0, texWidth, texHeight, "RGB", Magick::CharPixel, data.get());
+            image = std::async(std::launch::async, imgIter);
 
             glActiveTexture(GL_TEXTURE0 + interval % numTiles);
-            glBindTexture(GL_TEXTURE_2D, tex[interval % (tilesWide * tilesHigh)]);
+            glBindTexture(GL_TEXTURE_2D, tex[interval % numTiles]);
             glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB8, texWidth, texHeight, 0, GL_RGB, GL_UNSIGNED_BYTE, data.get());
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST); //GL_NEAREST
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST); //GL_LINEAR
