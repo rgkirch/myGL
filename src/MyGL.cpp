@@ -568,8 +568,8 @@ void MyGL::renderSquare() {
 
 // assume directory is legit
 void MyGL::collage(std::string directory) {
-    int tileSize = 200;
-    int tilesWide = 6;
+    int tileSize = 230;
+    int tilesWide = 8;
     int tilesHigh = 4;
     int numTiles = tilesWide * tilesHigh;
     Magick::InitializeMagick(NULL);
@@ -614,7 +614,7 @@ void MyGL::collage(std::string directory) {
     int delay = 200;
     std::chrono::system_clock::time_point tp = std::chrono::system_clock::now();
     tp += std::chrono::milliseconds(delay);
-    int interval = 0; /** Always increasing. Increment per new pic read.*/
+    unsigned int interval = 0; /** Always increasing. Increment per new pic read.*/
     //while(std::chrono::system_clock::now() < tp) {
     while(!glfwWindowShouldClose(win->window)) {
         glfwPollEvents();
@@ -637,10 +637,14 @@ void MyGL::collage(std::string directory) {
             glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB8, texWidth, texHeight, 0, GL_RGB, GL_UNSIGNED_BYTE, data.get());
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST); //GL_NEAREST
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST); //GL_LINEAR
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE); // GL_CLAMP_TO_EDGE, GL_REPEAT
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
             glGenerateMipmap(GL_TEXTURE_2D);
             std::cout << "added texture" << std::endl;
+            if(interval > std::numeric_limits<unsigned int>::max() - numTiles * 2 && interval % numTiles == 1) {
+                interval = 0;
+                std::cout << "Wow, this program has been running for longer than my car has miles." << std::endl;
+            }
             ++interval;
         }
 
@@ -649,7 +653,7 @@ void MyGL::collage(std::string directory) {
         for(int tile = 0; tile < numTiles; ++tile) {
             glm::mat4 translationMatrix = glm::translate(glm::vec3((-1.0 + 2.0 / tilesWide / 2.0) + ((tile % tilesWide) * (2.0 / tilesWide)), (1.0 - 2.0 / tilesHigh / 2.0) - ((tile / tilesHigh) * (2.0 / tilesHigh)), 0.0f));
             glm::mat4 rotationMatrix(1.0f);
-            glm::mat4 scaleMatrix = glm::scale(glm::vec3(1.0 / tilesWide, 1.0 / tilesHigh, 0.0f));
+            glm::mat4 scaleMatrix = glm::scale(glm::vec3(2.0 / tilesWide, 2.0 / tilesHigh, 0.0f));
             glUniformMatrix4fv(glGetUniformLocation(shader.program, "translationMatrix"), 1, GL_FALSE, glm::value_ptr(translationMatrix));
             glUniformMatrix4fv(glGetUniformLocation(shader.program, "rotationMatrix"), 1, GL_FALSE, glm::value_ptr(rotationMatrix));
             glUniformMatrix4fv(glGetUniformLocation(shader.program, "scaleMatrix"), 1, GL_FALSE, glm::value_ptr(scaleMatrix));
