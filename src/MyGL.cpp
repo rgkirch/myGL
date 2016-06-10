@@ -521,8 +521,10 @@ MyGL::~MyGL() {
 // TODO - how does caller know that it returned the last image, return tuple with bool?
 ImageIterator::ImageIterator(std::string dirName) {
     dirIter = boost::filesystem::recursive_directory_iterator(dirName);
+    directory = dirName;
 }
 
+// TODO - it seg faults when it runs out of files
 Magick::Image ImageIterator::operator()() {
     Magick::Image pic;
     while(dirIter != boost::filesystem::recursive_directory_iterator()) {
@@ -531,7 +533,7 @@ Magick::Image ImageIterator::operator()() {
         }
         try {
             pic.read(dirIter->path().string());
-            std::cout << dirIter->path() << std::endl;
+            //std::cout << dirIter->path() << std::endl;
             ++dirIter;
             break;
         } catch(Magick::Exception& e) {
@@ -574,6 +576,9 @@ void MyGL::renderSquare() {
 
 // assume directory is legit
 void MyGL::collage(std::string directory) {
+    int MaxTextureImageUnits;
+    glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS, &MaxTextureImageUnits);
+    std::cout << MaxTextureImageUnits << std::endl;
     int tileSize = 230;
     int tilesWide = 8;
     int tilesHigh = 4;
@@ -594,27 +599,28 @@ void MyGL::collage(std::string directory) {
     ImageIterator imgIter(directory);
     std::future<Magick::Image> image = std::async(std::launch::async, imgIter);
 
+    /*
     for(int texNum = 0; texNum < numTiles;) {
         int texWidth;
         int texHeight;
-        //pic.get().read(dirIter->path().string());
         Magick::Image pic = image.get();
         texWidth = pic.columns();
         texHeight = pic.rows();
-        std::unique_ptr<unsigned char[]> data = std::make_unique<unsigned char[]>(3 * texWidth * texHeight);
-        pic.write(0, 0, texWidth, texHeight, "RGB", Magick::CharPixel, data.get());
+        std::unique_ptr<unsigned char[]> data = std::make_unique<unsigned char[]>(4 * texWidth * texHeight);
+        pic.write(0, 0, texWidth, texHeight, "RGBA", Magick::CharPixel, data.get());
         image = std::async(std::launch::async, imgIter);
 
         glActiveTexture(GL_TEXTURE0 + texNum);
         glBindTexture(GL_TEXTURE_2D, tex[texNum]);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB8, texWidth, texHeight, 0, GL_RGB, GL_UNSIGNED_BYTE, data.get());
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, texWidth, texHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, data.get());
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST); //GL_NEAREST
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST); //GL_LINEAR
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-        std::cout << "added texture" << std::endl;
+        glGenerateMipmap(GL_TEXTURE_2D);
         ++texNum;
     }
+    */
 
     int delay = 200;
     std::chrono::system_clock::time_point tp = std::chrono::system_clock::now();
@@ -632,19 +638,18 @@ void MyGL::collage(std::string directory) {
             Magick::Image pic = image.get();
             texWidth = pic.columns();
             texHeight = pic.rows();
-            std::unique_ptr<unsigned char[]> data = std::make_unique<unsigned char[]>(3 * texWidth * texHeight);
-            pic.write(0, 0, texWidth, texHeight, "RGB", Magick::CharPixel, data.get());
+            std::unique_ptr<unsigned char[]> data = std::make_unique<unsigned char[]>(4 * texWidth * texHeight);
+            pic.write(0, 0, texWidth, texHeight, "RGBA", Magick::CharPixel, data.get());
             image = std::async(std::launch::async, imgIter);
 
             glActiveTexture(GL_TEXTURE0 + interval % numTiles);
             glBindTexture(GL_TEXTURE_2D, tex[interval % numTiles]);
-            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB8, texWidth, texHeight, 0, GL_RGB, GL_UNSIGNED_BYTE, data.get());
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, texWidth, texHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, data.get());
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST); //GL_NEAREST
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST); //GL_LINEAR
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE); // GL_CLAMP_TO_EDGE, GL_REPEAT
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
             glGenerateMipmap(GL_TEXTURE_2D);
-            std::cout << "added texture" << std::endl;
             if(interval > std::numeric_limits<unsigned int>::max() - numTiles * 2 && interval % numTiles == 1) {
                 interval = 0;
                 std::cout << "Wow, this program has been running for longer than my car has miles." << std::endl;

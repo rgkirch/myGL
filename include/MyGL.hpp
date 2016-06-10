@@ -214,6 +214,7 @@ struct ImageIterator {
     ImageIterator(std::string);
     Magick::Image operator()();
     boost::filesystem::recursive_directory_iterator dirIter;
+    std::string directory;
 };
 
 /** This is the topmost class for the program. Creating a new instance of this class means creating a new instance of the program.
