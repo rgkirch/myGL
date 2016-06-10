@@ -576,9 +576,13 @@ void MyGL::renderSquare() {
 
 // assume directory is legit
 void MyGL::collage(std::string directory) {
+    int MaxTextureUnits;
+    glGetIntegerv(GL_MAX_TEXTURE_UNITS, &MaxTextureUnits);
+    std::cout << MaxTextureUnits << std::endl;
     int MaxTextureImageUnits;
     glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS, &MaxTextureImageUnits);
     std::cout << MaxTextureImageUnits << std::endl;
+
     int tileSize = 230;
     int tilesWide = 8;
     int tilesHigh = 4;
