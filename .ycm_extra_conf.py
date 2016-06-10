@@ -78,6 +78,7 @@ flags = [
     '-lXxf86vm',
     '-lboost_filesystem',
     '-lboost_system',
+    '-lboost_program_options',
     '-ldl',
     '-lglfw',
     '-lglfw3',

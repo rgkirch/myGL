@@ -546,20 +546,26 @@ Magick::Image ImageIterator::operator()() {
 void MyGL::renderSquare() {
     //float bufferData[] = {-1.0, 1.0, -1.0, 0.0, 0.0, 1.0, -1.0, 0.0, 0.0, 0.0, 0.0, 1.0};
     float bufferData[] = {-1.0, 1.0, -1.0, -1.0, 1.0, 1.0, 1.0, 1.0, -1.0, -1.0, 1.0, -1.0};
+    float uvData[] = {0.0, 0.0, 0.0, 1.0, 1.0, 0.0, 1.0, 0.0, 0.0, 1.0, 1.0, 1.0};
     //float bufferData[] = {0.0, 1.0, 0.0, 0.0, 1.0, 1.0, 1.0, 1.0, 0.0, 0.0, 1.0, 0.0};
-    GLuint vbo, vao;
+    GLuint vao;
+    GLuint vbo;
     glGenVertexArrays(1, &vao);
-    glGenBuffers(1, &vbo);
     glBindVertexArray(vao);
+    glGenBuffers(1, &vbo);
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
-    glBufferData(GL_ARRAY_BUFFER, 12 * sizeof(float), bufferData, GL_STREAM_DRAW); // GL_STATIC_DRAW, GL_STREAM_DRAW
+    glBufferData(GL_ARRAY_BUFFER, 24 * sizeof(float), NULL, GL_STREAM_DRAW); // GL_STATIC_DRAW, GL_STREAM_DRAW
+    glBufferSubData(GL_ARRAY_BUFFER, 0, 12 * sizeof(float), bufferData);
+    glBufferSubData(GL_ARRAY_BUFFER, 12 * sizeof(float), 12 * sizeof(float), uvData);
     glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, NULL);
-    //glVertexAttribPointer(1, 1, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (GLvoid*)sizeof(float));
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, (GLvoid*)(12 * sizeof(float)));
     glEnableVertexAttribArray(0);
+    glEnableVertexAttribArray(1);
 
     glDrawArrays(GL_TRIANGLES, 0, 6);
 
     glDisableVertexAttribArray(0);
+    glDisableVertexAttribArray(1);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
     glDeleteBuffers(1, &vbo);
@@ -568,8 +574,8 @@ void MyGL::renderSquare() {
 
 // assume directory is legit
 void MyGL::collage(std::string directory) {
-    int tileSize = 200;
-    int tilesWide = 6;
+    int tileSize = 230;
+    int tilesWide = 8;
     int tilesHigh = 4;
     int numTiles = tilesWide * tilesHigh;
     Magick::InitializeMagick(NULL);
@@ -586,33 +592,34 @@ void MyGL::collage(std::string directory) {
     glGenTextures(numTiles, tex);
 
     ImageIterator imgIter(directory);
+    std::future<Magick::Image> image = std::async(std::launch::async, imgIter);
 
     for(int texNum = 0; texNum < numTiles;) {
         int texWidth;
         int texHeight;
-        Magick::Image pic = imgIter();
-        //pic.read(dirIter->path().string());
-        pic.flip();
+        //pic.get().read(dirIter->path().string());
+        Magick::Image pic = image.get();
         texWidth = pic.columns();
         texHeight = pic.rows();
-        char *data = new char[3 * texWidth * texHeight]();
-        pic.write(0, 0, texWidth, texHeight, "RGB", Magick::CharPixel, data);
+        std::unique_ptr<unsigned char[]> data = std::make_unique<unsigned char[]>(3 * texWidth * texHeight);
+        pic.write(0, 0, texWidth, texHeight, "RGB", Magick::CharPixel, data.get());
+        image = std::async(std::launch::async, imgIter);
 
         glActiveTexture(GL_TEXTURE0 + texNum);
         glBindTexture(GL_TEXTURE_2D, tex[texNum]);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB8, texWidth, texHeight, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB8, texWidth, texHeight, 0, GL_RGB, GL_UNSIGNED_BYTE, data.get());
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST); //GL_NEAREST
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST); //GL_LINEAR
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
         std::cout << "added texture" << std::endl;
         ++texNum;
     }
 
-    std::chrono::system_clock::time_point tp = std::chrono::system_clock::now();
     int delay = 200;
+    std::chrono::system_clock::time_point tp = std::chrono::system_clock::now();
     tp += std::chrono::milliseconds(delay);
-    int interval = 0; /** Always increasing. Increment per new pic read.*/
+    unsigned int interval = 0; /** Always increasing. Increment per new pic read.*/
     //while(std::chrono::system_clock::now() < tp) {
     while(!glfwWindowShouldClose(win->window)) {
         glfwPollEvents();
@@ -621,32 +628,36 @@ void MyGL::collage(std::string directory) {
             tp += std::chrono::milliseconds(delay);
             int texWidth;
             int texHeight;
-            Magick::Image pic = imgIter();
-            //pic.read(dirIter->path().string());
-            pic.flip();
+            //pic.get().read(dirIter->path().string());
+            Magick::Image pic = image.get();
             texWidth = pic.columns();
             texHeight = pic.rows();
             std::unique_ptr<unsigned char[]> data = std::make_unique<unsigned char[]>(3 * texWidth * texHeight);
-            pic.write(0, 0, texWidth, texHeight, "RGB", Magick::CharPixel, &data[0]);
+            pic.write(0, 0, texWidth, texHeight, "RGB", Magick::CharPixel, data.get());
+            image = std::async(std::launch::async, imgIter);
 
             glActiveTexture(GL_TEXTURE0 + interval % numTiles);
-            glBindTexture(GL_TEXTURE_2D, tex[interval % (tilesWide * tilesHigh)]);
-            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB8, texWidth, texHeight, 0, GL_RGB, GL_UNSIGNED_BYTE, &data[0]);
+            glBindTexture(GL_TEXTURE_2D, tex[interval % numTiles]);
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB8, texWidth, texHeight, 0, GL_RGB, GL_UNSIGNED_BYTE, data.get());
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST); //GL_NEAREST
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST); //GL_LINEAR
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE); // GL_CLAMP_TO_EDGE, GL_REPEAT
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
             glGenerateMipmap(GL_TEXTURE_2D);
             std::cout << "added texture" << std::endl;
+            if(interval > std::numeric_limits<unsigned int>::max() - numTiles * 2 && interval % numTiles == 1) {
+                interval = 0;
+                std::cout << "Wow, this program has been running for longer than my car has miles." << std::endl;
+            }
             ++interval;
         }
 
         glClearColor( 1.0f, 1.0f, 1.0f, 1.0f );
 		glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
         for(int tile = 0; tile < numTiles; ++tile) {
-            glm::mat4 translationMatrix = glm::translate(glm::vec3((-1.0 + 2.0 / tilesWide / 2.0) + ((tile % tilesWide) * (2.0 / tilesWide)), (1.0 - 2.0 / tilesHigh / 2.0) - ((tile / tilesHigh) * (2.0 / tilesHigh)), 0.0f));
+            glm::mat4 translationMatrix = glm::translate(glm::vec3((-1.0 + 2.0 / tilesWide / 2.0) + ((tile % tilesWide) * (2.0 / tilesWide)), (1.0 - 2.0 / tilesHigh / 2.0) - ((tile / tilesWide) * (2.0 / tilesHigh)), 0.0f));
             glm::mat4 rotationMatrix(1.0f);
-            glm::mat4 scaleMatrix = glm::scale(glm::vec3(1.0 / tilesWide, 1.0 / tilesHigh, 0.0f));
+            glm::mat4 scaleMatrix = glm::scale(glm::vec3(1.0 / tilesWide, 1.0 / tilesHigh, 1.0f));
             glUniformMatrix4fv(glGetUniformLocation(shader.program, "translationMatrix"), 1, GL_FALSE, glm::value_ptr(translationMatrix));
             glUniformMatrix4fv(glGetUniformLocation(shader.program, "rotationMatrix"), 1, GL_FALSE, glm::value_ptr(rotationMatrix));
             glUniformMatrix4fv(glGetUniformLocation(shader.program, "scaleMatrix"), 1, GL_FALSE, glm::value_ptr(scaleMatrix));

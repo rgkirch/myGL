@@ -11,6 +11,7 @@
 #include <fstream>
 #include <numeric>
 #include <functional>
+#include <limits>
 #include <future>
 #include <iostream>
 #include <list>
