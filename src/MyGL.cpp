@@ -8,6 +8,7 @@ bool glewInited;
 typedef void (Shape::*renderFunc)();
 
 void monitor_callback(GLFWmonitor *monitor, int x) {
+    std::cout << "terminate from monitor_callback" << std::endl;
     glfwTerminate();
 }
 
@@ -416,7 +417,6 @@ void Window::loop() {
     if(window && !glfwWindowShouldClose(window)) {
         std::lock_guard<std::mutex> lock(contextMutex);
         glfwMakeContextCurrent( window );
-        //glClearColor( 0.3f, 0.0f, 0.3f, 1.0f );
         glClearColor( clearColorRed, clearColorGreen, clearColorBlue, 1.0f );
         glClear( GL_COLOR_BUFFER_BIT );
         glfwSwapBuffers( window );
@@ -429,14 +429,15 @@ Window::~Window() {
     if(window) glfwDestroyWindow( window );
 }
 
-bool Window::handles(GLFWwindow *window) {
-    return this->window == window;
-}
-
+/** I can't register a non-static function with the glfw callback. This is the
+ * static function that I register. When the window is created, the parent MyGL
+ * object is registered as the user pointer. A pointer to the parent MyGL object
+ * can be extracted later by asking for the user pointer associated with that
+ * window. I can then call the input function specific to that MyGL object.*/
 void glfwInputCallback::cursor_position_callback(GLFWwindow *window, double xpos, double ypos) {
-    //printf("window %p\n", window);
     CursorMovement input {xpos, ypos};
     MyGL *mygl = static_cast<MyGL*>(glfwGetWindowUserPointer(window));
+    mygl->cursor_position_callback(window, xpos, ypos);
 }
 void glfwInputCallback::mouse_button_callback(GLFWwindow *window, int button, int action, int mods) {
     //printf("mouse button callback\n\tbutton %d\n\taction %d\n\tmods %d\n", button, action, mods);
@@ -575,7 +576,7 @@ void MyGL::renderSquare() {
 }
 
 // assume directory is legit
-void MyGL::collage(std::string directory) {
+void MyGL::imageIterate(std::string directory) {
     int MaxTextureUnits;
     glGetIntegerv(GL_MAX_TEXTURE_UNITS, &MaxTextureUnits);
     std::cout << "MaxTextureUnits " << MaxTextureUnits << std::endl;
@@ -655,6 +656,32 @@ void MyGL::collage(std::string directory) {
     glfwMakeContextCurrent( NULL );
     //glDeleteTextures(16, tex);
     //delete[] data;
+}
+
+void MyGL::collage(std::string) {
+    Magick::InitializeMagick(NULL);
+    std::unique_ptr<Window> win;
+    WindowHints wh;
+    wh.clearColor = glm::vec3(1.0, 1.0, 1.0);
+    wh.width = 800;
+    wh.height = 800;
+    win = std::make_unique<Window>(this, wh);
+    glfwMakeContextCurrent( win->window );
+    ShaderProgram shader(std::string("vertexShader.glsl"), std::string("fragmentShader.glsl"));
+    double mouseX, mouseY;
+    mouseX = mouseY = 0;
+    registerUserCursorPositionCallbackFunction([&](const double x, const double y) -> void {mouseX = x; mouseY = y;});
+
+    int delay = 100;
+    std::chrono::system_clock::time_point tp = std::chrono::system_clock::now();
+    tp += std::chrono::milliseconds(delay);
+    while(!glfwWindowShouldClose(win->window)) {
+        glfwPollEvents();
+        if(std::chrono::system_clock::now() > tp) {
+            tp += std::chrono::milliseconds(delay);
+            std::cout << mouseX << " " << mouseY << std::endl;
+        }
+    }
 }
 
 void MyGL::end() {
@@ -963,4 +990,15 @@ void boostFun(std::string str) {
     filesystem::path p(str);
     //std::copy(boost::filesystem::directory_iterator(d), boost::filesystem::directory_iterator(), std::back_inserter(vec));
     std::cout << ls(p) << std::endl;
+}
+
+void MyGL::registerUserCursorPositionCallbackFunction(std::function<void(const double, const double)> fun) {
+    userCursorPositionCallbackFunctions.push_back(fun);
+}
+
+/** Calls all of the registered functions passing in the x and y mouse position.*/
+void MyGL::cursor_position_callback(GLFWwindow *window, const double xpos, const double ypos) {
+    for(auto& x : userCursorPositionCallbackFunctions) {
+        x(xpos, ypos);
+    }
 }

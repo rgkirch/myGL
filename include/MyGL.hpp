@@ -189,7 +189,6 @@ public:
     typedef void (Window::*threadFunc)(void);
     Window(MyGL *parent, const WindowHints& wh);
     ~Window();
-    bool handles(GLFWwindow *window); /** returns the GLFWwindow that the Window is managing*/
     void loop(); /** updates the window*/
     void hide();
     void show();
@@ -232,9 +231,14 @@ public:
     void renderSquare();
     Magick::Image grabNextImage(boost::filesystem::recursive_directory_iterator& dirIter);
     void collage(std::string);
+    void imageIterate(std::string);
     void end();
     void genLotsWindows();
     GLFWwindow* makeWindowForContext();
+
+    void cursor_position_callback(GLFWwindow *window, double xpos, double ypos);
+    void registerUserCursorPositionCallbackFunction(std::function<void(const double, const double)>);
+
     GLFWwindow* windowForContext;
     std::function<void(const Key&)> inputFunction;
     Context *currentContext;
@@ -245,6 +249,8 @@ public:
     std::vector<std::unique_ptr<ShaderProgram>> shaderPrograms;
     std::string vertexShaderFileName {"vertexShader.glsl"};
     std::string fragmentShaderFileName {"fragmentShader.glsl"};
+private:
+    std::vector<std::function<void(const double, const double)>> userCursorPositionCallbackFunctions;
 };
 
 namespace SnakeGame {
