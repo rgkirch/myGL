@@ -9,14 +9,15 @@
 #include <cstdlib>
 #include <cstring>
 #include <fstream>
-#include <numeric>
 #include <functional>
-#include <limits>
 #include <future>
 #include <iostream>
+#include <limits>
 #include <list>
+#include <map>
 #include <math.h>
 #include <mutex>
+#include <numeric>
 #include <queue>
 #include <set>
 #include <sstream>
@@ -25,22 +26,27 @@
 #include <unordered_map>
 #include <vector>
 
-#include <boost/filesystem.hpp>
 #include <Magick++.h>
+#include <boost/filesystem.hpp>
+#include <boost/foreach.hpp>
+#include <boost/geometry.hpp>
+//#include <boost/geometry/geometries/geometries.hpp> // includes box, point, ...
+#include <boost/geometry/geometries/box.hpp>
+#include <boost/geometry/geometries/point.hpp>
+#include <boost/geometry/index/rtree.hpp>
 #include <glm/glm.hpp>
-#include <glm/vec3.hpp>
-#include <glm/mat4x4.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtx/transform.hpp>
+#include <glm/mat4x4.hpp>
+#include <glm/vec3.hpp>
 
 //#include <fstream>
 //#include <sstream>
 //#include <iostream>
 
-//#include "shape.hpp"
-//#include "context.hpp"
-//#include "input.hpp"
+namespace bg = boost::geometry;
+namespace bgi = boost::geometry::index;
 
 #ifndef MYGL_HPP
 #define MYGL_HPP

@@ -1,5 +1,8 @@
 #include "MyGL.hpp"
 
+namespace bg = boost::geometry;
+namespace bgi = boost::geometry::index;
+
 std::mutex contextMutex;
 std::mutex glfwMutex;
 bool glfwInited;
@@ -525,21 +528,21 @@ ImageIterator::ImageIterator(std::string dirName) {
     directory = dirName;
 }
 
-// TODO - it seg faults when it runs out of files
 Magick::Image ImageIterator::operator()() {
     Magick::Image pic;
     while(dirIter != boost::filesystem::recursive_directory_iterator()) {
-        while(!boost::filesystem::is_regular_file(dirIter->path())) { // TODO - what happens when it runs out of files
+        if(!boost::filesystem::is_regular_file(dirIter->path())) {
             dirIter++;
-        }
-        try {
-            pic.read(dirIter->path().string());
-            //std::cout << dirIter->path() << std::endl;
-            ++dirIter;
-            break;
-        } catch(Magick::Exception& e) {
-            //std::cout << e.what() << std::endl;
-            ++dirIter;
+        } else {
+            try {
+                pic.read(dirIter->path().string());
+                //std::cout << dirIter->path() << std::endl;
+                ++dirIter;
+                break;
+            } catch(Magick::Exception& e) {
+                //std::cout << e.what() << std::endl;
+                ++dirIter;
+            }
         }
     }
     return pic;
@@ -658,6 +661,33 @@ void MyGL::imageIterate(std::string directory) {
     //delete[] data;
 }
 
+void texProducer(std::vector<GLuint>& tex, std::mutex& mutex, std::string directory) {
+    static ImageIterator imgIter(directory);
+    GLuint id;
+    glGenTextures(1, &id);
+    std::future<Magick::Image> image = std::async(std::launch::async, imgIter);
+    while(1) {
+        int texWidth;
+        int texHeight;
+        Magick::Image pic = image.get();
+        if()
+        texWidth = pic.columns();
+        texHeight = pic.rows();
+        std::unique_ptr<unsigned char[]> data = std::make_unique<unsigned char[]>(4 * texWidth * texHeight);
+        pic.write(0, 0, texWidth, texHeight, "RGBA", Magick::CharPixel, data.get());
+        image = std::async(std::launch::async, imgIter);
+
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, id[interval % numTiles]);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, texWidth, texHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, data.get());
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST); //GL_NEAREST
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST); //GL_LINEAR
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE); // GL_CLAMP_TO_EDGE, GL_REPEAT
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+        glGenerateMipmap(GL_TEXTURE_2D);
+    }
+}
+
 void MyGL::collage(std::string) {
     Magick::InitializeMagick(NULL);
     std::unique_ptr<Window> win;
@@ -666,21 +696,17 @@ void MyGL::collage(std::string) {
     wh.width = 800;
     wh.height = 800;
     win = std::make_unique<Window>(this, wh);
-    glfwMakeContextCurrent( win->window );
+    glfwMakeContextCurrent( win->window ); // TODO - this sucks
     ShaderProgram shader(std::string("vertexShader.glsl"), std::string("fragmentShader.glsl"));
     double mouseX, mouseY;
     mouseX = mouseY = 0;
     registerUserCursorPositionCallbackFunction([&](const double x, const double y) -> void {mouseX = x; mouseY = y;});
 
-    int delay = 100;
-    std::chrono::system_clock::time_point tp = std::chrono::system_clock::now();
-    tp += std::chrono::milliseconds(delay);
+    std::vector<GLuint> tex;
+
     while(!glfwWindowShouldClose(win->window)) {
+
         glfwPollEvents();
-        if(std::chrono::system_clock::now() > tp) {
-            tp += std::chrono::milliseconds(delay);
-            std::cout << mouseX << " " << mouseY << std::endl;
-        }
     }
 }
 
@@ -1002,3 +1028,5 @@ void MyGL::cursor_position_callback(GLFWwindow *window, const double xpos, const
         x(xpos, ypos);
     }
 }
+
+
