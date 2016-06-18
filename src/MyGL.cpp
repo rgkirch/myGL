@@ -580,11 +580,13 @@ void MyGL::playVideo(std::string filename) {
     if(!cap.isOpened()) {
         throw std::runtime_error("couldn't open video");
     }
+    //cap.set(cv::CAP_PROP_POS_FRAMES, 10000);
     cv::Mat frame;
     cap >> frame;
     if(frame.empty()) {
         throw std::runtime_error("frame empty");
     }
+    //cv::cvtColor(frame, frame, cv::COLOR_BGR2RGB);
 
     std::unique_ptr<Window> win;
     WindowHints wh;
@@ -597,18 +599,24 @@ void MyGL::playVideo(std::string filename) {
 
     GLuint tex;
     glGenTextures(1, &tex);
-    glUniform1i(glGetUniformLocation(shader.program, "texture"), 0);
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, tex);
+    glUniform1i(glGetUniformLocation(shader.program, "texture"), 0);
 
-    cv::namedWindow("frame", cv::WINDOW_NORMAL);
+    cv::namedWindow("frame", cv::WINDOW_NORMAL); // WINDOW_NORMAL, WINDOW_OPENGL, WINDOW_AUTOSIZE
     while(!glfwWindowShouldClose(win->window)) {
         glfwPollEvents();
 
-        cv::imshow("frame", frame);
-        cv::waitKey(1);
+        //cv::imshow("frame", frame);
+        //cv::waitKey(1);
 
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, frame.cols, frame.rows, 0, GL_RGBA, GL_UNSIGNED_BYTE, frame.data);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB8, frame.cols, frame.rows, 0, GL_BGR, GL_UNSIGNED_BYTE, frame.data);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST); //GL_NEAREST
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST); //GL_LINEAR
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE); // GL_CLAMP_TO_EDGE, GL_REPEAT
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+        //glGenerateMipmap(GL_TEXTURE_2D);
+
         glClearColor( 1.0f, 1.0f, 1.0f, 1.0f );
 		glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 

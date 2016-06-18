@@ -26,9 +26,12 @@
 #include <unordered_map>
 #include <vector>
 
+#include "opencv2/opencv.hpp"
 #include "opencv2/core.hpp"
 #include "opencv2/videoio.hpp"
+#include "opencv2/video.hpp"
 #include "opencv2/highgui.hpp"
+#include "opencv2/imgproc.hpp"
 
 #include <Magick++.h>
 #include <boost/filesystem.hpp>
