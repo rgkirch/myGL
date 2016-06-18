@@ -221,6 +221,18 @@ struct ImageIterator {
     std::string directory;
 };
 
+struct Square {
+    Square();
+    ~Square();
+    void operator()();
+    GLuint vao;
+    GLuint vbo;
+    //float bufferData[] = {-1.0, 1.0, -1.0, 0.0, 0.0, 1.0, -1.0, 0.0, 0.0, 0.0, 0.0, 1.0};
+    float bufferData[12] = {-1.0, 1.0, -1.0, -1.0, 1.0, 1.0, 1.0, 1.0, -1.0, -1.0, 1.0, -1.0};
+    float uvData[12] = {0.0, 0.0, 0.0, 1.0, 1.0, 0.0, 1.0, 0.0, 0.0, 1.0, 1.0, 1.0};
+    //float bufferData[] = {0.0, 1.0, 0.0, 0.0, 1.0, 1.0, 1.0, 1.0, 0.0, 0.0, 1.0, 0.0};
+};
+
 /** This is the topmost class for the program. Creating a new instance of this class means creating a new instance of the program.
  *  The main program should be as simple as running
  *  MyGL* mygl = new MyGL();
@@ -233,7 +245,6 @@ public:
     MyGL();
     MyGL(std::string);
     ~MyGL();
-    void renderSquare();
     Magick::Image grabNextImage(boost::filesystem::recursive_directory_iterator& dirIter);
     void collage(std::string);
     void playVideo(std::string filename);

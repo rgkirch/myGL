@@ -545,14 +545,7 @@ Magick::Image ImageIterator::operator()() {
     return pic;
 }
 
-// TODO - use instancing
-void MyGL::renderSquare() {
-    //float bufferData[] = {-1.0, 1.0, -1.0, 0.0, 0.0, 1.0, -1.0, 0.0, 0.0, 0.0, 0.0, 1.0};
-    float bufferData[] = {-1.0, 1.0, -1.0, -1.0, 1.0, 1.0, 1.0, 1.0, -1.0, -1.0, 1.0, -1.0};
-    float uvData[] = {0.0, 0.0, 0.0, 1.0, 1.0, 0.0, 1.0, 0.0, 0.0, 1.0, 1.0, 1.0};
-    //float bufferData[] = {0.0, 1.0, 0.0, 0.0, 1.0, 1.0, 1.0, 1.0, 0.0, 0.0, 1.0, 0.0};
-    GLuint vao;
-    GLuint vbo;
+Square::Square() {
     glGenVertexArrays(1, &vao);
     glBindVertexArray(vao);
     glGenBuffers(1, &vbo);
@@ -562,6 +555,18 @@ void MyGL::renderSquare() {
     glBufferSubData(GL_ARRAY_BUFFER, 12 * sizeof(float), 12 * sizeof(float), uvData);
     glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, NULL);
     glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, (GLvoid*)(12 * sizeof(float)));
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindVertexArray(0);
+}
+
+Square::~Square() {
+    glDeleteBuffers(1, &vbo);
+    glDeleteVertexArrays(1, &vao);
+}
+
+void Square::operator()() {
+    glBindVertexArray(vao);
+    glBindBuffer(GL_ARRAY_BUFFER, vbo);
     glEnableVertexAttribArray(0);
     glEnableVertexAttribArray(1);
 
@@ -571,8 +576,6 @@ void MyGL::renderSquare() {
     glDisableVertexAttribArray(1);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
-    glDeleteBuffers(1, &vbo);
-    glDeleteVertexArrays(1, &vao);
 }
 
 void MyGL::playVideo(std::string filename) {
@@ -596,6 +599,8 @@ void MyGL::playVideo(std::string filename) {
     win = std::make_unique<Window>(this, wh);
     glfwMakeContextCurrent( win->window );
     ShaderProgram shader(std::string("vertexShader.glsl"), std::string("fragmentShader.glsl"));
+
+    Square square;
 
     GLuint tex;
     glGenTextures(1, &tex);
@@ -626,7 +631,7 @@ void MyGL::playVideo(std::string filename) {
         glUniformMatrix4fv(glGetUniformLocation(shader.program, "translationMatrix"), 1, GL_FALSE, glm::value_ptr(translationMatrix));
         glUniformMatrix4fv(glGetUniformLocation(shader.program, "rotationMatrix"), 1, GL_FALSE, glm::value_ptr(rotationMatrix));
         glUniformMatrix4fv(glGetUniformLocation(shader.program, "scaleMatrix"), 1, GL_FALSE, glm::value_ptr(scaleMatrix));
-        renderSquare();
+        square();
         glfwSwapBuffers( win->window );
         cap >> frame;
         if(frame.empty()) {
@@ -663,6 +668,8 @@ void MyGL::collage(std::string directory) {
 
     ImageIterator imgIter(directory);
     std::future<Magick::Image> image = std::async(std::launch::async, imgIter);
+
+    Square square;
 
     int delay = 200;
     std::chrono::system_clock::time_point tp = std::chrono::system_clock::now();
@@ -709,7 +716,7 @@ void MyGL::collage(std::string directory) {
             glUniformMatrix4fv(glGetUniformLocation(shader.program, "rotationMatrix"), 1, GL_FALSE, glm::value_ptr(rotationMatrix));
             glUniformMatrix4fv(glGetUniformLocation(shader.program, "scaleMatrix"), 1, GL_FALSE, glm::value_ptr(scaleMatrix));
             glBindTexture(GL_TEXTURE_2D, tile);
-            renderSquare();
+            square();
         }
         glfwSwapBuffers( win->window );
     }
