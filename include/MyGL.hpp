@@ -27,7 +27,7 @@
 #include <vector>
 
 #include "opencv2/core.hpp"
-#include "opencv2/videoio/videoio.hpp"
+#include "opencv2/videoio.hpp"
 #include "opencv2/highgui.hpp"
 
 #include <Magick++.h>

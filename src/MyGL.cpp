@@ -576,7 +576,6 @@ void MyGL::renderSquare() {
 }
 
 void MyGL::playVideo(std::string filename) {
-    std::cout << "playvideo" << std::endl;
     cv::VideoCapture cap(filename);
     if(!cap.isOpened()) {
         throw std::runtime_error("couldn't open video");
@@ -602,12 +601,12 @@ void MyGL::playVideo(std::string filename) {
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, tex);
 
-    cv::namedWindow("frame", 1);
-
+    cv::namedWindow("frame", cv::WINDOW_NORMAL);
     while(!glfwWindowShouldClose(win->window)) {
         glfwPollEvents();
 
         cv::imshow("frame", frame);
+        cv::waitKey(1);
 
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, frame.cols, frame.rows, 0, GL_RGBA, GL_UNSIGNED_BYTE, frame.data);
         glClearColor( 1.0f, 1.0f, 1.0f, 1.0f );
@@ -626,7 +625,6 @@ void MyGL::playVideo(std::string filename) {
             throw std::runtime_error("frame empty");
         }
     }
-
 }
 
 // assume directory is legit
