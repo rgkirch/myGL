@@ -15,3 +15,5 @@ Context:
 
 figure out how to cross compile with mxe and cmake
 -DCMAKE_TOOLCHAIN_FILE=/home/eve/GitClone/mxe/usr/i686-w64-mingw32.static/share/cmake/mxe-conf.cmake
+
+6/18/2016 - function to read and display frames from video using opencv VideoCapture (play back video)

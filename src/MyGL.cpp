@@ -1,8 +1,5 @@
 #include "MyGL.hpp"
 
-namespace bg = boost::geometry;
-namespace bgi = boost::geometry::index;
-
 std::mutex contextMutex;
 std::mutex glfwMutex;
 bool glfwInited;
@@ -578,8 +575,62 @@ void MyGL::renderSquare() {
     glDeleteVertexArrays(1, &vao);
 }
 
+void MyGL::playVideo(std::string filename) {
+    std::cout << "playvideo" << std::endl;
+    cv::VideoCapture cap(filename);
+    if(!cap.isOpened()) {
+        throw std::runtime_error("couldn't open video");
+    }
+    cv::Mat frame;
+    cap >> frame;
+    if(frame.empty()) {
+        throw std::runtime_error("frame empty");
+    }
+
+    std::unique_ptr<Window> win;
+    WindowHints wh;
+    wh.clearColor = glm::vec3(1.0, 1.0, 1.0);
+    wh.width = frame.cols;
+    wh.height = frame.rows;
+    win = std::make_unique<Window>(this, wh);
+    glfwMakeContextCurrent( win->window );
+    ShaderProgram shader(std::string("vertexShader.glsl"), std::string("fragmentShader.glsl"));
+
+    GLuint tex;
+    glGenTextures(1, &tex);
+    glUniform1i(glGetUniformLocation(shader.program, "texture"), 0);
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, tex);
+
+    cv::namedWindow("frame", 1);
+
+    while(!glfwWindowShouldClose(win->window)) {
+        glfwPollEvents();
+
+        cv::imshow("frame", frame);
+
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, frame.cols, frame.rows, 0, GL_RGBA, GL_UNSIGNED_BYTE, frame.data);
+        glClearColor( 1.0f, 1.0f, 1.0f, 1.0f );
+		glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
+
+        glm::mat4 translationMatrix = glm::translate(glm::vec3(0.0, 0.0, 0.0f));
+        glm::mat4 rotationMatrix(1.0f);
+        glm::mat4 scaleMatrix = glm::scale(glm::vec3(1.0, 1.0, 1.0f));
+        glUniformMatrix4fv(glGetUniformLocation(shader.program, "translationMatrix"), 1, GL_FALSE, glm::value_ptr(translationMatrix));
+        glUniformMatrix4fv(glGetUniformLocation(shader.program, "rotationMatrix"), 1, GL_FALSE, glm::value_ptr(rotationMatrix));
+        glUniformMatrix4fv(glGetUniformLocation(shader.program, "scaleMatrix"), 1, GL_FALSE, glm::value_ptr(scaleMatrix));
+        renderSquare();
+        glfwSwapBuffers( win->window );
+        cap >> frame;
+        if(frame.empty()) {
+            throw std::runtime_error("frame empty");
+        }
+    }
+
+}
+
 // assume directory is legit
-void MyGL::imageIterate(std::string directory) {
+void MyGL::collage(std::string directory) {
     int MaxTextureUnits;
     glGetIntegerv(GL_MAX_TEXTURE_UNITS, &MaxTextureUnits);
     std::cout << "MaxTextureUnits " << MaxTextureUnits << std::endl;
@@ -659,55 +710,6 @@ void MyGL::imageIterate(std::string directory) {
     glfwMakeContextCurrent( NULL );
     //glDeleteTextures(16, tex);
     //delete[] data;
-}
-
-void texProducer(std::vector<GLuint>& tex, std::mutex& mutex, std::string directory) {
-    static ImageIterator imgIter(directory);
-    GLuint id;
-    glGenTextures(1, &id);
-    std::future<Magick::Image> image = std::async(std::launch::async, imgIter);
-    while(1) {
-        int texWidth;
-        int texHeight;
-        Magick::Image pic = image.get();
-        if()
-        texWidth = pic.columns();
-        texHeight = pic.rows();
-        std::unique_ptr<unsigned char[]> data = std::make_unique<unsigned char[]>(4 * texWidth * texHeight);
-        pic.write(0, 0, texWidth, texHeight, "RGBA", Magick::CharPixel, data.get());
-        image = std::async(std::launch::async, imgIter);
-
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, id[interval % numTiles]);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, texWidth, texHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, data.get());
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST); //GL_NEAREST
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST); //GL_LINEAR
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE); // GL_CLAMP_TO_EDGE, GL_REPEAT
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-        glGenerateMipmap(GL_TEXTURE_2D);
-    }
-}
-
-void MyGL::collage(std::string) {
-    Magick::InitializeMagick(NULL);
-    std::unique_ptr<Window> win;
-    WindowHints wh;
-    wh.clearColor = glm::vec3(1.0, 1.0, 1.0);
-    wh.width = 800;
-    wh.height = 800;
-    win = std::make_unique<Window>(this, wh);
-    glfwMakeContextCurrent( win->window ); // TODO - this sucks
-    ShaderProgram shader(std::string("vertexShader.glsl"), std::string("fragmentShader.glsl"));
-    double mouseX, mouseY;
-    mouseX = mouseY = 0;
-    registerUserCursorPositionCallbackFunction([&](const double x, const double y) -> void {mouseX = x; mouseY = y;});
-
-    std::vector<GLuint> tex;
-
-    while(!glfwWindowShouldClose(win->window)) {
-
-        glfwPollEvents();
-    }
 }
 
 void MyGL::end() {
@@ -1028,5 +1030,3 @@ void MyGL::cursor_position_callback(GLFWwindow *window, const double xpos, const
         x(xpos, ypos);
     }
 }
-
-

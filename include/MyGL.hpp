@@ -26,14 +26,13 @@
 #include <unordered_map>
 #include <vector>
 
+#include "opencv2/core.hpp"
+#include "opencv2/videoio/videoio.hpp"
+#include "opencv2/highgui.hpp"
+
 #include <Magick++.h>
 #include <boost/filesystem.hpp>
 #include <boost/foreach.hpp>
-#include <boost/geometry.hpp>
-//#include <boost/geometry/geometries/geometries.hpp> // includes box, point, ...
-#include <boost/geometry/geometries/box.hpp>
-#include <boost/geometry/geometries/point.hpp>
-#include <boost/geometry/index/rtree.hpp>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -44,9 +43,6 @@
 //#include <fstream>
 //#include <sstream>
 //#include <iostream>
-
-namespace bg = boost::geometry;
-namespace bgi = boost::geometry::index;
 
 #ifndef MYGL_HPP
 #define MYGL_HPP
@@ -237,7 +233,7 @@ public:
     void renderSquare();
     Magick::Image grabNextImage(boost::filesystem::recursive_directory_iterator& dirIter);
     void collage(std::string);
-    void imageIterate(std::string);
+    void playVideo(std::string filename);
     void end();
     void genLotsWindows();
     GLFWwindow* makeWindowForContext();
