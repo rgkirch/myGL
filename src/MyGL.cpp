@@ -521,17 +521,33 @@ MyGL::~MyGL() {
 
 // TODO - how does caller know that it returned the last image, return tuple with bool?
 ImageIterator::ImageIterator(std::string dirName) {
-    dirIter = boost::filesystem::recursive_directory_iterator(dirName);
+    try
+    {
+        dirIter = boost::filesystem::recursive_directory_iterator(dirName);
+    } catch(boost::filesystem::filesystem_error& e) {
+        std::cout << "couldn't construct diriter" << std::endl;
+        std::cout << e.what() << std::endl;
+    }
     directory = dirName;
 }
 
-Magick::Image ImageIterator::operator()() {
+Magick::Image ImageIterator::operator()()
+{
     Magick::Image pic;
-    while(dirIter != boost::filesystem::recursive_directory_iterator()) {
-        if(!boost::filesystem::is_regular_file(dirIter->path())) {
-            dirIter++;
+    while(dirIter != boost::filesystem::recursive_directory_iterator())
+    {
+        if(!boost::filesystem::is_regular_file(dirIter->path()))
+        {
+            try
+            {
+                dirIter++;
+            } catch(boost::filesystem::filesystem_error& e) {
+                std::cout << "diriter couldn't iter" << std::endl;
+                std::cout << e.what() << std::endl;
+            }
         } else {
-            try {
+            try
+            {
                 pic.read(dirIter->path().string());
                 //std::cout << dirIter->path() << std::endl;
                 ++dirIter;
@@ -539,10 +555,13 @@ Magick::Image ImageIterator::operator()() {
             } catch(Magick::Exception& e) {
                 //std::cout << e.what() << std::endl;
                 ++dirIter;
+            } catch(boost::filesystem::filesystem_error& e) {
+                std::cout << "diriter couldn't iter" << std::endl;
+                std::cout << e.what() << std::endl;
             }
         }
     }
-    return pic;
+    return std::move(pic);
 }
 
 Square::Square() {
@@ -638,6 +657,88 @@ void MyGL::playVideo(std::string filename) {
             throw std::runtime_error("frame empty");
         }
     }
+}
+
+void MyGL::cubeCollage(std::string directory) {
+    std::unique_ptr<Window> win;
+    WindowHints wh;
+    wh.clearColor = glm::vec3(1.0, 1.0, 1.0);
+    wh.width = 1000;
+    wh.height = 1000;
+    win = std::make_unique<Window>(this, wh);
+    glfwMakeContextCurrent( win->window );
+    ShaderProgram shader(std::string("vertexShader.glsl"), std::string("fragmentShader.glsl"));
+
+    std::vector<GLuint> tex;
+    std::vector<glm::vec3> coord;
+
+    ImageIterator imgIter(directory);
+    std::future<Magick::Image> image = std::async(std::launch::async, imgIter);
+
+    Square square;
+
+    glUniform1i(glGetUniformLocation(shader.program, "texture"), 0);
+    glClearColor( 1.0f, 1.0f, 1.0f, 1.0f );
+
+    bool doneLoadingImages = false; // we just started!
+
+    while(!glfwWindowShouldClose(win->window)) {
+        glfwPollEvents();
+        // check future for image
+        //     if image - gen texture and save coord place
+        // render all images
+        if(!doneLoadingImages && image.valid() && image.wait_for(std::chrono::milliseconds(1)) == std::future_status::ready) {
+            int texWidth;
+            int texHeight;
+            Magick::Image pic(std::move(image.get()));
+            if(pic == Magick::Image()) {
+                std::cout << "ran out of pictures" << std::endl;
+                doneLoadingImages = true;
+                continue;
+            }
+            texWidth = pic.columns();
+            texHeight = pic.rows();
+            std::unique_ptr<unsigned char[]> data = std::make_unique<unsigned char[]>(4 * texWidth * texHeight);
+            pic.write(0, 0, texWidth, texHeight, "RGBA", Magick::CharPixel, data.get());
+            image = std::async(std::launch::async, imgIter);
+
+            int numPixels = texWidth * texHeight * 4;
+            double red, green, blue;
+            red = green = blue = 0;
+            for(int i = 0; i < numPixels; i+=4) {
+                red += data.get()[i];
+                green += data.get()[i+1];
+                blue += data.get()[i+2];
+            }
+            coord.push_back(glm::vec3(red / (numPixels * std::pow(2, pic.depth())), green / (numPixels * std::pow(2, pic.depth())), blue / (numPixels * std::pow(2, pic.depth()))));
+
+            tex.resize(tex.size()+1);
+            glGenTextures(1, &tex.back());
+            glBindTexture(GL_TEXTURE_2D, tex.back());
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, texWidth, texHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, data.get());
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST); //GL_NEAREST
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST); //GL_LINEAR
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE); // GL_CLAMP_TO_EDGE, GL_REPEAT
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+            glGenerateMipmap(GL_TEXTURE_2D);
+        }
+
+		glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
+        for(int i = 0; i < tex.size(); ++i) {
+            glm::mat4 translationMatrix = glm::translate(coord[i]);
+            glm::mat4 rotationMatrix(1.0f);
+            glm::mat4 scaleMatrix = glm::scale(glm::vec3(0.2f));
+            glUniformMatrix4fv(glGetUniformLocation(shader.program, "translationMatrix"), 1, GL_FALSE, glm::value_ptr(translationMatrix));
+            glUniformMatrix4fv(glGetUniformLocation(shader.program, "rotationMatrix"), 1, GL_FALSE, glm::value_ptr(rotationMatrix));
+            glUniformMatrix4fv(glGetUniformLocation(shader.program, "scaleMatrix"), 1, GL_FALSE, glm::value_ptr(scaleMatrix));
+            glBindTexture(GL_TEXTURE_2D, tex[i]);
+            square();
+        }
+        glfwSwapBuffers( win->window );
+    }
+    glfwMakeContextCurrent( NULL );
+    //glDeleteTextures(16, tex);
+    //delete[] data;
 }
 
 // assume directory is legit

@@ -4,6 +4,7 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
+#include <cmath>
 #include <condition_variable>
 #include <cstdio>
 #include <cstdlib>
@@ -247,6 +248,7 @@ public:
     ~MyGL();
     Magick::Image grabNextImage(boost::filesystem::recursive_directory_iterator& dirIter);
     void collage(std::string);
+    void cubeCollage(std::string);
     void playVideo(std::string filename);
     void end();
     void genLotsWindows();
