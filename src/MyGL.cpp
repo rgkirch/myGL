@@ -671,6 +671,7 @@ void MyGL::cubeCollage(std::string directory) {
 
     std::vector<GLuint> tex;
     std::vector<glm::vec3> coord;
+    std::vector<double> ratio;
 
     ImageIterator imgIter(directory);
     std::future<Magick::Image> image = std::async(std::launch::async, imgIter);
@@ -698,6 +699,7 @@ void MyGL::cubeCollage(std::string directory) {
             }
             texWidth = pic.columns();
             texHeight = pic.rows();
+            ratio.push_back(static_cast<double>(texWidth) / static_cast<double>(texHeight));
             std::unique_ptr<unsigned char[]> data = std::make_unique<unsigned char[]>(4 * texWidth * texHeight);
             pic.write(0, 0, texWidth, texHeight, "RGBA", Magick::CharPixel, data.get());
             image = std::async(std::launch::async, imgIter);
@@ -724,10 +726,12 @@ void MyGL::cubeCollage(std::string directory) {
         }
 
 		glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
+        double fraction = 0.3;
         for(int i = 0; i < tex.size(); ++i) {
             glm::mat4 translationMatrix = glm::translate(coord[i]);
             glm::mat4 rotationMatrix(1.0f);
-            glm::mat4 scaleMatrix = glm::scale(glm::vec3(0.2f));
+            glm::mat4 scaleMatrix = glm::scale(glm::vec3(ratio[i], 1.0, 1.0) * static_cast<float>(fraction));
+            //glm::mat4 scaleMatrix = glm::scale(glm::vec3(ratio[i], 1.0, 1.0) * static_cast<float>(fraction));
             glUniformMatrix4fv(glGetUniformLocation(shader.program, "translationMatrix"), 1, GL_FALSE, glm::value_ptr(translationMatrix));
             glUniformMatrix4fv(glGetUniformLocation(shader.program, "rotationMatrix"), 1, GL_FALSE, glm::value_ptr(rotationMatrix));
             glUniformMatrix4fv(glGetUniformLocation(shader.program, "scaleMatrix"), 1, GL_FALSE, glm::value_ptr(scaleMatrix));
