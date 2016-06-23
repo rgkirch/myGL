@@ -17,6 +17,7 @@
 #include <list>
 #include <map>
 #include <math.h>
+#include <memory>
 #include <mutex>
 #include <numeric>
 #include <queue>
@@ -36,6 +37,7 @@
 
 #include <Magick++.h>
 #include <boost/filesystem.hpp>
+#include <boost/program_options.hpp>
 #include <boost/foreach.hpp>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>

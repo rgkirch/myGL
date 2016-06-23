@@ -561,7 +561,7 @@ Magick::Image ImageIterator::operator()()
             }
         }
     }
-    return std::move(pic);
+    return pic;
 }
 
 Square::Square() {
@@ -659,7 +659,36 @@ void MyGL::playVideo(std::string filename) {
     }
 }
 
-void MyGL::cubeCollage(std::string directory) {
+void imageProducer(std::list<Magick::Image>& list, std::string directory)
+{
+    boost::filesystem::recursive_directory_iterator dirIter(directory);
+    while(dirIter != boost::filesystem::recursive_directory_iterator())
+    {
+        if(boost::filesystem::is_regular_file(dirIter->path()))
+        {
+            try
+            {
+                Magick::Image pic;
+                pic.read(dirIter->path().string());
+                list.push_back(pic);
+            } catch(Magick::Exception& e) {
+                //std::cout << e.what() << std::endl;
+            } catch(boost::filesystem::filesystem_error& e) {
+                std::cout << "diriter couldn't iter" << std::endl;
+                std::cout << e.what() << std::endl;
+            }
+        }
+        dirIter++;
+    }
+}
+
+void joiner(std::thread* thread)
+{
+    thread->join();
+}
+
+void MyGL::cubeCollage(std::string directory)
+{
     std::unique_ptr<Window> win;
     WindowHints wh;
     wh.clearColor = glm::vec3(1.0, 1.0, 1.0);
@@ -672,37 +701,31 @@ void MyGL::cubeCollage(std::string directory) {
     std::vector<GLuint> tex;
     std::vector<glm::vec3> coord;
     std::vector<double> ratio;
+    std::list<Magick::Image> images;
 
-    ImageIterator imgIter(directory);
-    std::future<Magick::Image> image = std::async(std::launch::async, imgIter);
+    //std::unique_ptr<std::thread> imageProducerThread = std::make_unique<std::thread>(std::bind(imageProducer, images, directory));
+    //std::unique_ptr<std::thread> imageProducerThread(new std::thread(std::bind(std::ref(images), directory)));
+    std::unique_ptr<std::thread, void (*)(std::thread*)> imageProducerThread(new std::thread(std::bind(imageProducer, std::ref(images), directory)), joiner);
 
     Square square;
 
     glUniform1i(glGetUniformLocation(shader.program, "texture"), 0);
     glClearColor( 1.0f, 1.0f, 1.0f, 1.0f );
 
-    bool doneLoadingImages = false; // we just started!
-
-    while(!glfwWindowShouldClose(win->window)) {
+    while(!glfwWindowShouldClose(win->window))
+    {
         glfwPollEvents();
-        // check future for image
-        //     if image - gen texture and save coord place
-        // render all images
-        if(!doneLoadingImages && image.valid() && image.wait_for(std::chrono::milliseconds(1)) == std::future_status::ready) {
+        if(!images.empty())
+        {
             int texWidth;
             int texHeight;
-            Magick::Image pic(std::move(image.get()));
-            if(pic == Magick::Image()) {
-                std::cout << "ran out of pictures" << std::endl;
-                doneLoadingImages = true;
-                continue;
-            }
+            Magick::Image pic = images.front();
+            images.pop_front();
             texWidth = pic.columns();
             texHeight = pic.rows();
-            ratio.push_back(static_cast<double>(texWidth) / static_cast<double>(texHeight));
+            ratio.emplace_back(static_cast<double>(texWidth) / static_cast<double>(texHeight));
             std::unique_ptr<unsigned char[]> data = std::make_unique<unsigned char[]>(4 * texWidth * texHeight);
             pic.write(0, 0, texWidth, texHeight, "RGBA", Magick::CharPixel, data.get());
-            image = std::async(std::launch::async, imgIter);
 
             int numPixels = texWidth * texHeight * 4;
             double red, green, blue;
@@ -730,8 +753,7 @@ void MyGL::cubeCollage(std::string directory) {
         for(int i = 0; i < tex.size(); ++i) {
             glm::mat4 translationMatrix = glm::translate(coord[i]);
             glm::mat4 rotationMatrix(1.0f);
-            glm::mat4 scaleMatrix = glm::scale(glm::vec3(ratio[i], 1.0, 1.0) * static_cast<float>(fraction));
-            //glm::mat4 scaleMatrix = glm::scale(glm::vec3(ratio[i], 1.0, 1.0) * static_cast<float>(fraction));
+            glm::mat4 scaleMatrix = glm::scale(glm::dvec3(ratio[i], 1.0, 1.0) * fraction);
             glUniformMatrix4fv(glGetUniformLocation(shader.program, "translationMatrix"), 1, GL_FALSE, glm::value_ptr(translationMatrix));
             glUniformMatrix4fv(glGetUniformLocation(shader.program, "rotationMatrix"), 1, GL_FALSE, glm::value_ptr(rotationMatrix));
             glUniformMatrix4fv(glGetUniformLocation(shader.program, "scaleMatrix"), 1, GL_FALSE, glm::value_ptr(scaleMatrix));
