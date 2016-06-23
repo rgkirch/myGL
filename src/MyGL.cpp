@@ -705,12 +705,19 @@ void MyGL::cubeCollage(std::string directory)
 
     //std::unique_ptr<std::thread> imageProducerThread = std::make_unique<std::thread>(std::bind(imageProducer, images, directory));
     //std::unique_ptr<std::thread> imageProducerThread(new std::thread(std::bind(std::ref(images), directory)));
-    std::unique_ptr<std::thread, void (*)(std::thread*)> imageProducerThread(new std::thread(std::bind(imageProducer, std::ref(images), directory)), joiner);
+    std::unique_ptr<std::thread, void (*)(std::thread*)> imageProducerThread(new std::thread(std::bind(imageProducer, std::ref(images), directory)), [](std::thread* thread) -> void {thread->join();});
 
     Square square;
 
+    double mouseX, mouseY;
+    mouseX = mouseY = 0;
+    registerUserCursorPositionCallbackFunction(std::function<void(double, double)>([&](double posX, double posY) -> void {mouseX = posX; mouseY = posY;}));
+
     glUniform1i(glGetUniformLocation(shader.program, "texture"), 0);
     glClearColor( 1.0f, 1.0f, 1.0f, 1.0f );
+
+    double lastMouseX, lastMouseY;
+    lastMouseX = lastMouseY = 0;
 
     while(!glfwWindowShouldClose(win->window))
     {
@@ -735,7 +742,8 @@ void MyGL::cubeCollage(std::string directory)
                 green += data.get()[i+1];
                 blue += data.get()[i+2];
             }
-            coord.push_back(glm::vec3(red / (numPixels * std::pow(2, pic.depth())), green / (numPixels * std::pow(2, pic.depth())), blue / (numPixels * std::pow(2, pic.depth()))));
+            int channelMaxValue = numPixels * std::pow(2, pic.depth());
+            coord.push_back(glm::vec3(red / channelMaxValue * 2 - 1, green / channelMaxValue * 2 - 1, blue / channelMaxValue * 2 - 1));
 
             tex.resize(tex.size()+1);
             glGenTextures(1, &tex.back());
@@ -749,22 +757,30 @@ void MyGL::cubeCollage(std::string directory)
         }
 
 		glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
-        double fraction = 0.3;
         for(int i = 0; i < tex.size(); ++i) {
             glm::mat4 translationMatrix = glm::translate(coord[i]);
             glm::mat4 rotationMatrix(1.0f);
-            glm::mat4 scaleMatrix = glm::scale(glm::dvec3(ratio[i], 1.0, 1.0) * fraction);
-            glUniformMatrix4fv(glGetUniformLocation(shader.program, "translationMatrix"), 1, GL_FALSE, glm::value_ptr(translationMatrix));
-            glUniformMatrix4fv(glGetUniformLocation(shader.program, "rotationMatrix"), 1, GL_FALSE, glm::value_ptr(rotationMatrix));
-            glUniformMatrix4fv(glGetUniformLocation(shader.program, "scaleMatrix"), 1, GL_FALSE, glm::value_ptr(scaleMatrix));
+            //rotationMatrix = glm::rotate(rotationMatrix, (float)mouseX, glm::vec3(0,0,0));
+            glm::mat4 scaleMatrix = glm::scale(glm::dvec3(ratio[i], 1.0, 1.0));
+
+            glm::mat4 model = translationMatrix * rotationMatrix * scaleMatrix;
+
+            glm::mat4 view = glm::translate(glm::vec3(0,0,-10));
+            view = glm::rotate(view, glm::radians((float)mouseX), glm::vec3(0.0, 1.0, 0.0));
+            view = glm::rotate(view, glm::radians((float)mouseY), glm::vec3(0.0, 0.0, 1.0));
+
+            //glm::mat4 view = glm::lookAt(glm::vec3(0,0,3), glm::vec3(0,0,0), glm::vec3(0,1,0));
+
+            glm::mat4 projection = glm::perspective(glm::radians(45.0), 1.0, 0.1, 100.0);
+            glUniformMatrix4fv(glGetUniformLocation(shader.program, "model"), 1, GL_FALSE, glm::value_ptr(model));
+            glUniformMatrix4fv(glGetUniformLocation(shader.program, "view"), 1, GL_FALSE, glm::value_ptr(view));
+            glUniformMatrix4fv(glGetUniformLocation(shader.program, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
             glBindTexture(GL_TEXTURE_2D, tex[i]);
             square();
         }
         glfwSwapBuffers( win->window );
     }
     glfwMakeContextCurrent( NULL );
-    //glDeleteTextures(16, tex);
-    //delete[] data;
 }
 
 // assume directory is legit
