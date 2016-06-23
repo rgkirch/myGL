@@ -4,19 +4,22 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
+#include <cmath>
 #include <condition_variable>
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
 #include <fstream>
-#include <numeric>
 #include <functional>
-#include <limits>
 #include <future>
 #include <iostream>
+#include <limits>
 #include <list>
+#include <map>
 #include <math.h>
+#include <memory>
 #include <mutex>
+#include <numeric>
 #include <queue>
 #include <set>
 #include <sstream>
@@ -25,22 +28,27 @@
 #include <unordered_map>
 #include <vector>
 
-#include <boost/filesystem.hpp>
+#include "opencv2/opencv.hpp"
+#include "opencv2/core.hpp"
+#include "opencv2/videoio.hpp"
+#include "opencv2/video.hpp"
+#include "opencv2/highgui.hpp"
+#include "opencv2/imgproc.hpp"
+
 #include <Magick++.h>
+#include <boost/filesystem.hpp>
+#include <boost/program_options.hpp>
+#include <boost/foreach.hpp>
 #include <glm/glm.hpp>
-#include <glm/vec3.hpp>
-#include <glm/mat4x4.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtx/transform.hpp>
+#include <glm/mat4x4.hpp>
+#include <glm/vec3.hpp>
 
 //#include <fstream>
 //#include <sstream>
 //#include <iostream>
-
-//#include "shape.hpp"
-//#include "context.hpp"
-//#include "input.hpp"
 
 #ifndef MYGL_HPP
 #define MYGL_HPP
@@ -189,7 +197,6 @@ public:
     typedef void (Window::*threadFunc)(void);
     Window(MyGL *parent, const WindowHints& wh);
     ~Window();
-    bool handles(GLFWwindow *window); /** returns the GLFWwindow that the Window is managing*/
     void loop(); /** updates the window*/
     void hide();
     void show();
@@ -217,6 +224,18 @@ struct ImageIterator {
     std::string directory;
 };
 
+struct Square {
+    Square();
+    ~Square();
+    void operator()();
+    GLuint vao;
+    GLuint vbo;
+    //float bufferData[] = {-1.0, 1.0, -1.0, 0.0, 0.0, 1.0, -1.0, 0.0, 0.0, 0.0, 0.0, 1.0};
+    float bufferData[12] = {-1.0, 1.0, -1.0, -1.0, 1.0, 1.0, 1.0, 1.0, -1.0, -1.0, 1.0, -1.0};
+    float uvData[12] = {0.0, 0.0, 0.0, 1.0, 1.0, 0.0, 1.0, 0.0, 0.0, 1.0, 1.0, 1.0};
+    //float bufferData[] = {0.0, 1.0, 0.0, 0.0, 1.0, 1.0, 1.0, 1.0, 0.0, 0.0, 1.0, 0.0};
+};
+
 /** This is the topmost class for the program. Creating a new instance of this class means creating a new instance of the program.
  *  The main program should be as simple as running
  *  MyGL* mygl = new MyGL();
@@ -229,12 +248,17 @@ public:
     MyGL();
     MyGL(std::string);
     ~MyGL();
-    void renderSquare();
     Magick::Image grabNextImage(boost::filesystem::recursive_directory_iterator& dirIter);
     void collage(std::string);
+    void cubeCollage(std::string);
+    void playVideo(std::string filename);
     void end();
     void genLotsWindows();
     GLFWwindow* makeWindowForContext();
+
+    void cursor_position_callback(GLFWwindow *window, double xpos, double ypos);
+    void registerUserCursorPositionCallbackFunction(std::function<void(const double, const double)>);
+
     GLFWwindow* windowForContext;
     std::function<void(const Key&)> inputFunction;
     Context *currentContext;
@@ -245,6 +269,8 @@ public:
     std::vector<std::unique_ptr<ShaderProgram>> shaderPrograms;
     std::string vertexShaderFileName {"vertexShader.glsl"};
     std::string fragmentShaderFileName {"fragmentShader.glsl"};
+private:
+    std::vector<std::function<void(const double, const double)>> userCursorPositionCallbackFunctions;
 };
 
 namespace SnakeGame {

@@ -8,6 +8,7 @@ bool glewInited;
 typedef void (Shape::*renderFunc)();
 
 void monitor_callback(GLFWmonitor *monitor, int x) {
+    std::cout << "terminate from monitor_callback" << std::endl;
     glfwTerminate();
 }
 
@@ -416,7 +417,6 @@ void Window::loop() {
     if(window && !glfwWindowShouldClose(window)) {
         std::lock_guard<std::mutex> lock(contextMutex);
         glfwMakeContextCurrent( window );
-        //glClearColor( 0.3f, 0.0f, 0.3f, 1.0f );
         glClearColor( clearColorRed, clearColorGreen, clearColorBlue, 1.0f );
         glClear( GL_COLOR_BUFFER_BIT );
         glfwSwapBuffers( window );
@@ -429,14 +429,15 @@ Window::~Window() {
     if(window) glfwDestroyWindow( window );
 }
 
-bool Window::handles(GLFWwindow *window) {
-    return this->window == window;
-}
-
+/** I can't register a non-static function with the glfw callback. This is the
+ * static function that I register. When the window is created, the parent MyGL
+ * object is registered as the user pointer. A pointer to the parent MyGL object
+ * can be extracted later by asking for the user pointer associated with that
+ * window. I can then call the input function specific to that MyGL object.*/
 void glfwInputCallback::cursor_position_callback(GLFWwindow *window, double xpos, double ypos) {
-    //printf("window %p\n", window);
     CursorMovement input {xpos, ypos};
     MyGL *mygl = static_cast<MyGL*>(glfwGetWindowUserPointer(window));
+    mygl->cursor_position_callback(window, xpos, ypos);
 }
 void glfwInputCallback::mouse_button_callback(GLFWwindow *window, int button, int action, int mods) {
     //printf("mouse button callback\n\tbutton %d\n\taction %d\n\tmods %d\n", button, action, mods);
@@ -520,38 +521,50 @@ MyGL::~MyGL() {
 
 // TODO - how does caller know that it returned the last image, return tuple with bool?
 ImageIterator::ImageIterator(std::string dirName) {
-    dirIter = boost::filesystem::recursive_directory_iterator(dirName);
+    try
+    {
+        dirIter = boost::filesystem::recursive_directory_iterator(dirName);
+    } catch(boost::filesystem::filesystem_error& e) {
+        std::cout << "couldn't construct diriter" << std::endl;
+        std::cout << e.what() << std::endl;
+    }
     directory = dirName;
 }
 
-// TODO - it seg faults when it runs out of files
-Magick::Image ImageIterator::operator()() {
+Magick::Image ImageIterator::operator()()
+{
     Magick::Image pic;
-    while(dirIter != boost::filesystem::recursive_directory_iterator()) {
-        while(!boost::filesystem::is_regular_file(dirIter->path())) { // TODO - what happens when it runs out of files
-            dirIter++;
-        }
-        try {
-            pic.read(dirIter->path().string());
-            //std::cout << dirIter->path() << std::endl;
-            ++dirIter;
-            break;
-        } catch(Magick::Exception& e) {
-            //std::cout << e.what() << std::endl;
-            ++dirIter;
+    while(dirIter != boost::filesystem::recursive_directory_iterator())
+    {
+        if(!boost::filesystem::is_regular_file(dirIter->path()))
+        {
+            try
+            {
+                dirIter++;
+            } catch(boost::filesystem::filesystem_error& e) {
+                std::cout << "diriter couldn't iter" << std::endl;
+                std::cout << e.what() << std::endl;
+            }
+        } else {
+            try
+            {
+                pic.read(dirIter->path().string());
+                //std::cout << dirIter->path() << std::endl;
+                ++dirIter;
+                break;
+            } catch(Magick::Exception& e) {
+                //std::cout << e.what() << std::endl;
+                ++dirIter;
+            } catch(boost::filesystem::filesystem_error& e) {
+                std::cout << "diriter couldn't iter" << std::endl;
+                std::cout << e.what() << std::endl;
+            }
         }
     }
     return pic;
 }
 
-// TODO - use instancing
-void MyGL::renderSquare() {
-    //float bufferData[] = {-1.0, 1.0, -1.0, 0.0, 0.0, 1.0, -1.0, 0.0, 0.0, 0.0, 0.0, 1.0};
-    float bufferData[] = {-1.0, 1.0, -1.0, -1.0, 1.0, 1.0, 1.0, 1.0, -1.0, -1.0, 1.0, -1.0};
-    float uvData[] = {0.0, 0.0, 0.0, 1.0, 1.0, 0.0, 1.0, 0.0, 0.0, 1.0, 1.0, 1.0};
-    //float bufferData[] = {0.0, 1.0, 0.0, 0.0, 1.0, 1.0, 1.0, 1.0, 0.0, 0.0, 1.0, 0.0};
-    GLuint vao;
-    GLuint vbo;
+Square::Square() {
     glGenVertexArrays(1, &vao);
     glBindVertexArray(vao);
     glGenBuffers(1, &vbo);
@@ -561,6 +574,18 @@ void MyGL::renderSquare() {
     glBufferSubData(GL_ARRAY_BUFFER, 12 * sizeof(float), 12 * sizeof(float), uvData);
     glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, NULL);
     glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, (GLvoid*)(12 * sizeof(float)));
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindVertexArray(0);
+}
+
+Square::~Square() {
+    glDeleteBuffers(1, &vbo);
+    glDeleteVertexArrays(1, &vao);
+}
+
+void Square::operator()() {
+    glBindVertexArray(vao);
+    glBindBuffer(GL_ARRAY_BUFFER, vbo);
     glEnableVertexAttribArray(0);
     glEnableVertexAttribArray(1);
 
@@ -570,8 +595,176 @@ void MyGL::renderSquare() {
     glDisableVertexAttribArray(1);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
-    glDeleteBuffers(1, &vbo);
-    glDeleteVertexArrays(1, &vao);
+}
+
+void MyGL::playVideo(std::string filename) {
+    cv::VideoCapture cap(filename);
+    if(!cap.isOpened()) {
+        throw std::runtime_error("couldn't open video");
+    }
+    //cap.set(cv::CAP_PROP_POS_FRAMES, 10000);
+    cv::Mat frame;
+    cap >> frame;
+    if(frame.empty()) {
+        throw std::runtime_error("frame empty");
+    }
+    //cv::cvtColor(frame, frame, cv::COLOR_BGR2RGB);
+
+    std::unique_ptr<Window> win;
+    WindowHints wh;
+    wh.clearColor = glm::vec3(1.0, 1.0, 1.0);
+    wh.width = frame.cols;
+    wh.height = frame.rows;
+    win = std::make_unique<Window>(this, wh);
+    glfwMakeContextCurrent( win->window );
+    ShaderProgram shader(std::string("vertexShader.glsl"), std::string("fragmentShader.glsl"));
+
+    Square square;
+
+    GLuint tex;
+    glGenTextures(1, &tex);
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, tex);
+    glUniform1i(glGetUniformLocation(shader.program, "texture"), 0);
+
+    cv::namedWindow("frame", cv::WINDOW_NORMAL); // WINDOW_NORMAL, WINDOW_OPENGL, WINDOW_AUTOSIZE
+    while(!glfwWindowShouldClose(win->window)) {
+        glfwPollEvents();
+
+        //cv::imshow("frame", frame);
+        //cv::waitKey(1);
+
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB8, frame.cols, frame.rows, 0, GL_BGR, GL_UNSIGNED_BYTE, frame.data);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST); //GL_NEAREST
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST); //GL_LINEAR
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE); // GL_CLAMP_TO_EDGE, GL_REPEAT
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+        //glGenerateMipmap(GL_TEXTURE_2D);
+
+        glClearColor( 1.0f, 1.0f, 1.0f, 1.0f );
+		glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
+
+        glm::mat4 translationMatrix = glm::translate(glm::vec3(0.0, 0.0, 0.0f));
+        glm::mat4 rotationMatrix(1.0f);
+        glm::mat4 scaleMatrix = glm::scale(glm::vec3(1.0, 1.0, 1.0f));
+        glUniformMatrix4fv(glGetUniformLocation(shader.program, "translationMatrix"), 1, GL_FALSE, glm::value_ptr(translationMatrix));
+        glUniformMatrix4fv(glGetUniformLocation(shader.program, "rotationMatrix"), 1, GL_FALSE, glm::value_ptr(rotationMatrix));
+        glUniformMatrix4fv(glGetUniformLocation(shader.program, "scaleMatrix"), 1, GL_FALSE, glm::value_ptr(scaleMatrix));
+        square();
+        glfwSwapBuffers( win->window );
+        cap >> frame;
+        if(frame.empty()) {
+            throw std::runtime_error("frame empty");
+        }
+    }
+}
+
+void imageProducer(std::list<Magick::Image>& list, std::string directory)
+{
+    boost::filesystem::recursive_directory_iterator dirIter(directory);
+    while(dirIter != boost::filesystem::recursive_directory_iterator())
+    {
+        if(boost::filesystem::is_regular_file(dirIter->path()))
+        {
+            try
+            {
+                Magick::Image pic;
+                pic.read(dirIter->path().string());
+                list.push_back(pic);
+            } catch(Magick::Exception& e) {
+                //std::cout << e.what() << std::endl;
+            } catch(boost::filesystem::filesystem_error& e) {
+                std::cout << "diriter couldn't iter" << std::endl;
+                std::cout << e.what() << std::endl;
+            }
+        }
+        dirIter++;
+    }
+}
+
+void joiner(std::thread* thread)
+{
+    thread->join();
+}
+
+void MyGL::cubeCollage(std::string directory)
+{
+    std::unique_ptr<Window> win;
+    WindowHints wh;
+    wh.clearColor = glm::vec3(1.0, 1.0, 1.0);
+    wh.width = 1000;
+    wh.height = 1000;
+    win = std::make_unique<Window>(this, wh);
+    glfwMakeContextCurrent( win->window );
+    ShaderProgram shader(std::string("vertexShader.glsl"), std::string("fragmentShader.glsl"));
+
+    std::vector<GLuint> tex;
+    std::vector<glm::vec3> coord;
+    std::vector<double> ratio;
+    std::list<Magick::Image> images;
+
+    //std::unique_ptr<std::thread> imageProducerThread = std::make_unique<std::thread>(std::bind(imageProducer, images, directory));
+    //std::unique_ptr<std::thread> imageProducerThread(new std::thread(std::bind(std::ref(images), directory)));
+    std::unique_ptr<std::thread, void (*)(std::thread*)> imageProducerThread(new std::thread(std::bind(imageProducer, std::ref(images), directory)), joiner);
+
+    Square square;
+
+    glUniform1i(glGetUniformLocation(shader.program, "texture"), 0);
+    glClearColor( 1.0f, 1.0f, 1.0f, 1.0f );
+
+    while(!glfwWindowShouldClose(win->window))
+    {
+        glfwPollEvents();
+        if(!images.empty())
+        {
+            int texWidth;
+            int texHeight;
+            Magick::Image pic = images.front();
+            images.pop_front();
+            texWidth = pic.columns();
+            texHeight = pic.rows();
+            ratio.emplace_back(static_cast<double>(texWidth) / static_cast<double>(texHeight));
+            std::unique_ptr<unsigned char[]> data = std::make_unique<unsigned char[]>(4 * texWidth * texHeight);
+            pic.write(0, 0, texWidth, texHeight, "RGBA", Magick::CharPixel, data.get());
+
+            int numPixels = texWidth * texHeight * 4;
+            double red, green, blue;
+            red = green = blue = 0;
+            for(int i = 0; i < numPixels; i+=4) {
+                red += data.get()[i];
+                green += data.get()[i+1];
+                blue += data.get()[i+2];
+            }
+            coord.push_back(glm::vec3(red / (numPixels * std::pow(2, pic.depth())), green / (numPixels * std::pow(2, pic.depth())), blue / (numPixels * std::pow(2, pic.depth()))));
+
+            tex.resize(tex.size()+1);
+            glGenTextures(1, &tex.back());
+            glBindTexture(GL_TEXTURE_2D, tex.back());
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, texWidth, texHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, data.get());
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST); //GL_NEAREST
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST); //GL_LINEAR
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE); // GL_CLAMP_TO_EDGE, GL_REPEAT
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+            glGenerateMipmap(GL_TEXTURE_2D);
+        }
+
+		glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
+        double fraction = 0.3;
+        for(int i = 0; i < tex.size(); ++i) {
+            glm::mat4 translationMatrix = glm::translate(coord[i]);
+            glm::mat4 rotationMatrix(1.0f);
+            glm::mat4 scaleMatrix = glm::scale(glm::dvec3(ratio[i], 1.0, 1.0) * fraction);
+            glUniformMatrix4fv(glGetUniformLocation(shader.program, "translationMatrix"), 1, GL_FALSE, glm::value_ptr(translationMatrix));
+            glUniformMatrix4fv(glGetUniformLocation(shader.program, "rotationMatrix"), 1, GL_FALSE, glm::value_ptr(rotationMatrix));
+            glUniformMatrix4fv(glGetUniformLocation(shader.program, "scaleMatrix"), 1, GL_FALSE, glm::value_ptr(scaleMatrix));
+            glBindTexture(GL_TEXTURE_2D, tex[i]);
+            square();
+        }
+        glfwSwapBuffers( win->window );
+    }
+    glfwMakeContextCurrent( NULL );
+    //glDeleteTextures(16, tex);
+    //delete[] data;
 }
 
 // assume directory is legit
@@ -602,6 +795,8 @@ void MyGL::collage(std::string directory) {
 
     ImageIterator imgIter(directory);
     std::future<Magick::Image> image = std::async(std::launch::async, imgIter);
+
+    Square square;
 
     int delay = 200;
     std::chrono::system_clock::time_point tp = std::chrono::system_clock::now();
@@ -648,7 +843,7 @@ void MyGL::collage(std::string directory) {
             glUniformMatrix4fv(glGetUniformLocation(shader.program, "rotationMatrix"), 1, GL_FALSE, glm::value_ptr(rotationMatrix));
             glUniformMatrix4fv(glGetUniformLocation(shader.program, "scaleMatrix"), 1, GL_FALSE, glm::value_ptr(scaleMatrix));
             glBindTexture(GL_TEXTURE_2D, tile);
-            renderSquare();
+            square();
         }
         glfwSwapBuffers( win->window );
     }
@@ -963,4 +1158,15 @@ void boostFun(std::string str) {
     filesystem::path p(str);
     //std::copy(boost::filesystem::directory_iterator(d), boost::filesystem::directory_iterator(), std::back_inserter(vec));
     std::cout << ls(p) << std::endl;
+}
+
+void MyGL::registerUserCursorPositionCallbackFunction(std::function<void(const double, const double)> fun) {
+    userCursorPositionCallbackFunctions.push_back(fun);
+}
+
+/** Calls all of the registered functions passing in the x and y mouse position.*/
+void MyGL::cursor_position_callback(GLFWwindow *window, const double xpos, const double ypos) {
+    for(auto& x : userCursorPositionCallbackFunctions) {
+        x(xpos, ypos);
+    }
 }

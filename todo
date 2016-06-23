@@ -15,3 +15,6 @@ Context:
 
 figure out how to cross compile with mxe and cmake
 -DCMAKE_TOOLCHAIN_FILE=/home/eve/GitClone/mxe/usr/i686-w64-mingw32.static/share/cmake/mxe-conf.cmake
+
+6/18/2016 - play multiple videos in multiple squares
+6/18/2016 - 3d textured squares by color frequency

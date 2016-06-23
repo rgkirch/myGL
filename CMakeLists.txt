@@ -1,4 +1,4 @@
-cmake_minimum_required (VERSION 2.6)
+cmake_minimum_required (VERSION 2.8)
 cmake_policy(SET CMP0048 NEW)
 #cmake_policy(SET CMP0010 NEW)
 
@@ -30,7 +30,7 @@ file(GLOB SOURCES "src/*.cpp")
 add_executable(MyGL ${SOURCES})
 
 set(CMAKE_CXX_STANDARD 14)
-set(CMAKE_CXX_FLAGS "-g -Wall -std=c++14")
+set(CMAKE_CXX_FLAGS "-g -Og -Wall -std=c++14")
 #set(CMAKE_CXX_FLAGS "-Wall -std=c++14" "pkg-config --cflags --static --libs glfw3")
 set_property(TARGET MyGL PROPERTY CXX_STANDARD 14)
 set_property(TARGET MyGL PROPERTY CXX_STANDARD_REQUIRED ON)
@@ -76,7 +76,7 @@ find_package(X11 REQUIRED)
 #endif()
 
 find_package(Boost COMPONENTS system filesystem program_options REQUIRED)
-include_directories("${Boost_INCLUDE_DIR}")
+include_directories(${Boost_INCLUDE_DIR})
 
 #find_package(ImageMagick REQUIRED)
 find_package(ImageMagick COMPONENTS Magick++)
@@ -99,6 +99,9 @@ if(CMAKE_THREAD_LIBS_INIT)
   target_link_libraries(MyGL "${CMAKE_THREAD_LIBS_INIT}")
 endif()
 
+find_package( OpenCV REQUIRED )
+message("opencv libs: ${OpenCV_LIBS}")
+
 #include_directories(${GLFW_INCLUDE_DIRS})
 #target_link_libraries(MyGL ${GLFW_LIBRARIES})
 
@@ -111,4 +114,4 @@ endif()
 message("boost include dir " ${Boost_INCLUDE_DIR} )
 message("boost libraries " ${Boost_LIBRARIES} )
 
-target_link_libraries(MyGL -DMAGICKCORE_HDRI_ENABLE=0 -DMAGICKCORE_QUANTUM_DEPTH=16 ${Boost_FILESYSTEM_LIBRARY} ${Boost_LIBRARIES} ${GLFW_CFLAGS} ${GLFW_LDFLAGS} ${OPENGL_LIBRARIES} ${GLEW_LIBRARIES} ${ImageMagick_LIBRARIES} -lGL -lGLU -lglfw -lX11 -lXxf86vm -lXrandr -lpthread -lXi -ldl -lGLEW -lXrandr -lXinerama  -lXxf86vm -lXcursor)
+target_link_libraries(MyGL -DMAGICKCORE_HDRI_ENABLE=0 -DMAGICKCORE_QUANTUM_DEPTH=16 ${Boost_FILESYSTEM_LIBRARY} ${Boost_LIBRARIES} ${GLFW_CFLAGS} ${GLFW_LDFLAGS} ${OPENGL_LIBRARIES} ${GLEW_LIBRARIES} ${ImageMagick_LIBRARIES} ${OpenCV_LIBS} -fext-numeric-literals -lGL -lGLU -lglfw -lX11 -lXxf86vm -lXrandr -lpthread -lXi -ldl -lGLEW -lXrandr -lXinerama  -lXxf86vm -lXcursor)
