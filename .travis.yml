@@ -23,7 +23,7 @@ addons:
     - libboost-filesystem-dev
     - libmagick++-dev
 
-script: sh ./src/compile.sh
+script: cd src && make
 #script: ./travis-script.sh && mkdir build && cd build && cmake .. && make
 
 
