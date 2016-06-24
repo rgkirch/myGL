@@ -16,3 +16,5 @@ lib/*
 lib/**/*
 build/
 *a.out
+*.pdf
+*.gif
