@@ -726,6 +726,9 @@ void MyGL::cubeCollage(std::string directory)
 
     int screenshotNumber = 0;
 
+    glFrontFace(GL_CCW);
+    glCullFace(GL_BACK);
+    glEnable(GL_CULL_FACE);
     glEnable(GL_DEPTH_TEST);
 
     while(!glfwWindowShouldClose(win->window))
@@ -1211,3 +1214,5 @@ void MyGL::cursor_position_callback(GLFWwindow *window, const double xpos, const
         x(xpos, ypos);
     }
 }
+
+
