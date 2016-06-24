@@ -719,6 +719,15 @@ void MyGL::cubeCollage(std::string directory)
     double lastMouseX, lastMouseY;
     lastMouseX = lastMouseY = 0;
 
+    std::chrono::system_clock::time_point tp = std::chrono::system_clock::now();
+    int giffps = 15;
+    int milliseconds_between_frames = std::round(1000.0 / giffps);
+    tp += std::chrono::milliseconds(milliseconds_between_frames);
+
+    int screenshotNumber = 0;
+
+    glEnable(GL_DEPTH_TEST);
+
     while(!glfwWindowShouldClose(win->window))
     {
         glfwPollEvents();
@@ -779,7 +788,23 @@ void MyGL::cubeCollage(std::string directory)
             square();
         }
         glfwSwapBuffers( win->window );
+
+        // save frame to gif
+        if(0 && std::chrono::system_clock::now() > tp)
+        {
+            std::unique_ptr<unsigned char[]> data = std::make_unique<unsigned char[]>(3 * win->width * win->height);
+            glReadPixels(0, 0, win->width, win->height, GL_RGB, GL_UNSIGNED_BYTE, data.get());
+            tp += std::chrono::milliseconds(milliseconds_between_frames);
+            Magick::Image image;
+            image.read(win->width, win->height, "RGB", Magick::CharPixel, data.get());
+            std::stringstream filename;
+            filename << "screenshot" << std::setfill('0') << std::setw(4) << screenshotNumber << ".png";
+            std::cout << filename.str() << std::endl;
+            image.write(filename.str());
+            screenshotNumber++;
+        }
     }
+
     glfwMakeContextCurrent( NULL );
 }
 
