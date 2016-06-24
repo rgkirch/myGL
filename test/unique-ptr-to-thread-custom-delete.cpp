@@ -29,6 +29,8 @@ int main(int argc, char* argv[])
     //std::unique_ptr<std::thread> thread = std::make_unique<std::thread>(std::bind(function, std::ref(list), 7));
     //std::unique_ptr<std::thread> thread(new std::thread(std::bind(function, std::ref(list), 7)));
     std::unique_ptr<std::thread, void (*)(std::thread*)> thread(new std::thread(std::bind(function, std::ref(list), 7)), joiner);
+    //std::unique_ptr<std::thread, void (*)(std::thread*)> thread(new std::thread(std::bind(function, std::ref(list), 7)), [](std::thread* thread) -> void {thread->join();});
+
     //thread.get()->join();
     for(auto& x : list)
     {

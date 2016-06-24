@@ -18,3 +18,5 @@ build/
 *a.out
 *.pdf
 *.gif
+*.swp
+*.swo
