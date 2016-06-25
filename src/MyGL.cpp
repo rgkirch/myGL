@@ -702,8 +702,9 @@ void MyGL::cubeCollage(std::string directory)
     ShaderProgram shader(std::string("vertexShader.glsl"), std::string("fragmentShader.glsl"));
 
     std::vector<GLuint> tex;
-    std::vector<glm::vec3> coord;
+    std::vector<glm::dvec3> coord;
     std::vector<double> ratio;
+    std::vector<std::tuple<double, double>> resolution;
     std::list<Magick::Image> images;
 
     //std::unique_ptr<std::thread> imageProducerThread = std::make_unique<std::thread>(std::bind(imageProducer, images, directory));
@@ -734,8 +735,13 @@ void MyGL::cubeCollage(std::string directory)
     glEnable(GL_CULL_FACE);
     glEnable(GL_DEPTH_TEST);
 
+    int maxPixelVal = 0;
+
+    FPScounter fpsCounter;
+
     while(!glfwWindowShouldClose(win->window))
     {
+        std::cout << std::fixed << std::setprecision(0) << fpsCounter.getfps() << std::endl;
         glfwPollEvents();
         if(!images.empty())
         {
@@ -746,6 +752,7 @@ void MyGL::cubeCollage(std::string directory)
             texWidth = pic.columns();
             texHeight = pic.rows();
             ratio.emplace_back(static_cast<double>(texWidth) / static_cast<double>(texHeight));
+            resolution.emplace_back(std::make_tuple(texWidth, texHeight));
             std::unique_ptr<unsigned char[]> data = std::make_unique<unsigned char[]>(4 * texWidth * texHeight);
             pic.write(0, 0, texWidth, texHeight, "RGBA", Magick::CharPixel, data.get());
 
@@ -758,7 +765,9 @@ void MyGL::cubeCollage(std::string directory)
                 blue += data.get()[i+2];
             }
             int channelMaxValue = numPixels * std::pow(2, pic.depth());
-            coord.push_back(glm::vec3(red / channelMaxValue * 2 - 1, green / channelMaxValue * 2 - 1, blue / channelMaxValue * 2 - 1));
+            coord.emplace_back(glm::vec3(red / channelMaxValue * 2 - 1, green / channelMaxValue * 2 - 1, blue / channelMaxValue * 2 - 1));
+            maxPixelVal = std::max(std::max(red, green), blue);
+
 
             tex.resize(tex.size()+1);
             glGenTextures(1, &tex.back());
@@ -775,20 +784,20 @@ void MyGL::cubeCollage(std::string directory)
         for(int i = 0; i < tex.size(); ++i) {
             int count = 0;
             const float* axes = glfwGetJoystickAxes(GLFW_JOYSTICK_1, &count);
-            glm::mat4 translationMatrix = glm::translate(coord[i]);
+            glm::mat4 translationMatrix = glm::translate(coord[i] * 10.0);
             glm::mat4 rotationMatrix(1.0f);
-            //rotationMatrix = glm::rotate(rotationMatrix, (float)mouseX, glm::vec3(0,0,0));
-            glm::mat4 scaleMatrix = glm::scale(glm::dvec3(ratio[i], 1.0, 1.0) * 0.1);
+            //rotationMatrix = glm::rotate(rotationMatrix, (float)mouseX, glm::dvec3(0,0,0));
+            glm::mat4 scaleMatrix = glm::scale(glm::dvec3(std::get<0>(resolution[i]) / 1000.0, std::get<1>(resolution[i]) / 1000.0, 1.0));
 
             glm::mat4 model = translationMatrix * rotationMatrix * scaleMatrix;
 
-            glm::mat4 view = glm::translate(glm::vec3(0,0,-3));
-            //glm::mat4 view = glm::lookAt(glm::vec3(0,0,3), glm::vec3(0,0,0), glm::vec3(0,1,0));
+            glm::mat4 view = glm::translate(glm::dvec3(0,0,-10));
+            //glm::mat4 view = glm::lookAt(glm::dvec3(0,0,3), glm::dvec3(0,0,0), glm::dvec3(0,1,0));
             view = glm::rotate(view, axes[3], glm::vec3(0.0, 1.0, 0.0));
             view = glm::rotate(view, axes[4], glm::vec3(1.0, 0.0, 0.0));
             view = glm::translate(view, glm::vec3(-1.0 * axes[0], axes[2] - axes[5], -1.0 * axes[1]));
 
-            glm::mat4 projection = glm::perspective(glm::radians(45.0), 1.0, 0.1, 100.0);
+            glm::mat4 projection = glm::perspective(glm::radians(45.0), 1.0, 1.0, 100.0);
 
             glUniformMatrix4fv(glGetUniformLocation(shader.program, "model"), 1, GL_FALSE, glm::value_ptr(model));
             glUniformMatrix4fv(glGetUniformLocation(shader.program, "view"), 1, GL_FALSE, glm::value_ptr(view));
@@ -1221,4 +1230,14 @@ void MyGL::cursor_position_callback(GLFWwindow *window, const double xpos, const
     }
 }
 
+FPScounter::FPScounter()
+{
+    tp = std::chrono::steady_clock::now();
+}
 
+double FPScounter::getfps()
+{
+    std::chrono::duration<double> timeDiff(std::chrono::steady_clock::now() - tp);
+    tp = std::chrono::steady_clock::now();
+    return 1 / timeDiff.count();
+}

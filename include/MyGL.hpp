@@ -283,6 +283,13 @@ namespace SnakeGame {
     void stepWest();
 }
 
+struct FPScounter
+{
+    FPScounter();
+    double getfps();
+    std::chrono::steady_clock::time_point tp;
+};
+
 void boostFun(std::string);
 
 #endif
