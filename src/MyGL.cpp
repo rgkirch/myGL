@@ -1,5 +1,8 @@
 #include "MyGL.hpp"
 
+#define dedz(x) x > .2 || x < .2 ? x : 0
+#define hundredth(x) x / 100.0
+
 std::mutex contextMutex;
 std::mutex glfwMutex;
 bool glfwInited;
@@ -770,20 +773,23 @@ void MyGL::cubeCollage(std::string directory)
 
 		glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
         for(int i = 0; i < tex.size(); ++i) {
+            int count = 0;
+            const float* axes = glfwGetJoystickAxes(GLFW_JOYSTICK_1, &count);
             glm::mat4 translationMatrix = glm::translate(coord[i]);
             glm::mat4 rotationMatrix(1.0f);
             //rotationMatrix = glm::rotate(rotationMatrix, (float)mouseX, glm::vec3(0,0,0));
-            glm::mat4 scaleMatrix = glm::scale(glm::dvec3(ratio[i], 1.0, 1.0));
+            glm::mat4 scaleMatrix = glm::scale(glm::dvec3(ratio[i], 1.0, 1.0) * 0.1);
 
             glm::mat4 model = translationMatrix * rotationMatrix * scaleMatrix;
 
-            glm::mat4 view = glm::translate(glm::vec3(0,0,-10));
-            view = glm::rotate(view, glm::radians((float)mouseX), glm::vec3(0.0, 1.0, 0.0));
-            view = glm::rotate(view, glm::radians((float)mouseY), glm::vec3(0.0, 0.0, 1.0));
-
+            glm::mat4 view = glm::translate(glm::vec3(0,0,-3));
             //glm::mat4 view = glm::lookAt(glm::vec3(0,0,3), glm::vec3(0,0,0), glm::vec3(0,1,0));
+            view = glm::rotate(view, axes[3], glm::vec3(0.0, 1.0, 0.0));
+            view = glm::rotate(view, axes[4], glm::vec3(1.0, 0.0, 0.0));
+            view = glm::translate(view, glm::vec3(-1.0 * axes[0], axes[2] - axes[5], -1.0 * axes[1]));
 
             glm::mat4 projection = glm::perspective(glm::radians(45.0), 1.0, 0.1, 100.0);
+
             glUniformMatrix4fv(glGetUniformLocation(shader.program, "model"), 1, GL_FALSE, glm::value_ptr(model));
             glUniformMatrix4fv(glGetUniformLocation(shader.program, "view"), 1, GL_FALSE, glm::value_ptr(view));
             glUniformMatrix4fv(glGetUniformLocation(shader.program, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
