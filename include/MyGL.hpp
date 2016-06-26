@@ -290,6 +290,16 @@ struct FPScounter
     std::chrono::steady_clock::time_point tp;
 };
 
+class Joystick
+{
+public:
+    std::tuple<double, double> getLeftThumbStickValues(int joystick);
+    std::tuple<double, double> getRightThumbStickValues(int joystick);
+private:
+    const float* axes;
+    const unsigned char* buttons;
+};
+
 void boostFun(std::string);
 
 #endif

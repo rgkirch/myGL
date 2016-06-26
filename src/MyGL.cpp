@@ -662,7 +662,8 @@ void MyGL::playVideo(std::string filename) {
     }
 }
 
-void imageProducer(std::list<Magick::Image>& list, std::string directory)
+template <typename imageType>
+void imageProducer(std::list<imageType>& list, std::string directory)
 {
     boost::filesystem::recursive_directory_iterator dirIter(directory);
     while(dirIter != boost::filesystem::recursive_directory_iterator())
@@ -671,7 +672,7 @@ void imageProducer(std::list<Magick::Image>& list, std::string directory)
         {
             try
             {
-                Magick::Image pic;
+                imageType pic;
                 pic.read(dirIter->path().string());
                 list.push_back(pic);
             } catch(Magick::Exception& e) {
@@ -709,7 +710,7 @@ void MyGL::cubeCollage(std::string directory)
 
     //std::unique_ptr<std::thread> imageProducerThread = std::make_unique<std::thread>(std::bind(imageProducer, images, directory));
     //std::unique_ptr<std::thread> imageProducerThread(new std::thread(std::bind(std::ref(images), directory)));
-    std::unique_ptr<std::thread, void (*)(std::thread*)> imageProducerThread(new std::thread(std::bind(imageProducer, std::ref(images), directory)), [](std::thread* thread) -> void {thread->join();});
+    std::unique_ptr<std::thread, void (*)(std::thread*)> imageProducerThread(new std::thread(std::bind(imageProducer<Magick::Image>, std::ref(images), directory)), [](std::thread* thread) -> void {thread->join();});
 
     Square square;
 
@@ -738,6 +739,7 @@ void MyGL::cubeCollage(std::string directory)
     int maxPixelVal = 0;
 
     FPScounter fpsCounter;
+    Joystick joystick;
 
     while(!glfwWindowShouldClose(win->window))
     {
@@ -783,7 +785,12 @@ void MyGL::cubeCollage(std::string directory)
 		glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
         for(int i = 0; i < tex.size(); ++i) {
             int count = 0;
+            int whichJoystick = 0;
             const float* axes = glfwGetJoystickAxes(GLFW_JOYSTICK_1, &count);
+            float translateX, translateZ, rotateX, rotateY;
+            std::tie(translateX, translateZ) = joystick.getLeftThumbStickValues(whichJoystick);
+            std::tie(rotateX, rotateY) = joystick.getRightThumbStickValues(whichJoystick);
+
             glm::mat4 translationMatrix = glm::translate(coord[i] * 10.0);
             glm::mat4 rotationMatrix(1.0f);
             //rotationMatrix = glm::rotate(rotationMatrix, (float)mouseX, glm::dvec3(0,0,0));
@@ -793,9 +800,9 @@ void MyGL::cubeCollage(std::string directory)
 
             glm::mat4 view = glm::translate(glm::dvec3(0,0,-10));
             //glm::mat4 view = glm::lookAt(glm::dvec3(0,0,3), glm::dvec3(0,0,0), glm::dvec3(0,1,0));
-            view = glm::rotate(view, axes[3], glm::vec3(0.0, 1.0, 0.0));
-            view = glm::rotate(view, axes[4], glm::vec3(1.0, 0.0, 0.0));
-            view = glm::translate(view, glm::vec3(-1.0 * axes[0], axes[2] - axes[5], -1.0 * axes[1]));
+            view = glm::rotate(view, rotateX, glm::vec3(0.0, 1.0, 0.0));
+            view = glm::rotate(view, rotateY, glm::vec3(1.0, 0.0, 0.0));
+            view = glm::translate(view, glm::vec3(translateX, axes[2] - axes[5], translateZ));
 
             glm::mat4 projection = glm::perspective(glm::radians(45.0), 1.0, 1.0, 100.0);
 
@@ -1240,4 +1247,22 @@ double FPScounter::getfps()
     std::chrono::duration<double> timeDiff(std::chrono::steady_clock::now() - tp);
     tp = std::chrono::steady_clock::now();
     return 1 / timeDiff.count();
+}
+
+// TODO - check if is valid controller.
+// TODO - if int passed is -1, return first found controller
+std::tuple<double, double> Joystick::getLeftThumbStickValues(int joystick)
+{
+    int count = 0;
+    const float* axes = glfwGetJoystickAxes(joystick, &count);
+    //const unsigned char* buttons = glfwGetJoystickButtons(joystick, &count);
+    return std::make_tuple(axes[0], axes[1]);
+}
+
+std::tuple<double, double> Joystick::getRightThumbStickValues(int joystick)
+{
+    int count = 0;
+    const float* axes = glfwGetJoystickAxes(joystick, &count);
+    //const unsigned char* buttons = glfwGetJoystickButtons(joystick, &count);
+    return std::make_tuple(axes[3], axes[4]);
 }
