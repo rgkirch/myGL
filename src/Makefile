@@ -9,7 +9,11 @@ LIBS=glfw3 opencv
 INCLUDE:=-I/usr/include $(shell pkg-config --cflags $(LIBS)) $(shell Magick++-config --cppflags)
 LINK:=$(shell Magick++-config --libs) $(shell pkg-config --libs $(LIBS)) -lboost_system -lboost_filesystem -pthread -fopenmp -lGL -lX11 -lXxf86vm -lXrandr -lpthread -lXi -ldl -lGLEW -lXrandr -lXinerama  -lXxf86vm -lXcursor
 
-all: main.cpp MyGL.cpp ../include/MyGL.hpp
-	$(CC) -g -o app main.cpp MyGL.cpp -I../include $(STD) $(INCLUDE) $(LINK)
+all: main.cpp mygl.o shader.o
+	$(CC) -g -o app main.cpp mygl.o shader.o -I../include $(STD) $(INCLUDE) $(LINK)
+mygl.o:
+	$(CC) -c -g -o mygl.o mygl.cpp -I../include $(STD) $(INCLUDE) $(LINK)
+shader.o:
+	$(CC) -c -g -o shader.o shader.cpp -I../include
 clean:
 	rm app

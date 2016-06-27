@@ -17,4 +17,7 @@ figure out how to cross compile with mxe and cmake
 -DCMAKE_TOOLCHAIN_FILE=/home/eve/GitClone/mxe/usr/i686-w64-mingw32.static/share/cmake/mxe-conf.cmake
 
 6/18/2016 - play multiple videos in multiple squares
-6/18/2016 - 3d textured squares by color frequency
+6/26/2016 - opencv to compress video file
+6/26/2016 - add alternate image read tool (freeimage, std)
+6/26/2016 - render font with font engine
+6/26/2016 - finish joystick class

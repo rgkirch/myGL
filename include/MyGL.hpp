@@ -12,8 +12,8 @@
 #include <fstream>
 #include <functional>
 #include <future>
-#include <iostream>
 #include <iomanip>
+#include <iostream>
 #include <limits>
 #include <list>
 #include <map>
@@ -25,6 +25,7 @@
 #include <set>
 #include <sstream>
 #include <stdexcept>
+#include <string>
 #include <thread>
 #include <unordered_map>
 #include <vector>
@@ -47,6 +48,7 @@
 #include <glm/mat4x4.hpp>
 #include <glm/vec3.hpp>
 
+#include "shader.hpp"
 //#include <fstream>
 //#include <sstream>
 //#include <iostream>
@@ -86,26 +88,6 @@ struct WindowHints {
     glm::vec2 location;
     int width;
     int height;
-};
-
-class ShaderProgram {
-public:
-    ShaderProgram(std::string vertexShaderFileName, std::string fragmentShaderFileName);
-    static std::string readFile(std::string fileName);
-    void checkShaderStepSuccess(GLuint shader, GLuint status);
-    void printShaderLog(char *errorMessage, GLuint shader);
-    GLuint id();
-    GLuint program;
-    GLint viewOffsetX;
-    GLint viewOffsetY;
-    GLint unitsPerPixelX;
-    GLint unitsPerPixelY;
-    GLint screenWidth;
-    GLint screenHeight;
-};
-
-class ShaderTextured : ShaderProgram {
-public:
 };
 
 /**
