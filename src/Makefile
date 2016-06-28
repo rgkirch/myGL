@@ -11,9 +11,9 @@ LINK:=$(shell Magick++-config --libs) $(shell pkg-config --libs $(LIBS)) -lboost
 
 all: main.cpp mygl.o shader.o
 	$(CC) -g -o app main.cpp mygl.o shader.o -I../include $(STD) $(INCLUDE) $(LINK)
-mygl.o:
+mygl.o: mygl.cpp
 	$(CC) -c -g -o mygl.o mygl.cpp -I../include $(STD) $(INCLUDE) $(LINK)
-shader.o:
-	$(CC) -c -g -o shader.o shader.cpp -I../include
+shader.o: shader.cpp
+	$(CC) -c -g -o shader.o shader.cpp -I../include $(STD)
 clean:
-	rm app
+	rm app mygl.o shader.o
