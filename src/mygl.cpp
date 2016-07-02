@@ -623,24 +623,27 @@ template <typename imageType>
 void imageProducer(std::list<imageType>& list, std::string directory)
 {
     boost::filesystem::recursive_directory_iterator dirIter(directory);
-    while(dirIter != boost::filesystem::recursive_directory_iterator())
+    for(; dirIter != boost::filesystem::recursive_directory_iterator(); dirIter++)
     {
         if(boost::filesystem::is_regular_file(dirIter->path()))
         {
             try
             {
                 imageType pic;
-                pic.read(dirIter->path().string());
-                list.push_back(pic);
-            } catch(Magick::Exception& e) {
-                //std::cout << e.what() << std::endl;
+                if(!pic.read(dirIter->path().string()))
+                {
+                    continue;
+                }
+                list.push_back(std::move(pic));
             } catch(boost::filesystem::filesystem_error& e) {
                 std::cout << "diriter couldn't iter" << std::endl;
                 std::cout << e.what() << std::endl;
+            } catch(std::runtime_error& e) {
+                //std::cout << e.what() << std::endl;
             }
         }
-        dirIter++;
     }
+    std::cout << "image producer ended" << std::endl;
 }
 
 void joiner(std::thread* thread)
@@ -663,11 +666,11 @@ void MyGL::cubeCollage(std::string directory)
     std::vector<glm::dvec3> coord;
     std::vector<double> ratio;
     std::vector<std::tuple<double, double>> resolution;
-    std::list<Magick::Image> images;
+    std::list<Image> images;
 
     //std::unique_ptr<std::thread> imageProducerThread = std::make_unique<std::thread>(std::bind(imageProducer, images, directory));
     //std::unique_ptr<std::thread> imageProducerThread(new std::thread(std::bind(std::ref(images), directory)));
-    std::unique_ptr<std::thread, void (*)(std::thread*)> imageProducerThread(new std::thread(std::bind(imageProducer<Magick::Image>, std::ref(images), directory)), [](std::thread* thread) -> void {thread->join();});
+    std::unique_ptr<std::thread, void (*)(std::thread*)> imageProducerThread(new std::thread(std::bind(imageProducer<Image>, std::ref(images), directory)), [](std::thread* thread) -> void {thread->join();});
 
     Square square;
 
@@ -700,31 +703,23 @@ void MyGL::cubeCollage(std::string directory)
 
     while(!glfwWindowShouldClose(win->window))
     {
-        std::cout << std::fixed << std::setprecision(0) << fpsCounter.getfps() << std::endl;
+        //std::cout << std::fixed << std::setprecision(0) << fpsCounter.getfps() << std::endl;
         glfwPollEvents();
         if(!images.empty())
         {
-            int texWidth;
-            int texHeight;
-            Magick::Image pic = images.front();
+            Image pic = std::move(images.front());
             images.pop_front();
-            texWidth = pic.columns();
-            texHeight = pic.rows();
-            ratio.emplace_back(static_cast<double>(texWidth) / static_cast<double>(texHeight));
-            resolution.emplace_back(std::make_tuple(texWidth, texHeight));
-            std::unique_ptr<unsigned char[]> data = std::make_unique<unsigned char[]>(4 * texWidth * texHeight);
-            pic.write(0, 0, texWidth, texHeight, "RGBA", Magick::CharPixel, data.get());
-
-            int numPixels = texWidth * texHeight * 4;
+            ratio.emplace_back(static_cast<double>(pic.width) / static_cast<double>(pic.height));
+            resolution.emplace_back(std::make_tuple(pic.width, pic.height));
             double red, green, blue;
             red = green = blue = 0;
-            for(int i = 0; i < numPixels; i+=4)
+            for(int i = 0; i < pic.width * pic.height; i+=pic.numberOfChannels)
             {
-                red += data.get()[i];
-                green += data.get()[i+1];
-                blue += data.get()[i+2];
+                red   += pic.data[i];
+                green += pic.data[i+1];
+                blue  += pic.data[i+2];
             }
-            int channelMaxValue = numPixels * std::pow(2, pic.depth());
+            int channelMaxValue = pic.width * pic.height * std::pow(2, pic.depth);
             coord.emplace_back(glm::vec3(red / channelMaxValue * 2 - 1, green / channelMaxValue * 2 - 1, blue / channelMaxValue * 2 - 1));
             maxPixelVal = std::max(std::max(red, green), blue);
 
@@ -732,7 +727,7 @@ void MyGL::cubeCollage(std::string directory)
             tex.resize(tex.size()+1);
             glGenTextures(1, &tex.back());
             glBindTexture(GL_TEXTURE_2D, tex.back());
-            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, texWidth, texHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, data.get());
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, pic.width, pic.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, pic.data);
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST); //GL_NEAREST
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST); //GL_LINEAR
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE); // GL_CLAMP_TO_EDGE, GL_REPEAT
@@ -1270,4 +1265,54 @@ std::tuple<double, double> Joystick::getRightThumbStickValues(int joystick)
     const float* axes = glfwGetJoystickAxes(joystick, &count);
     //const unsigned char* buttons = glfwGetJoystickButtons(joystick, &count);
     return std::make_tuple(axes[3], axes[4]);
+}
+
+Image::Image() : data(nullptr), width(0), height(0), numberOfChannels(4), depth(8)
+{}
+
+Image::Image(Image&& image) : data(image.data), width(image.width), height(image.height), numberOfChannels(image.numberOfChannels), depth(image.depth)
+{
+    image.data = nullptr;
+    image.width = 0;
+    image.height = 0;
+    image.numberOfChannels = 0;
+    image.depth = 0;
+}
+
+Image::~Image()
+{
+    delete[] data;
+}
+
+bool Image::read(std::string fileName)
+{
+    std::string extention = fileName.substr(fileName.size() - 3, 3);
+    if(extention.compare("png") == 0 || extention.compare("bmp") == 0 || extention.compare("jpg") == 0)
+    {
+        Magick::Image pic;
+        try
+        {
+            pic.read(fileName);
+        } catch(Magick::Exception& e) {
+            //std::cout << e.what() << std::endl;
+            throw std::runtime_error("couldn't read file");
+        }
+        width = pic.columns();
+        height = pic.rows();
+        //pic.channelDepth(Magick::ChannelType::RGBChannels, depth);
+        pic.depth(8);
+        std::cout << pic.depth() << std::endl;
+        data = new unsigned char[width * height * 4];
+        pic.write(0, 0, width, height, "RGBA", Magick::CharPixel, data);
+        //data = stbi_load(fileName.c_str(), &width, &height, &numberOfChannels, 0);
+        //glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, (i32)_width, (i32)_height, 0, format, GL_UNSIGNED_BYTE, pixels);
+        //and stbi_image_free(pixels);
+        return true;
+    } else {
+        return false;
+    }
+}
+
+void Image::write(std::string fileName)
+{
 }

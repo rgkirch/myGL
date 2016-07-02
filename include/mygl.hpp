@@ -48,6 +48,11 @@
 #include <glm/mat4x4.hpp>
 #include <glm/vec3.hpp>
 
+//#define STB_DEFINE
+//#include "stb/stb.h"
+//#define STB_IMAGE_IMPLEMENTATION
+//#include "stb/stb_image.h"
+
 #include "shader.hpp"
 //#include <fstream>
 //#include <sstream>
@@ -294,6 +299,21 @@ public:
 private:
     const float* axes;
     const unsigned char* buttons;
+};
+
+class Image
+{
+public:
+    Image();
+    Image(Image&& image);
+    ~Image();
+    bool read(std::string filename);
+    void write(std::string filename);
+    unsigned char* data;
+    int width;
+    int height;
+    int numberOfChannels;
+    int depth;
 };
 
 void boostFun(std::string);
