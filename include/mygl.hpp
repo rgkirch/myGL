@@ -63,7 +63,8 @@ class MyGL;
 
 void printMonitorInfo();
 
-namespace glfwInputCallback {
+namespace glfwInputCallback
+{
     void cursor_position_callback(GLFWwindow *window, double xpos, double ypos);
     void mouse_button_callback(GLFWwindow *window, int button, int action, int mods);
     void scroll_callback(GLFWwindow *window, double xoffset, double yoffset);
@@ -73,7 +74,8 @@ namespace glfwInputCallback {
     void drop_callback(GLFWwindow *window, int count, const char** paths);
 }
 
-struct WindowHints {
+struct WindowHints
+{
     WindowHints();
     WindowHints(const WindowHints& wh);
 	unsigned int glfw_context_version_major;
@@ -93,17 +95,20 @@ struct WindowHints {
 /**
   The member variables of CursorMovement, MouseButton, and Key match what is provided in the respective GLFW callback functions.
  */
-class Input {
+class Input
+{
 };
 
-class CursorMovement : public Input {
+class CursorMovement : public Input
+{
 public:
     CursorMovement(double xpos, double ypos) :x{xpos}, y{ypos} {}
     double x;
     double y;
 };
 
-class MouseButton : public Input {
+class MouseButton : public Input
+{
 public:
     MouseButton(int button, int action, int mods) : button{button}, action{action}, mods{mods} {}
     int button;
@@ -111,7 +116,8 @@ public:
     int mods;
 };
 
-class Key : public Input {
+class Key : public Input
+{
 public:
     Key(int key, int scancode, int action, int mods) : key{key}, scancode{scancode}, action{action}, mods{mods} {}
     int key;
@@ -122,7 +128,8 @@ public:
 
 /** A window has a view object.
  *  The View is responsible for maintaining the variables that the vertexShader uses to translate the points from real space to apparent space. Real space refers to the reference by which all of the shape objects in the Composer context are saved. It stretches from -inf to +inf. Apparent space is the (-1, 1) clamped view recognised by opengl.*/
-class View {
+class View
+{
 public:
     View(Window *window, int width, int height);
     void translate(float x, float y);
@@ -143,7 +150,8 @@ public:
 /**
  * The Shape class allows a very nice vector<Shape*> in Context. The common stuff for rendering goes here.
  */
-class Shape {
+class Shape
+{
 public:
     typedef void (Shape::*renderFunc)(void);
     Shape(float x, float y);
@@ -163,7 +171,8 @@ private:
     int lengthOfData = 12;
 };
 
-class Context {
+class Context
+{
 public:
     Context();
     void render(ShaderProgram *shader, View *view); /** Calls the render function of all of the Shape objects.*/
@@ -175,7 +184,8 @@ public:
  *  The Window class has a function that matches each of the different available glfw callbacks. These functions are registered with glfw in the Window constructor. The callback register function accepts a pointer to a GLFWwindow so I think that these callbacks are window specific. If they weren't window specific then all of the callback functions could be up a level in mygl.
  *  The window knows the width and heigth of the screen area in pixels so it is responsible for the pixelToReal(X/Y) functions. It is also responsible for the getCursorPos() function.
  *  The window should be responsible for hiding and disabling the mouse cursor. This needs to happen during a pan of the view for example.*/
-class Window {
+class Window
+{
 public:
     typedef void (Window::*threadFunc)(void);
     Window(MyGL *parent, const WindowHints& wh);
@@ -200,14 +210,16 @@ public:
     //glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 };
 
-struct ImageIterator {
+struct ImageIterator
+{
     ImageIterator(std::string);
     Magick::Image operator()();
     boost::filesystem::recursive_directory_iterator dirIter;
     std::string directory;
 };
 
-struct Square {
+struct Square
+{
     Square();
     ~Square();
     void operator()();
@@ -226,7 +238,8 @@ struct Square {
  *  mygl->getCurrentContext();
  *  mygl->switchCurrentContext(Context);
  *  */
-class MyGL {
+class MyGL
+{
 public:
     MyGL();
     MyGL(std::string);
@@ -256,7 +269,8 @@ private:
     std::vector<std::function<void(const double, const double)>> userCursorPositionCallbackFunctions;
 };
 
-namespace SnakeGame {
+namespace SnakeGame
+{
     void snakeGame(MyGL *application);
     int newFoodLocation(int snakeSize, int gridSize, std::unordered_map<int, std::unique_ptr<Window>>& grid);
     void stepNorth();

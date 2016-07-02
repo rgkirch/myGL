@@ -38,6 +38,7 @@ flags = [
     "-DMAGICKCORE_HDRI_ENABLE=1",
     "-DMAGICKCORE_QUANTUM_DEPTH=16",
     "-I../include",
+    "-I/usr/include",
     "-I/usr/include/ImageMagick-6",
     "-I/usr/include/libdrm",
     "-fopenmp",

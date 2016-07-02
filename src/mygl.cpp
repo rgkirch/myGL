@@ -1,4 +1,4 @@
-#include "MyGL.hpp"
+#include "mygl.hpp"
 
 #define dedz(x) x > .2 || x < .2 ? x : 0
 #define hundredth(x) x / 100.0
@@ -10,16 +10,19 @@ bool glewInited;
 
 typedef void (Shape::*renderFunc)();
 
-void monitor_callback(GLFWmonitor *monitor, int x) {
+void monitor_callback(GLFWmonitor *monitor, int x)
+{
     std::cout << "terminate from monitor_callback" << std::endl;
     glfwTerminate();
 }
 
-static void error_callback(int error, const char* description) {
+static void error_callback(int error, const char* description)
+{
     fprintf(stderr, "Error %d: %s\n", error, description);
 }
 
-WindowHints::WindowHints() {
+WindowHints::WindowHints()
+{
 	glfw_context_version_major = 3;
 	glfw_context_version_minor = 3;
 	glfw_opengl_profile = GLFW_OPENGL_CORE_PROFILE;
@@ -37,7 +40,8 @@ WindowHints::WindowHints() {
     height = 200;
 }
 
-WindowHints::WindowHints(const WindowHints& wh) {
+WindowHints::WindowHints(const WindowHints& wh)
+{
 	glfw_context_version_major = wh.glfw_context_version_major;
 	glfw_context_version_minor = wh.glfw_context_version_minor;
 	glfw_opengl_profile = wh.glfw_opengl_profile;
@@ -55,15 +59,18 @@ WindowHints::WindowHints(const WindowHints& wh) {
     height = wh.height;
 }
 
-View::View(Window *window, int width, int height) {
+View::View(Window *window, int width, int height)
+{
     parentWindow = window;
     this->width = width;
     this->height = height;
 }
 
-void View::scale(float num) {}
+void View::scale(float num)
+{}
 
-void View::translate(float x, float y) {
+void View::translate(float x, float y)
+{
     viewOffsetX = x * unitsPerPixelX;
     viewOffsetY = y * unitsPerPixelY;
 }
@@ -80,9 +87,12 @@ void View::translate(float x, float y) {
                 */
 
 /*
-void Composer::key(Key key) {
-    if(key.action == GLFW_PRESS && key.mods == 0) {
-        switch(key.scancode) {
+void Composer::key(Key key)
+{
+    if(key.action == GLFW_PRESS && key.mods == 0)
+    {
+        switch(key.scancode)
+        {
             // space
             case 65:
                 view->pan();
@@ -92,7 +102,8 @@ void Composer::key(Key key) {
                 break;
         }
     } else if(key.action == GLFW_RELEASE && key.mods == 0) {
-        switch(key.scancode) {
+        switch(key.scancode)
+        {
             // space
             case 65:
                 view->endPan();
@@ -105,9 +116,11 @@ void Composer::key(Key key) {
 }
 */
 
-Context::Context() {}
+Context::Context()
+{}
 
-void Context::render(ShaderProgram *shader, View *view) {
+void Context::render(ShaderProgram *shader, View *view)
+{
     glUniform1f(shader->viewOffsetX,    view->viewOffsetX);
     glUniform1f(shader->viewOffsetY,    view->viewOffsetY);
     glUniform1f(shader->unitsPerPixelX, view->unitsPerPixelX);
@@ -115,25 +128,30 @@ void Context::render(ShaderProgram *shader, View *view) {
     glUniform1f(shader->screenWidth,    view->width);
     glUniform1f(shader->screenHeight,   view->height);
 
-    for(size_t i = 0; i < shapes.size(); ++i) {
+    for(size_t i = 0; i < shapes.size(); ++i)
+    {
         printf("shape vector size %d\n", (int)shapes.size());
         if(shapes[i]) shapes[i]->render();
     }
-    if(currentShape) {
+    if(currentShape)
+    {
         //(currentShape->*Shape::renderPtr)();
         currentShape->render();
     }
 }
 
-void Shape::render() {
+void Shape::render()
+{
     (this->*renderPtr)();
 }
 
-int Shape::dataLength() {
+int Shape::dataLength()
+{
     return lengthOfData;
 }
 
-void Shape::frameRender() {
+void Shape::frameRender()
+{
     data.reserve(lengthOfData);
     data[0] = startX;
     data[1] = startY;
@@ -170,7 +188,8 @@ void Shape::frameRender() {
 }
 
 // buffer the data one last time
-void Shape::finish() {
+void Shape::finish()
+{
     data.reserve(lengthOfData);
     data[0] = startX;
     data[1] = startY;
@@ -196,7 +215,8 @@ void Shape::finish() {
     renderPtr = &Shape::finalRender;
 }
 
-void Shape::finalRender() {
+void Shape::finalRender()
+{
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
     glBindVertexArray(vao);
     glEnableVertexAttribArray(0);
@@ -208,7 +228,8 @@ void Shape::finalRender() {
     glBindVertexArray(0);
 }
 
-Shape::Shape(float x, float y) {
+Shape::Shape(float x, float y)
+{
     renderPtr = &Shape::frameRender;
     startX = x;
     startY = y;
@@ -216,7 +237,8 @@ Shape::Shape(float x, float y) {
     endY = y;
 }
 
-Shape::Shape(float x, float y, float ex, float ey) {
+Shape::Shape(float x, float y, float ex, float ey)
+{
     renderPtr = &Shape::frameRender;
     startX = x;
     startY = y;
@@ -224,12 +246,15 @@ Shape::Shape(float x, float y, float ex, float ey) {
     endY = ey;
 }
 
-Window::Window(MyGL *parent, const WindowHints& wh) {
+Window::Window(MyGL *parent, const WindowHints& wh)
+{
     this->parentMyGL = parent;
     this->width = wh.width;
     this->height = wh.height;
-    if(!glfwInited) {
-        if ( !glfwInit() ) {
+    if(!glfwInited)
+    {
+        if ( !glfwInit() )
+        {
             throw std::runtime_error("GLFW failed to init.");
         }
         glfwSetErrorCallback(error_callback);
@@ -247,16 +272,19 @@ Window::Window(MyGL *parent, const WindowHints& wh) {
     clearColorGreen = wh.clearColor.y;
     clearColorBlue = wh.clearColor.z;
     window = glfwCreateWindow( width, height, "myGL", NULL, NULL);
-	if ( !window ) {
+	if ( !window )
+    {
 		glfwTerminate();
         throw std::runtime_error("GLFW failed to create the window in Window constructor.");
 	}
-    if(!glewInited) {
+    if(!glewInited)
+    {
         std::unique_lock<std::mutex> contextLock(contextMutex);
         glfwMakeContextCurrent( window );
 
         glewExperimental = GL_TRUE;
-        if( glewInit() != GLEW_OK ) {
+        if( glewInit() != GLEW_OK )
+        {
             fprintf(stderr, "GLEW failed to init.\n");
             fprintf(stderr, "Exiting.\n");
             throw std::runtime_error("glew failed to init");
@@ -290,30 +318,37 @@ Window::Window(MyGL *parent, const WindowHints& wh) {
 
 }
 
-void Window::hide() {
+void Window::hide()
+{
     glfwHideWindow(window);
 }
 
-void Window::show() {
+void Window::show()
+{
     glfwShowWindow(window);
 }
 
-void Window::moveRelative(int x, int y) {
+void Window::moveRelative(int x, int y)
+{
     int xpos, ypos;
     glfwGetWindowPos(window, &xpos, &ypos);
     glfwSetWindowPos(window, xpos + x, ypos + y);
 }
 
-void Window::moveAbsolute(int x, int y) {
+void Window::moveAbsolute(int x, int y)
+{
     glfwSetWindowPos(window, x, y);
 }
 
-void Window::close() {
+void Window::close()
+{
     glfwSetWindowShouldClose(window, 1);
 }
 
-void Window::loop() {
-    if(window && !glfwWindowShouldClose(window)) {
+void Window::loop()
+{
+    if(window && !glfwWindowShouldClose(window))
+    {
         std::lock_guard<std::mutex> lock(contextMutex);
         glfwMakeContextCurrent( window );
         glClearColor( clearColorRed, clearColorGreen, clearColorBlue, 1.0f );
@@ -323,7 +358,8 @@ void Window::loop() {
     } else if(window) glfwDestroyWindow( window );
 }
 
-Window::~Window() {
+Window::~Window()
+{
     glfwSetWindowShouldClose(window, 1);
     if(window) glfwDestroyWindow( window );
 }
@@ -333,60 +369,73 @@ Window::~Window() {
  * object is registered as the user pointer. A pointer to the parent MyGL object
  * can be extracted later by asking for the user pointer associated with that
  * window. I can then call the input function specific to that MyGL object.*/
-void glfwInputCallback::cursor_position_callback(GLFWwindow *window, double xpos, double ypos) {
+void glfwInputCallback::cursor_position_callback(GLFWwindow *window, double xpos, double ypos)
+{
     CursorMovement input {xpos, ypos};
     MyGL *mygl = static_cast<MyGL*>(glfwGetWindowUserPointer(window));
     mygl->cursor_position_callback(window, xpos, ypos);
 }
-void glfwInputCallback::mouse_button_callback(GLFWwindow *window, int button, int action, int mods) {
+void glfwInputCallback::mouse_button_callback(GLFWwindow *window, int button, int action, int mods)
+{
     //printf("mouse button callback\n\tbutton %d\n\taction %d\n\tmods %d\n", button, action, mods);
     MouseButton input {button, action, mods};
 }
-void glfwInputCallback::scroll_callback(GLFWwindow *window, double xoffset, double yoffset) {
-    if(yoffset < 0) {
+void glfwInputCallback::scroll_callback(GLFWwindow *window, double xoffset, double yoffset)
+{
+    if(yoffset < 0)
+    {
     } else if(yoffset > 0) {
     }
 }
 
-void glfwInputCallback::window_resize_callback(GLFWwindow *window, int width, int height) {
+void glfwInputCallback::window_resize_callback(GLFWwindow *window, int width, int height)
+{
 	glViewport( 0, 0, width, height );
 }
 
-void glfwInputCallback::window_move_callback(GLFWwindow *window, int x, int y) {
+void glfwInputCallback::window_move_callback(GLFWwindow *window, int x, int y)
+{
 }
 
 
 // action (GLFW_PRESS, GLFW_RELEASE, GLFW_REPEAT)
 // key GLFW_UNKNOWN
-void glfwInputCallback::key_callback(GLFWwindow *window, int key, int scancode, int action, int mods) {
+void glfwInputCallback::key_callback(GLFWwindow *window, int key, int scancode, int action, int mods)
+{
     printf("%d %d %d\n", key, scancode, mods);
     const Key input {key, scancode, action, mods};
     MyGL* mygl = static_cast<MyGL*>((glfwGetWindowUserPointer)(window));
-    if(mygl && mygl->inputFunction) {
+    if(mygl && mygl->inputFunction)
+    {
         mygl->inputFunction(input);
     }
 }
 
 void glfwInputCallback::drop_callback(GLFWwindow *window, int count, const char **paths)
 {
-    for (int i = 0; i < count; ++i) {
+    for (int i = 0; i < count; ++i)
+    {
         printf("%s\n", paths[i]);
     }
 }
 
-double View::pixelToRealX(double px) {
+double View::pixelToRealX(double px)
+{
     return (px - (width / 2.0)) * unitsPerPixelX - viewOffsetX;
 }
 
-double View::pixelToRealY(double py) {
+double View::pixelToRealY(double py)
+{
     return (py - (height / 2.0)) * unitsPerPixelY - viewOffsetY;
 }
 
 
-MyGL::MyGL(std::string str) {
+MyGL::MyGL(std::string str)
+{
 }
 
-MyGL::MyGL() {
+MyGL::MyGL()
+{
 
     //shaderPrograms.push_back(std::unique_ptr<ShaderProgram>(new ShaderProgram(vertexShaderFileName, fragmentShaderFileName)));
     //printMonitorInfo();
@@ -406,20 +455,24 @@ MyGL::MyGL() {
     image.pixels = pixels;
     GLFWcursor *cursor = glfwCreateCursor(&image, 0, 0);
     //GLFWcursor *cursor = glfwCreateStandardCursor(GLFW_HRESIZE_CURSOR);
-    if(cursor == NULL) {
+    if(cursor == NULL)
+    {
         printf("Failed to create GLFW cursor.\n");
     }
-    if(glfwJoystickPresent(GLFW_JOYSTICK_1)) {
+    if(glfwJoystickPresent(GLFW_JOYSTICK_1))
+    {
         printf("Gamepad %s Connected.", glfwGetJoystickName(GLFW_JOYSTICK_1));
     }
     */
 }
 
-MyGL::~MyGL() {
+MyGL::~MyGL()
+{
 }
 
 // TODO - how does caller know that it returned the last image, return tuple with bool?
-ImageIterator::ImageIterator(std::string dirName) {
+ImageIterator::ImageIterator(std::string dirName)
+{
     try
     {
         dirIter = boost::filesystem::recursive_directory_iterator(dirName);
@@ -463,7 +516,8 @@ Magick::Image ImageIterator::operator()()
     return pic;
 }
 
-Square::Square() {
+Square::Square()
+{
     glGenVertexArrays(1, &vao);
     glBindVertexArray(vao);
     glGenBuffers(1, &vbo);
@@ -477,12 +531,14 @@ Square::Square() {
     glBindVertexArray(0);
 }
 
-Square::~Square() {
+Square::~Square()
+{
     glDeleteBuffers(1, &vbo);
     glDeleteVertexArrays(1, &vao);
 }
 
-void Square::operator()() {
+void Square::operator()()
+{
     glBindVertexArray(vao);
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
     glEnableVertexAttribArray(0);
@@ -496,15 +552,18 @@ void Square::operator()() {
     glBindVertexArray(0);
 }
 
-void MyGL::playVideo(std::string filename) {
+void MyGL::playVideo(std::string filename)
+{
     cv::VideoCapture cap(filename);
-    if(!cap.isOpened()) {
+    if(!cap.isOpened())
+    {
         throw std::runtime_error("couldn't open video");
     }
     cap.set(cv::CAP_PROP_POS_FRAMES, 1000);
     cv::Mat frame;
     cap >> frame;
-    if(frame.empty()) {
+    if(frame.empty())
+    {
         throw std::runtime_error("frame empty");
     }
     //cv::cvtColor(frame, frame, cv::COLOR_BGR2RGB);
@@ -527,7 +586,8 @@ void MyGL::playVideo(std::string filename) {
     glUniform1i(glGetUniformLocation(shader.program, "texture"), 0);
 
     cv::namedWindow("frame", cv::WINDOW_NORMAL); // WINDOW_NORMAL, WINDOW_OPENGL, WINDOW_AUTOSIZE
-    while(!glfwWindowShouldClose(win->window)) {
+    while(!glfwWindowShouldClose(win->window))
+    {
         glfwPollEvents();
 
         //cv::imshow("frame", frame);
@@ -552,7 +612,8 @@ void MyGL::playVideo(std::string filename) {
         square();
         glfwSwapBuffers( win->window );
         cap >> frame;
-        if(frame.empty()) {
+        if(frame.empty())
+        {
             throw std::runtime_error("frame empty");
         }
     }
@@ -657,7 +718,8 @@ void MyGL::cubeCollage(std::string directory)
             int numPixels = texWidth * texHeight * 4;
             double red, green, blue;
             red = green = blue = 0;
-            for(int i = 0; i < numPixels; i+=4) {
+            for(int i = 0; i < numPixels; i+=4)
+            {
                 red += data.get()[i];
                 green += data.get()[i+1];
                 blue += data.get()[i+2];
@@ -679,7 +741,8 @@ void MyGL::cubeCollage(std::string directory)
         }
 
 		glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
-        for(int i = 0; i < tex.size(); ++i) {
+        for(int i = 0; i < tex.size(); ++i)
+        {
             int count = 0;
             int whichJoystick = 0;
             const float* axes = glfwGetJoystickAxes(GLFW_JOYSTICK_1, &count);
@@ -730,7 +793,8 @@ void MyGL::cubeCollage(std::string directory)
 }
 
 // assume directory is legit
-void MyGL::collage(std::string directory) {
+void MyGL::collage(std::string directory)
+{
     int MaxTextureUnits;
     glGetIntegerv(GL_MAX_TEXTURE_UNITS, &MaxTextureUnits);
     std::cout << "MaxTextureUnits " << MaxTextureUnits << std::endl;
@@ -764,11 +828,13 @@ void MyGL::collage(std::string directory) {
     std::chrono::system_clock::time_point tp = std::chrono::system_clock::now();
     tp += std::chrono::milliseconds(delay);
     unsigned int interval = 0; /** Always increasing. Increment per new pic read.*/
-    //while(std::chrono::system_clock::now() < tp) {
-    while(!glfwWindowShouldClose(win->window)) {
+    //while(std::chrono::system_clock::now() < tp)
+    while(!glfwWindowShouldClose(win->window))
+    {
         glfwPollEvents();
 
-        if(std::chrono::system_clock::now() > tp) {
+        if(std::chrono::system_clock::now() > tp)
+        {
             tp += std::chrono::milliseconds(delay);
             int texWidth;
             int texHeight;
@@ -787,7 +853,8 @@ void MyGL::collage(std::string directory) {
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE); // GL_CLAMP_TO_EDGE, GL_REPEAT
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
             glGenerateMipmap(GL_TEXTURE_2D);
-            if(interval > std::numeric_limits<unsigned int>::max() - numTiles * 2 && interval % numTiles == 1) {
+            if(interval > std::numeric_limits<unsigned int>::max() - numTiles * 2 && interval % numTiles == 1)
+            {
                 interval = 0;
                 std::cout << "Wow, this program has been running for longer than my car has miles." << std::endl;
             }
@@ -797,7 +864,8 @@ void MyGL::collage(std::string directory) {
 
         glClearColor( 1.0f, 1.0f, 1.0f, 1.0f );
 		glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
-        for(int tile = 0; tile < numTiles; ++tile) {
+        for(int tile = 0; tile < numTiles; ++tile)
+        {
             glm::mat4 translationMatrix = glm::translate(glm::vec3((-1.0 + 2.0 / tilesWide / 2.0) + ((tile % tilesWide) * (2.0 / tilesWide)), (1.0 - 2.0 / tilesHigh / 2.0) - ((tile / tilesWide) * (2.0 / tilesHigh)), 0.0f));
             glm::mat4 rotationMatrix(1.0f);
             glm::mat4 scaleMatrix = glm::scale(glm::vec3(1.0 / tilesWide, 1.0 / tilesHigh, 1.0f));
@@ -814,13 +882,16 @@ void MyGL::collage(std::string directory) {
     //delete[] data;
 }
 
-void MyGL::end() {
+void MyGL::end()
+{
     glfwTerminate();
 }
 
-void MyGL::genLotsWindows() {
+void MyGL::genLotsWindows()
+{
     int windowPosition = 0;
-    for(int i = 0; i < 20; ++i) {
+    for(int i = 0; i < 20; ++i)
+    {
         //Window *temp = new Window(this, 50, 50);
         //glfwSetWindowPos(temp->window, windowPosition % 1920, (windowPosition / 1920) * 50 % 1080);
         //windows.push_back(std::unique_ptr<Window>(temp));
@@ -829,7 +900,8 @@ void MyGL::genLotsWindows() {
     }
 }
 
-GLFWwindow* MyGL::makeWindowForContext() {
+GLFWwindow* MyGL::makeWindowForContext()
+{
     int width = 1;
     int height = 1;
 
@@ -844,7 +916,8 @@ GLFWwindow* MyGL::makeWindowForContext() {
 
     GLFWwindow* win = glfwCreateWindow( width, height, "myGL", NULL, NULL);
 
-	if ( !win ) {
+	if ( !win )
+    {
 		glfwTerminate();
         throw std::runtime_error("GLFW failed to create the window for hidden context.");
 	}
@@ -865,7 +938,8 @@ GLFWwindow* MyGL::makeWindowForContext() {
     return win;
 }
 
-void SnakeGame::snakeGame(MyGL *application) {
+void SnakeGame::snakeGame(MyGL *application)
+{
     std::unordered_map<int, std::unique_ptr<Window>> grid; // row major
 
     int numberOfMonitors = 0;
@@ -888,9 +962,12 @@ void SnakeGame::snakeGame(MyGL *application) {
     int movement;
     //movement.push_back(1);
     movement = 1;
-    application->inputFunction = [&](const Key& key) {
-        if(key.action == GLFW_PRESS) {
-            switch(key.scancode) {
+    application->inputFunction = [&](const Key& key)
+    {
+        if(key.action == GLFW_PRESS)
+        {
+            switch(key.scancode)
+            {
                 case 111: // up
                     //movement.push_back(-gridWidth);
                     movement = movement == gridWidth ? movement : -gridWidth;
@@ -926,7 +1003,8 @@ void SnakeGame::snakeGame(MyGL *application) {
 
     int head = 0;
     std::list<int> snake;
-    for(; head < 5; ++head) {
+    for(; head < 5; ++head)
+    {
         snake.push_back(head);
         snakeWindowHint.location.x = (head % gridWidth) * tileSize;
         snakeWindowHint.location.y = (head / gridWidth) * tileSize;
@@ -948,34 +1026,42 @@ void SnakeGame::snakeGame(MyGL *application) {
 
     int chrono = 200;
 
-    while(1) {
+    while(1)
+    {
         //glfwPostEmptyEvent();
         glfwPollEvents();
-        if(std::chrono::system_clock::now() > tp) {
+        if(std::chrono::system_clock::now() > tp)
+        {
             //head += movement.front();
-            if(movement == 1 && head % gridWidth == gridWidth - 1) {
+            if(movement == 1 && head % gridWidth == gridWidth - 1)
+            {
                 std::cout << "Out of bounds. You lose. Score " << snake.size() << std::endl;
                 break;
             }
-            if(movement == -1 && head % gridWidth == 0) {
+            if(movement == -1 && head % gridWidth == 0)
+            {
                 std::cout << "Out of bounds. You lose. Score " << snake.size() << std::endl;
                 break;
             }
             head += movement;
-            if(head < 0 || head >= (gridWidth * gridHeight)) {
+            if(head < 0 || head >= (gridWidth * gridHeight))
+            {
                 std::cout << "Out of bounds. You lose. Score " << snake.size() << std::endl;
                 break;
             }
-            if(head == food) {
+            if(head == food)
+            {
                 std::cout << "eat" << std::endl;
-                if(chrono > 50) {
+                if(chrono > 50)
+                {
                     chrono--;
                 }
                 grid.find(head)->second->clearColorRed = 1.0;
                 grid.find(head)->second->clearColorGreen = 0.0;
                 grid.find(head)->second->loop();
                 snake.push_back(head);
-                if(gridSize - snake.size() == 0) {
+                if(gridSize - snake.size() == 0)
+                {
                     printf("You win!\n");
                     break;
                 }
@@ -991,7 +1077,8 @@ void SnakeGame::snakeGame(MyGL *application) {
                 //grid.find(temp)->second->loop();
                 grid.erase(snake.front());
                 snake.erase(snake.begin());
-                if(grid.find(head) != grid.end()) {
+                if(grid.find(head) != grid.end())
+                {
                     std::cout << "Ran into self. You lose. Score " << snake.size() << std::endl;
                     break;
                 }
@@ -1007,7 +1094,8 @@ void SnakeGame::snakeGame(MyGL *application) {
         }
 
         /*
-        for(const auto x : snake) {
+        for(const auto x : snake)
+        {
             //std::cout << x;
             grid.find(x)->second->loop();
         }
@@ -1015,7 +1103,8 @@ void SnakeGame::snakeGame(MyGL *application) {
         //std::cout << std::endl;
         if(grid.find(food) != grid.end()) grid.find(food)->second->loop();
     }
-    for(auto item = snake.begin(), end = snake.end(); item != end;) {
+    for(auto item = snake.begin(), end = snake.end(); item != end;)
+    {
         // remove them
         grid.find(*item)->second->close();
         grid.erase(*item);
@@ -1043,7 +1132,8 @@ void SnakeGame::snakeGame(MyGL *application) {
 
 
     /*
-    while(! glfwWindowShouldClose(windowForContext)) {
+    while(! glfwWindowShouldClose(windowForContext))
+    {
         glfwWaitEvents();
         std::lock_guard<std::mutex> lock(contextMutex);
         glfwMakeContextCurrent( windowForContext );
@@ -1055,11 +1145,15 @@ void SnakeGame::snakeGame(MyGL *application) {
     */
 }
 
-int SnakeGame::newFoodLocation(int snakeSize, int gridSize, std::unordered_map<int, std::unique_ptr<Window>>& grid) {
+int SnakeGame::newFoodLocation(int snakeSize, int gridSize, std::unordered_map<int, std::unique_ptr<Window>>& grid)
+{
     int r = rand() % (gridSize - snakeSize);
-    for(int i = 0; i < gridSize; ++i) {
-        if(grid.find(i) == grid.end()) {
-            if(r == 0) {
+    for(int i = 0; i < gridSize; ++i)
+    {
+        if(grid.find(i) == grid.end())
+        {
+            if(r == 0)
+            {
                 return i;
             }
             r--;
@@ -1068,18 +1162,24 @@ int SnakeGame::newFoodLocation(int snakeSize, int gridSize, std::unordered_map<i
     throw std::runtime_error("this function should have returned");
 }
 
-void SnakeGame::stepNorth() {}
-void SnakeGame::stepEast() {}
-void SnakeGame::stepSouth() {}
-void SnakeGame::stepWest() {}
+void SnakeGame::stepNorth()
+{}
+void SnakeGame::stepEast()
+{}
+void SnakeGame::stepSouth()
+{}
+void SnakeGame::stepWest()
+{}
 
-void printMonitorInfo() {
+void printMonitorInfo()
+{
     int numberOfMonitors = 0;
     GLFWmonitor** monitors = glfwGetMonitors(&numberOfMonitors);
     const GLFWvidmode *mode;
     int x = 0;
     int y = 0;
-    for(int i = 0; i < numberOfMonitors; ++i) {
+    for(int i = 0; i < numberOfMonitors; ++i)
+    {
         glfwGetMonitorPhysicalSize(monitors[i], &x, &y);
         std::cout << "monitor " << i << " is " << x << "mm wide and " << y << "mm tall" << std::endl;
         mode = glfwGetVideoMode(monitors[i]);
@@ -1089,18 +1189,23 @@ void printMonitorInfo() {
     }
 }
 
-int ls(boost::filesystem::path p) {
+int ls(boost::filesystem::path p)
+{
     std::cout << std::this_thread::get_id() << std::endl;
     using namespace boost::filesystem;
-    if(exists(p)) {
-        if(is_regular_file(p)) {
+    if(exists(p))
+    {
+        if(is_regular_file(p))
+        {
             //std::cout << p << std::endl;
             return 1;
         } else if(is_directory(p)) {
             std::vector<std::future<int>> vec;
-            try {
+            try
+            {
                 directory_iterator d(p);
-                while(d != directory_iterator()) {
+                while(d != directory_iterator())
+                {
                     vec.push_back(std::async(ls, d->path()));
                     //children.push_back(std::make_unique<std::thread>([=]{ls(d->path());}));
                     d++;
@@ -1114,7 +1219,8 @@ int ls(boost::filesystem::path p) {
     return 0;
 }
 
-void boostFun(std::string str) {
+void boostFun(std::string str)
+{
     using namespace boost;
     //filesystem::path p(std::string("/home/eve/Github/myGL/"));
     filesystem::path p(str);
@@ -1122,13 +1228,16 @@ void boostFun(std::string str) {
     std::cout << ls(p) << std::endl;
 }
 
-void MyGL::registerUserCursorPositionCallbackFunction(std::function<void(const double, const double)> fun) {
+void MyGL::registerUserCursorPositionCallbackFunction(std::function<void(const double, const double)> fun)
+{
     userCursorPositionCallbackFunctions.push_back(fun);
 }
 
 /** Calls all of the registered functions passing in the x and y mouse position.*/
-void MyGL::cursor_position_callback(GLFWwindow *window, const double xpos, const double ypos) {
-    for(auto& x : userCursorPositionCallbackFunctions) {
+void MyGL::cursor_position_callback(GLFWwindow *window, const double xpos, const double ypos)
+{
+    for(auto& x : userCursorPositionCallbackFunctions)
+    {
         x(xpos, ypos);
     }
 }

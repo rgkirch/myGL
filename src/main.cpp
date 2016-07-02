@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include <memory>
 #include <boost/program_options.hpp>
-#include "MyGL.hpp"
+#include "mygl.hpp"
 
 int main(int argc, char* argv[]) {
     //boost::program_options::option_description desc;
