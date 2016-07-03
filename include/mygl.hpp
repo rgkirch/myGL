@@ -307,7 +307,7 @@ public:
     Image();
     Image(Image&& image);
     ~Image();
-    bool read(const std::string& filename);
+    void read(const std::string& filename);
     void write(std::string filename);
     unsigned char* data;
     int width;

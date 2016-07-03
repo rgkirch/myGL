@@ -10,6 +10,7 @@ int main(int argc, char* argv[]) {
     std::unique_ptr<MyGL> mygl;
     mygl = std::make_unique<MyGL>(std::string(argv[1]));
     mygl->cubeCollage(argv[1]);
+    //mygl->playVideo(argv[1]);
     //if(argc > 1) boostFun(argv[1]);
 
     //delete mygl;

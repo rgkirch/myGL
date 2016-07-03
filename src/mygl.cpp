@@ -1281,7 +1281,7 @@ Image::~Image()
     delete[] data;
 }
 
-bool Image::read(const std::string& fileName)
+void Image::read(const std::string& fileName)
 {
     std::string extention = fileName.substr(fileName.size() - 3, 3);
     if(extention.compare("png") == 0 || extention.compare("bmp") == 0 || extention.compare("jpg") == 0)
@@ -1302,9 +1302,9 @@ bool Image::read(const std::string& fileName)
             //and stbi_image_free(pixels);
         } catch(Magick::Exception& e) {
             //std::cout << e.what() << std::endl;
-            throw std::runtime_error("couldn't read file");
+            throw std::runtime_error("couldn't read file" + fileName);
         }
-    } else throw std::runtime_error("couldn't read file");
+    } else throw std::runtime_error("couldn't read file" + fileName);
 }
 
 void Image::write(std::string fileName)
