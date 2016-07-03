@@ -620,7 +620,7 @@ void MyGL::playVideo(std::string filename)
 }
 
 template <typename imageType>
-void imageProducer(std::list<imageType>& list, std::string directory)
+void imageProducer(std::list<imageType>& list, const std::string& directory)
 {
     boost::filesystem::recursive_directory_iterator dirIter(directory);
     for(; dirIter != boost::filesystem::recursive_directory_iterator(); dirIter++)
@@ -630,10 +630,7 @@ void imageProducer(std::list<imageType>& list, std::string directory)
             try
             {
                 imageType pic;
-                if(!pic.read(dirIter->path().string()))
-                {
-                    continue;
-                }
+                pic.read(dirIter->path().string());
                 list.push_back(std::move(pic));
             } catch(boost::filesystem::filesystem_error& e) {
                 std::cout << "diriter couldn't iter" << std::endl;
@@ -1284,33 +1281,30 @@ Image::~Image()
     delete[] data;
 }
 
-bool Image::read(std::string fileName)
+bool Image::read(const std::string& fileName)
 {
     std::string extention = fileName.substr(fileName.size() - 3, 3);
     if(extention.compare("png") == 0 || extention.compare("bmp") == 0 || extention.compare("jpg") == 0)
     {
-        Magick::Image pic;
         try
         {
+            Magick::Image pic;
             pic.read(fileName);
+            width = pic.columns();
+            height = pic.rows();
+            //pic.channelDepth(Magick::ChannelType::RGBChannels, depth);
+            pic.depth(8);
+            //std::cout << pic.depth() << std::endl;
+            data = new unsigned char[width * height * 4];
+            pic.write(0, 0, width, height, "RGBA", Magick::CharPixel, data);
+            //data = stbi_load(fileName.c_str(), &width, &height, &numberOfChannels, 0);
+            //glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, (i32)_width, (i32)_height, 0, format, GL_UNSIGNED_BYTE, pixels);
+            //and stbi_image_free(pixels);
         } catch(Magick::Exception& e) {
             //std::cout << e.what() << std::endl;
             throw std::runtime_error("couldn't read file");
         }
-        width = pic.columns();
-        height = pic.rows();
-        //pic.channelDepth(Magick::ChannelType::RGBChannels, depth);
-        pic.depth(8);
-        std::cout << pic.depth() << std::endl;
-        data = new unsigned char[width * height * 4];
-        pic.write(0, 0, width, height, "RGBA", Magick::CharPixel, data);
-        //data = stbi_load(fileName.c_str(), &width, &height, &numberOfChannels, 0);
-        //glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, (i32)_width, (i32)_height, 0, format, GL_UNSIGNED_BYTE, pixels);
-        //and stbi_image_free(pixels);
-        return true;
-    } else {
-        return false;
-    }
+    } else throw std::runtime_error("couldn't read file");
 }
 
 void Image::write(std::string fileName)
